@@ -17,6 +17,7 @@ Analyse React components and update docs/screens/, with one screen per folder
    * Be concise and clear
    * Use markdown format
    * Content should be at user level, not technical level
+   
 
 # Example of documentation structure
 

@@ -63,11 +63,24 @@ npm run preview
 npx tsc --noEmit
 ```
 
+## Models
+
+A project has these attributes:
+- A list of source files
+- A list of axes that allow pivoting data from source files
+- A list of views. A view defines a grid that displays data
+
+
+## Documentation
+
+Folder `/docs` contains the documentation of the project.
+`/docs/screens/screenflow.md` describes how we navigate between screens.
+
+
 ## Architecture
 
-One store by screen, a store could reference many stores
-./src/screens/ contains a component by screen
-
-a screen can be compose with many component ./src/components
-
+One store per screen; a store could reference many stores.
+The `./src/screens/` directory contains a component per screen.
+A screen can be composed of many components from `./src/components`.
+Use react-router-dom to navigate between screens.
 

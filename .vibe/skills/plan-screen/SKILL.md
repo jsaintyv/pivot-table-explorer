@@ -12,8 +12,8 @@ Plan the screen documentation.
 2. Ask the user which screen to realize or to complete
 3. Analyse react src/screens/ and create or complete a screen 
 4. Ask the user to clarify any missing information or to validate the documentation
-5. Operate changes in src/ 
-6. Update docs/screens/ with the new information
+5. Create or update a subfolder in docs/screens/ 
+6. Complete docs/screens/workflow.md with the new screen documentation link
 
 # Example of documentation structure
 
