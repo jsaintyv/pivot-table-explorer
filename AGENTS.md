@@ -8,6 +8,8 @@ This is a **React + TypeScript** project featuring a **PivotGrid component** for
 
 ```
 pivot-table-explorer/
+├── docs/ 
+│   ├── screens/
 ├── src/
 │   ├── components/
 │   │   ├── PivotGrid.tsx      # Main pivot table component
@@ -45,82 +47,6 @@ pivot-table-explorer/
 - Use **generics** when appropriate for reusable components
 - Handle **null/undefined** cases explicitly
 
-### Component Architecture
-
-#### PivotGrid Component
-- **Props**:
-  - `data`: Array of objects to pivot
-  - `defaultRowFields`: Initial row dimension fields
-  - `defaultColumnFields`: Initial column dimension fields
-  - `defaultValueFields`: Fields to aggregate
-  - `defaultAggregation`: Aggregation function ('sum' | 'avg' | 'count' | 'min' | 'max')
-
-- **State**:
-  - `rowFields`: Selected row dimensions
-  - `columnFields`: Selected column dimensions
-  - `valueFields`: Selected value fields
-  - `aggregation`: Selected aggregation function
-
-- **Core Logic**:
-  - Generate all combinations of row and column values
-  - Filter data matching each row/column combination
-  - Apply aggregation functions to value fields
-  - Build pivot grid structure with proper row/column spans
-
-### Feature Enhancements (Future Work)
-
-If extending this project, consider:
-
-1. **Performance Optimization**
-   - Implement virtualization for large datasets
-   - Use Web Workers for heavy computation
-   - Add memoization for expensive calculations
-
-2. **Additional Features**
-   - Sorting (row and column)
-   - Filtering (pre-filter data before pivoting)
-   - Multiple value fields with separate columns
-   - Hierarchical row/column headers
-   - Grand totals (row and column)
-   - Conditional formatting
-
-3. **Data Handling**
-   - Async data loading support
-   - Data validation and error handling
-   - Support for nested data structures
-
-4. **UI Improvements**
-   - Drag-and-drop field selection
-   - Field reordering
-   - Save/load configurations
-   - Export to CSV/Excel
-   - Dark mode support
-
-5. **Advanced Aggregations**
-   - Custom aggregation functions
-   - Multiple aggregations per value field
-   - Percentage of total calculations
-   - Running totals
-
-## Testing
-
-- Verify with different dataset sizes
-- Test edge cases (empty data, single row/column)
-- Validate aggregation results against known values
-- Test responsive behavior on various screen sizes
-
-## Dependencies
-
-Current dependencies:
-- react
-- react-dom
-- typescript
-- vite
-- @types/react
-- @types/react-dom
-
-No external library dependencies - pure React + TypeScript implementation.
-
 ## Build & Run
 
 ```bash
@@ -137,15 +63,11 @@ npm run preview
 npx tsc --noEmit
 ```
 
-## Version History
+## Architecture
 
-- **v1.0.0** (2026-06-07): Initial implementation with TypeScript
-  - Basic pivot table functionality
-  - 5 aggregation functions
-  - Row and column field selection
-  - Responsive design
-  - Sample datasets
+One store by screen, a store could reference many stores
+./src/screens/ contains a component by screen
 
-## Contact
+a screen can be compose with many component ./src/components
 
-For questions about this project, refer to the main repository documentation.
+
