@@ -44,8 +44,27 @@ import {
   selectAvailableFields,
   selectData,
   initialState,
+  // Source file actions
+  addSourceFile,
+  removeSourceFile,
+  // Dimension actions
+  addDimension,
+  removeDimension,
+  updateDimension,
+  // Filter actions
+  setFilters,
+  setFilter,
+  // View actions
+  addView,
+  removeView,
+  loadView,
+  // New selectors
+  selectSourceFiles,
+  selectDimensions,
+  selectFilters,
+  selectViews,
 } from './pivotSlice';
-import type { PivotState } from './pivotSlice';
+import type { PivotState, SourceFile, Dimension, FilterConfig, View } from './pivotSlice';
 
 export {
   setData,
@@ -71,6 +90,25 @@ export {
   selectAvailableFields,
   selectData,
   initialState,
+  // Source file actions
+  addSourceFile,
+  removeSourceFile,
+  // Dimension actions
+  addDimension,
+  removeDimension,
+  updateDimension,
+  // Filter actions
+  setFilters,
+  setFilter,
+  // View actions
+  addView,
+  removeView,
+  loadView,
+  // New selectors
+  selectSourceFiles,
+  selectDimensions,
+  selectFilters,
+  selectViews,
 };
 
-export type { PivotState };
+export type { PivotState, SourceFile, Dimension, FilterConfig, View };

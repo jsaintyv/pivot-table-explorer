@@ -1,0 +1,148 @@
+.main-screen {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.main-screen h1 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.main-screen > p {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.section {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.section h2 {
+  color: #444;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+}
+
+.file-list,
+.dimension-list,
+.view-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.file-item,
+.dimension-item,
+.view-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+}
+
+.file-item span,
+.dimension-item span,
+.view-item span {
+  flex: 1;
+}
+
+.source-hint {
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-left: 10px;
+}
+
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.remove-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.remove-button:hover {
+  background-color: #c82333;
+}
+
+.load-button {
+  background-color: #28a745;
+  color: white;
+  margin-right: 8px;
+}
+
+.load-button:hover {
+  background-color: #218838;
+}
+
+.upload-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-block;
+  margin-bottom: 15px;
+}
+
+.upload-button:hover {
+  background-color: #0069d9;
+}
+
+.create-view {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.create-view input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.create-view button {
+  background-color: #007bff;
+  color: white;
+}
+
+.create-view button:hover {
+  background-color: #0069d9;
+}
+
+.navigation {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.nav-button {
+  background-color: #17a2b8;
+  color: white;
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
+.nav-button:hover {
+  background-color: #138496;
+}

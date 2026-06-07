@@ -10,6 +10,46 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AggregationFunction } from '../models/types';
 
 /**
+ * Interface for a source file
+ */
+export interface SourceFile {
+  id: string;
+  name: string;
+  columns: string[];
+}
+
+/**
+ * Interface for a dimension
+ */
+export interface Dimension {
+  id: string;
+  name: string;
+  sourceFileId: string;
+  columnName: string;
+}
+
+/**
+ * Interface for filter configuration
+ */
+export interface FilterConfig {
+  dimensionId: string;
+  selectedValues: string[];
+}
+
+/**
+ * Interface for a view (saved configuration)
+ */
+export interface View {
+  id: string;
+  name: string;
+  rowFields: string[];
+  columnFields: string[];
+  valueFields: string[];
+  aggregation: AggregationFunction;
+  filters: FilterConfig[];
+}
+
+/**
  * Interface for the pivot table state
  */
 export interface PivotState {
@@ -30,6 +70,18 @@ export interface PivotState {
   
   // The current data being displayed
   data: any[];
+  
+  // Source files
+  sourceFiles: SourceFile[];
+  
+  // Dimensions
+  dimensions: Dimension[];
+  
+  // Filters
+  filters: FilterConfig[];
+  
+  // Saved views
+  views: View[];
 }
 
 /**
@@ -42,6 +94,10 @@ const initialState: PivotState = {
   aggregation: 'sum',
   availableFields: [],
   data: [],
+  sourceFiles: [],
+  dimensions: [],
+  filters: [],
+  views: [],
 };
 
 /**
@@ -198,6 +254,101 @@ export const pivotSlice = createSlice({
     clear: () => {
       return initialState;
     },
+
+    // Source file management
+    /**
+     * Add a source file
+     */
+    addSourceFile: (state, action: PayloadAction<SourceFile>) => {
+      state.sourceFiles = [...state.sourceFiles, action.payload];
+    },
+
+    /**
+     * Remove a source file
+     */
+    removeSourceFile: (state, action: PayloadAction<string>) => {
+      state.sourceFiles = state.sourceFiles.filter(file => file.id !== action.payload);
+      // Also remove dimensions associated with this source file
+      state.dimensions = state.dimensions.filter(dim => dim.sourceFileId !== action.payload);
+    },
+
+    // Dimension management
+    /**
+     * Add a dimension
+     */
+    addDimension: (state, action: PayloadAction<Dimension>) => {
+      state.dimensions = [...state.dimensions, action.payload];
+    },
+
+    /**
+     * Remove a dimension
+     */
+    removeDimension: (state, action: PayloadAction<string>) => {
+      state.dimensions = state.dimensions.filter(dim => dim.id !== action.payload);
+    },
+
+    /**
+     * Update a dimension
+     */
+    updateDimension: (state, action: PayloadAction<Dimension>) => {
+      const index = state.dimensions.findIndex(dim => dim.id === action.payload.id);
+      if (index !== -1) {
+        state.dimensions[index] = action.payload;
+      }
+    },
+
+    // Filter management
+    /**
+     * Set filters
+     */
+    setFilters: (state, action: PayloadAction<FilterConfig[]>) => {
+      state.filters = action.payload;
+    },
+
+    /**
+     * Add or update a filter
+     */
+    setFilter: (state, action: PayloadAction<FilterConfig>) => {
+      const index = state.filters.findIndex(f => f.dimensionId === action.payload.dimensionId);
+      if (index !== -1) {
+        state.filters[index] = action.payload;
+      } else {
+        state.filters = [...state.filters, action.payload];
+      }
+    },
+
+    // View management
+    /**
+     * Add a view
+     */
+    addView: (state, action: PayloadAction<Omit<View, 'id'>>) => {
+      const view: View = {
+        ...action.payload,
+        id: Date.now().toString(),
+      };
+      state.views = [...state.views, view];
+    },
+
+    /**
+     * Remove a view
+     */
+    removeView: (state, action: PayloadAction<string>) => {
+      state.views = state.views.filter(view => view.id !== action.payload);
+    },
+
+    /**
+     * Load a view
+     */
+    loadView: (state, action: PayloadAction<string>) => {
+      const view = state.views.find(v => v.id === action.payload);
+      if (view) {
+        state.rowFields = view.rowFields;
+        state.columnFields = view.columnFields;
+        state.valueFields = view.valueFields;
+        state.aggregation = view.aggregation;
+        state.filters = view.filters;
+      }
+    },
   },
 });
 
@@ -218,6 +369,20 @@ export const {
   resetAll,
   loadPreset,
   clear,
+  // Source file actions
+  addSourceFile,
+  removeSourceFile,
+  // Dimension actions
+  addDimension,
+  removeDimension,
+  updateDimension,
+  // Filter actions
+  setFilters,
+  setFilter,
+  // View actions
+  addView,
+  removeView,
+  loadView,
 } = pivotSlice.actions;
 
 // Export the reducer
@@ -225,6 +390,9 @@ export default pivotSlice.reducer;
 
 // Export the initial state
 export { initialState };
+
+// Export types
+export type { SourceFile, Dimension, FilterConfig, View };
 
 // Selectors
 export const selectPivotState = (state: { pivot: PivotState }) => state.pivot;
@@ -234,3 +402,7 @@ export const selectValueFields = (state: { pivot: PivotState }) => state.pivot.v
 export const selectAggregation = (state: { pivot: PivotState }) => state.pivot.aggregation;
 export const selectAvailableFields = (state: { pivot: PivotState }) => state.pivot.availableFields;
 export const selectData = (state: { pivot: PivotState }) => state.pivot.data;
+export const selectSourceFiles = (state: { pivot: PivotState }) => state.pivot.sourceFiles;
+export const selectDimensions = (state: { pivot: PivotState }) => state.pivot.dimensions;
+export const selectFilters = (state: { pivot: PivotState }) => state.pivot.filters;
+export const selectViews = (state: { pivot: PivotState }) => state.pivot.views;

@@ -1,0 +1,258 @@
+.view-grid-screen {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.view-grid-screen h1 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.view-grid-screen > p {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.section {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.section h2 {
+  color: #444;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #28a745;
+  padding-bottom: 10px;
+}
+
+.hint {
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-bottom: 15px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+/* View Name Section */
+.view-name-section {
+  margin-bottom: 15px;
+}
+
+.view-name-input {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.view-name-input input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  flex: 1;
+  font-size: 1rem;
+}
+
+.save-button {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.save-button:hover {
+  background-color: #218838;
+}
+
+.saved-views {
+  padding: 10px;
+  background: #d4edda;
+  border-radius: 4px;
+  color: #155724;
+}
+
+/* Dimension Configuration */
+.dimension-config {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+}
+
+.available-dimensions {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+}
+
+.available-dimensions h3 {
+  color: #495057;
+  margin-bottom: 10px;
+}
+
+.available-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.field-item {
+  padding: 10px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: grab;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.field-item:hover {
+  background: #e9ecef;
+  cursor: grab;
+}
+
+.field-item:active {
+  cursor: grabbing;
+}
+
+/* Drop Zones */
+.drop-zones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.drop-zone {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  border: 2px dashed #ccc;
+  min-height: 150px;
+}
+
+.drop-zone h3 {
+  color: #495057;
+  margin-bottom: 10px;
+}
+
+.drop-area {
+  min-height: 100px;
+}
+
+.drop-zone.drop-over {
+  border-color: #007bff;
+  background: #e7f1ff;
+}
+
+.field-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.field-badge .remove-field {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.field-badge .remove-field:hover {
+  color: #c82333;
+}
+
+.aggregation-select {
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Filters Configuration */
+.filters-config {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.filter-group {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+}
+
+.filter-group h4 {
+  color: #495057;
+  margin-bottom: 10px;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-height: 100px;
+}
+
+/* Pivot Grid Section */
+.pivot-grid-section {
+  margin-top: 20px;
+}
+
+.pivot-grid-container {
+  overflow-x: auto;
+  margin-top: 15px;
+}
+
+/* Navigation */
+.navigation {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.back-button {
+  background-color: #6c757d;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: #5a6268;
+}
+
+/* General button styles */
+button {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+button:hover:not(.remove-field) {
+  opacity: 0.9;
+}

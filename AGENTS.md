@@ -14,6 +14,10 @@ pivot-table-explorer/
 │   ├── components/
 │   │   ├── PivotGrid.tsx      # Main pivot table component
 │   │   └── PivotGrid.css      # Component styles
+│   ├── screens/
+│   │   ├── MainScreen.tsx     # Main screen component
+│   │   ├── AxeScreen.tsx      # Axe configuration screen
+│   │   └── ViewGridScreen.tsx # View grid configuration screen
 │   ├── App.tsx               # Demo application
 │   ├── App.css               # App styles
 │   ├── main.tsx              # React entry point
@@ -79,7 +83,7 @@ Folder `/docs` contains the documentation of the project.
 
 ## Architecture
 
-One store per screen; a store could reference many stores.
+State of screen is controlled by a store.
 The `./src/screens/` directory contains a component per screen.
 A screen can be composed of many components from `./src/components`.
 Use react-router-dom to navigate between screens.
