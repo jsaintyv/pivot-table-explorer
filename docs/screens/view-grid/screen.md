@@ -1,4 +1,4 @@
-# View grid screen
+# View Grid Screen
 
 The View Grid screen allows users to configure the pivot table structure by defining row dimensions, column dimensions, filters, and value fields to display.
 

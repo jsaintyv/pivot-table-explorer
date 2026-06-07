@@ -120,17 +120,7 @@ function App() {
 
   return (
     <Router>
-      <div className="app">
-        <header className="app-header">
-          <h1>Pivot Table Explorer</h1>
-          <p className="app-subtitle">
-            A React component for creating Excel-like pivot tables for data exploration
-          </p>
-          <p className="redux-info">
-            ⚡ Powered by React Router + Redux Toolkit
-          </p>
-        </header>
-
+      <div className="app">        
         <main className="app-main">
           <Routes>
             {/* Main screen - manages data sources, dimensions, and views */}

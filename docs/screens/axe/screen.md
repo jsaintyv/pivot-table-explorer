@@ -1,4 +1,4 @@
-# Axe screen
+# Axe Screen
 
 The Axe screen allows users to configure which columns from source CSV files will be used as axes (dimensions) for pivoting data.
 
@@ -8,7 +8,7 @@ In pseudo HTML:
 ```
 <forEach sourceFile in sourceFiles>
   <select>
-    <option disabled>Select a column for axe</option>
+    <option disabled>Select a column for axis</option>
     <forEach column in sourceFile.columns>
       <option value="{column.name}">{column.name}</option>
     </forEach>
@@ -29,7 +29,7 @@ In pseudo HTML:
 
 ## Components
 
-- **Source file dropdowns**: Dropdown selector for each source file to select which column will be used as an axe
+- **Source file dropdowns**: Dropdown selector for each source file to select which column will be used as an axis
 - **Unlink button**: Allows users to unlink a dimension from a column in a specific source file
 - **Associated columns display**: Shows all columns currently associated with each dimension across source files
 - **Back button**: Returns to the Main screen

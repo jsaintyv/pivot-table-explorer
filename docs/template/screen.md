@@ -15,7 +15,7 @@ A component <component name>
 
 ## Actions
 
-```gerkin
+```gherkin
 Given login is filled, password is empty
 When I click the Connect button
 Then I should see an error message "Password is required"

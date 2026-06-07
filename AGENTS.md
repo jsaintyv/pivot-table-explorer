@@ -83,8 +83,17 @@ Folder `/docs` contains the documentation of the project.
 
 ## Architecture
 
-State of screen is controlled by a store.
+Screen state is controlled by a store.
 The `./src/screens/` directory contains a component per screen.
 A screen can be composed of many components from `./src/components`.
 Use react-router-dom to navigate between screens.
 
+## ** Restrictions ** 
+
+Do not automate  
+`git commit` 
+`git add` 
+`git push` 
+`git stash` 
+
+Those actions should be only operated by an human
