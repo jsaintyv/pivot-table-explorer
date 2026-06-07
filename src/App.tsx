@@ -1,4 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from './store';
+import {
+  setData,
+  loadPreset,
+} from './store';
 import PivotGrid from './components/PivotGrid';
 import { useSampleData } from './hooks';
 import './App.css';
@@ -49,19 +54,56 @@ const presets = [
 ];
 
 function App() {
+  const dispatch = useAppDispatch();
   const { data: sampleDatasets, loading, error } = useSampleData();
   const [selectedPreset, setSelectedPreset] = useState<number | null>(0);
 
-  // Current data based on preset selection
-  const currentData = useMemo(() => {
-    if (!sampleDatasets) return [];
-    
-    const preset = presets[selectedPreset || 0];
-    if (preset.dataType === 'personnel') {
-      return sampleDatasets.personnel;
+  // Load data into Redux store when available
+  useEffect(() => {
+    if (sampleDatasets) {
+      const preset = presets[selectedPreset || 0];
+      const currentData = preset.dataType === 'personnel' 
+        ? sampleDatasets.personnel 
+        : sampleDatasets.sales;
+      
+      dispatch(setData(currentData));
+      
+      dispatch(loadPreset({
+        rowFields: preset.rowFields,
+        columnFields: preset.columnFields,
+        valueFields: preset.valueFields,
+        aggregation: preset.aggregation,
+      }));
     }
-    return sampleDatasets.sales;
-  }, [sampleDatasets, selectedPreset]);
+  }, [sampleDatasets, selectedPreset, dispatch]);
+
+  // Update Redux store when preset changes
+  useEffect(() => {
+    if (sampleDatasets && selectedPreset !== null) {
+      const preset = presets[selectedPreset];
+      const currentData = preset.dataType === 'personnel' 
+        ? sampleDatasets.personnel 
+        : sampleDatasets.sales;
+      
+      dispatch(setData(currentData));
+      dispatch(loadPreset({
+        rowFields: preset.rowFields,
+        columnFields: preset.columnFields,
+        valueFields: preset.valueFields,
+        aggregation: preset.aggregation,
+      }));
+    }
+  }, [selectedPreset, sampleDatasets, dispatch]);
+
+  // Get state from Redux
+  const {
+    rowFields,
+    columnFields,
+    valueFields,
+    aggregation,
+    availableFields,
+    data: reduxData,
+  } = useAppSelector(state => state.pivot);
 
   const selectedPresetConfig = selectedPreset !== null ? presets[selectedPreset] : null;
 
@@ -106,6 +148,9 @@ function App() {
             Data loaded: {sampleDatasets.sales.length} sales records, {sampleDatasets.personnel.length} personnel records
           </p>
         )}
+        <p className="redux-info">
+          ⚡ Powered by Redux Toolkit
+        </p>
       </header>
 
       <main className="app-main">
@@ -143,12 +188,20 @@ function App() {
 
         <section className="pivot-grid-section">
           <PivotGrid
-            data={currentData}
-            defaultRowFields={selectedPreset !== null ? presets[selectedPreset].rowFields : ['region']}
-            defaultColumnFields={selectedPreset !== null ? presets[selectedPreset].columnFields : ['product']}
-            defaultValueFields={selectedPreset !== null ? presets[selectedPreset].valueFields : ['sales']}
-            defaultAggregation={selectedPreset !== null ? presets[selectedPreset].aggregation : 'sum'}
+            data={reduxData}
           />
+        </section>
+
+        <section className="redux-state-viewer">
+          <h2>Redux State</h2>
+          <div className="state-display">
+            <p><strong>Row Fields:</strong> {rowFields.length > 0 ? rowFields.join(', ') : 'None'}</p>
+            <p><strong>Column Fields:</strong> {columnFields.length > 0 ? columnFields.join(', ') : 'None'}</p>
+            <p><strong>Value Fields:</strong> {valueFields.length > 0 ? valueFields.join(', ') : 'None'}</p>
+            <p><strong>Aggregation:</strong> {aggregation.toUpperCase()}</p>
+            <p><strong>Available Fields:</strong> {availableFields.length} fields</p>
+            <p><strong>Data Items:</strong> {reduxData.length} records</p>
+          </div>
         </section>
 
         <section className="instructions">
@@ -179,7 +232,7 @@ function App() {
               <span className="step-number">4</span>
               <div className="step-content">
                 <h3>Explore Your Data</h3>
-                <p>The pivot table will automatically update as you change your selections. Scroll to see all data.</p>
+                <p>The pivot table will automatically update as you change your selections. All state is managed by Redux!</p>
               </div>
             </div>
           </div>
@@ -192,12 +245,20 @@ function App() {
             <li><strong>Sales Data:</strong> 22 records of product sales across regions (North, South, East, West), products (Laptop, Phone, Tablet), and quarters (Q1-Q4) with sales, units, and profit figures.</li>
             <li><strong>Personnel Data:</strong> 12 records of employee information including department, role, experience level, gender, salary, and headcount.</li>
           </ul>
+          <p>✨ <strong>Redux Features:</strong></p>
+          <ul>
+            <li>All component state is managed in a central Redux store</li>
+            <li>Actions are dispatched to update the state</li>
+            <li>Redux DevTools Extension is enabled in development</li>
+            <li>State is persistent across the application</li>
+            <li>Easy to debug and time-travel</li>
+          </ul>
           <p>Feel free to modify the data in the <code>public/sampleData.json</code> file to test with your own dataset!</p>
         </section>
       </main>
 
       <footer className="app-footer">
-        <p>Built with React & TypeScript | Pivot Table Component v1.0</p>
+        <p>Built with React, TypeScript & Redux Toolkit | Pivot Table Component v2.0</p>
       </footer>
     </>
   );

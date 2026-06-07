@@ -5,10 +5,14 @@
  * Uses @testing-library/react for rendering and interacting with the component.
  */
 
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render as customRender, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import PivotGrid from './PivotGrid';
 import type { DataItem } from '../models/types';
+import { renderWithProviders } from '../test/testUtils';
+
+// Override the default render with our custom version
+const render = renderWithProviders;
 
 // ============================================================================
 // Test Data

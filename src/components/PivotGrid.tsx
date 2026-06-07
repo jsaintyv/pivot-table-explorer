@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import type {
   DataItem,
   Cell,
@@ -8,35 +8,87 @@ import type {
   DimensionValues,
 } from '../models/types';
 import { aggregationFunctions } from '../utils/aggregations';
+import {
+  useAppSelector,
+  useAppDispatch,
+  selectRowFields,
+  selectColumnFields,
+  selectValueFields,
+  selectAggregation,
+  selectAvailableFields,
+  selectData,
+  setRowFields,
+  setColumnFields,
+  setValueFields,
+  setAggregation,
+  setData,
+  resetAll,
+} from '../store';
 
 /**
  * PivotGrid Component - A pivot table component for data exploration
  * Inspired by Excel pivot tables
+ * 
+ * Now using Redux for state management instead of local useState.
+ * All configuration state (rowFields, columnFields, valueFields, aggregation) is stored in Redux.
  */
 const PivotGrid: React.FC<PivotGridProps> = ({
-  data,
+  data: externalData = [],
   defaultRowFields = [],
   defaultColumnFields = [],
   defaultValueFields = [],
   defaultAggregation = 'sum'
 }) => {
-  
+  // Get state from Redux store
+  const dispatch = useAppDispatch();
+  const rowFields = useAppSelector(selectRowFields);
+  const columnFields = useAppSelector(selectColumnFields);
+  const valueFields = useAppSelector(selectValueFields);
+  const aggregation = useAppSelector(selectAggregation);
+  const availableFields = useAppSelector(selectAvailableFields);
+  const reduxData = useAppSelector(selectData);
 
-  // State for pivot configuration
-  const [rowFields, setRowFields] = useState<string[]>(defaultRowFields);
-  const [columnFields, setColumnFields] = useState<string[]>(defaultColumnFields);
-  const [valueFields, setValueFields] = useState<string[]>(defaultValueFields);
-  const [aggregation, setAggregation] = useState<AggregationFunction>(defaultAggregation);
+  // Track if we've initialized from props to avoid re-initializing
+  const initializedRef = React.useRef(false);
 
-  // Get all available field names from data
+  // Use external data if provided, otherwise use Redux data
+  const displayData = externalData.length > 0 ? externalData : reduxData;
+
+  // Initialize Redux state with default props if empty (only once)
+  useEffect(() => {
+    // Only initialize once to avoid resetting when state becomes empty
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+    
+    // Only initialize if Redux state is empty and we have default props
+    if (rowFields.length === 0 && defaultRowFields.length > 0) {
+      dispatch(setRowFields(defaultRowFields));
+    }
+    if (columnFields.length === 0 && defaultColumnFields.length > 0) {
+      dispatch(setColumnFields(defaultColumnFields));
+    }
+    if (valueFields.length === 0 && defaultValueFields.length > 0) {
+      dispatch(setValueFields(defaultValueFields));
+    }
+    if (aggregation === 'sum' && defaultAggregation !== 'sum') {
+      dispatch(setAggregation(defaultAggregation));
+    }
+    // If we have external data, set it in Redux
+    if (externalData.length > 0 && reduxData.length === 0) {
+      dispatch(setData(externalData));
+    }
+  }, [dispatch, rowFields.length, columnFields.length, valueFields.length, aggregation, defaultRowFields, defaultColumnFields, defaultValueFields, defaultAggregation, externalData, reduxData]);
+
+  // Get all available field names from data (fallback if Redux availableFields is empty)
   const allFields: string[] = useMemo(() => {
-    if (data.length === 0) return [];
-    return Object.keys(data[0]);
-  }, [data]);
+    if (availableFields.length > 0) return availableFields;
+    if (displayData.length === 0) return [];
+    return Object.keys(displayData[0]);
+  }, [availableFields, displayData]);
 
   // Generate pivot data
   const pivotData: PivotData = useMemo(() => {
-    if (data.length === 0 || rowFields.length === 0 || columnFields.length === 0 || valueFields.length === 0) {
+    if (displayData.length === 0 || rowFields.length === 0 || columnFields.length === 0 || valueFields.length === 0) {
       return { rows: [], columns: [], grid: [] };
     }
 
@@ -48,11 +100,11 @@ const PivotGrid: React.FC<PivotGridProps> = ({
 
     // Build dimension value collections
     rowFields.forEach(field => {
-      rowDimensionValues[field] = [...new Set(data.map(item => String(item[field] || '')))];
+      rowDimensionValues[field] = [...new Set(displayData.map(item => String(item[field] || '')))];
     });
 
     columnFields.forEach(field => {
-      columnDimensionValues[field] = [...new Set(data.map(item => String(item[field] || '')))];
+      columnDimensionValues[field] = [...new Set(displayData.map(item => String(item[field] || '')))];
     });
 
     // Generate all row combinations
@@ -151,7 +203,7 @@ const PivotGrid: React.FC<PivotGridProps> = ({
       // Calculate values for each column combination
       columnCombinations.forEach(colCombo => {
         // Filter data that matches both row and column combinations
-        const filteredData = data.filter(item => {
+        const filteredData = displayData.filter(item => {
           // Check row fields
           const rowMatch = rowFields.every((field, i) => {
             return String(item[field] || '') === String(rowCombo[i] || '');
@@ -193,43 +245,42 @@ const PivotGrid: React.FC<PivotGridProps> = ({
       columns: columnCombinations,
       grid
     };
-  }, [data, rowFields, columnFields, valueFields, aggregation]);
+  }, [displayData, rowFields, columnFields, valueFields, aggregation, availableFields]);
 
-  // Handle field selection changes
+  // Handle field selection changes - dispatch Redux actions
   const handleRowFieldChange = (field: string, isChecked: boolean) => {
     if (isChecked) {
-      setRowFields([...rowFields, field]);
+      // Add field to row fields
+      dispatch(setRowFields([...rowFields, field]));
     } else {
-      setRowFields(rowFields.filter(f => f !== field));
+      // Remove field from row fields
+      dispatch(setRowFields(rowFields.filter(f => f !== field)));
     }
   };
 
   const handleColumnFieldChange = (field: string, isChecked: boolean) => {
     if (isChecked) {
-      setColumnFields([...columnFields, field]);
+      dispatch(setColumnFields([...columnFields, field]));
     } else {
-      setColumnFields(columnFields.filter(f => f !== field));
+      dispatch(setColumnFields(columnFields.filter(f => f !== field)));
     }
   };
 
   const handleValueFieldChange = (field: string, isChecked: boolean) => {
     if (isChecked) {
-      setValueFields([...valueFields, field]);
+      dispatch(setValueFields([...valueFields, field]));
     } else {
-      setValueFields(valueFields.filter(f => f !== field));
+      dispatch(setValueFields(valueFields.filter(f => f !== field)));
     }
   };
 
   const handleAggregationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setAggregation(e.target.value as AggregationFunction);
+    dispatch(setAggregation(e.target.value as AggregationFunction));
   };
 
   // Reset all selections
   const handleReset = () => {
-    setRowFields([]);
-    setColumnFields([]);
-    setValueFields([]);
-    setAggregation('sum');
+    dispatch(resetAll());
   };
 
   return (
@@ -313,7 +364,7 @@ const PivotGrid: React.FC<PivotGridProps> = ({
       <div className="pivot-table-container">
         <h3>Pivot Table Result</h3>
         
-        {data.length === 0 ? (
+        {displayData.length === 0 ? (
           <div className="empty-message">No data available</div>
         ) : (
           <>
