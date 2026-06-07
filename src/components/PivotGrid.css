@@ -1,0 +1,293 @@
+/* PivotGrid Component Styles */
+
+.pivot-grid-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+.pivot-grid-container h2 {
+  color: #1a1a2e;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 28px;
+}
+
+.pivot-grid-container h3 {
+  color: #16213e;
+  font-size: 18px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #0f3460;
+  padding-bottom: 8px;
+}
+
+/* Configuration Panel */
+.pivot-configuration {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+}
+
+.config-section {
+  background: white;
+  padding: 18px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.field-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.field-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.field-checkbox:hover {
+  background: #e9ecef;
+}
+
+.field-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #0f3460;
+}
+
+.field-checkbox input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.aggregation-select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 16px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.aggregation-select:focus {
+  outline: none;
+  border-color: #0f3460;
+}
+
+.reset-button {
+  grid-column: span 4;
+  justify-self: center;
+  padding: 12px 30px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.reset-button:hover {
+  background: #c0392b;
+}
+
+.reset-button:active {
+  transform: scale(0.98);
+}
+
+/* Pivot Table Display */
+.pivot-table-container {
+  margin-bottom: 20px;
+}
+
+.pivot-table-container h3 {
+  color: #1a1a2e;
+  margin-bottom: 15px;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-style: italic;
+}
+
+.pivot-table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pivot-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 600px;
+}
+
+.pivot-table tr {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.pivot-table tr:last-child {
+  border-bottom: 2px solid #0f3460;
+}
+
+.pivot-cell {
+  padding: 12px 15px;
+  border-right: 1px solid #e0e0e0;
+  position: relative;
+}
+
+.pivot-cell:last-child {
+  border-right: none;
+}
+
+/* Header cells */
+.pivot-cell.header-cell {
+  background: #0f3460;
+  color: white;
+  font-weight: bold !important;
+  text-align: center !important;
+}
+
+.pivot-cell.corner-cell {
+  background: #1a1a2e;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+.pivot-cell.row-label {
+  background: #16213e;
+  color: white;
+}
+
+.pivot-cell.column-label {
+  background: #0f3460;
+  color: white;
+}
+
+/* Data cells */
+.pivot-cell.data-cell {
+  background: white;
+}
+
+.pivot-cell.value-cell {
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+.pivot-cell.value-cell:hover {
+  background: #e9ecef;
+}
+
+/* Alternate row colors */
+.pivot-table tr:nth-child(even) .pivot-cell.value-cell {
+  background: #f8f9fa;
+}
+
+.pivot-table tr:nth-child(odd) .pivot-cell.value-cell {
+  background: #f1f3f5;
+}
+
+.pivot-table tr:nth-child(even) .pivot-cell:not(.header-cell):not(.row-label):not(.column-label) {
+  background: #f8f9fa;
+}
+
+.pivot-table tr:nth-child(odd) .pivot-cell:not(.header-cell):not(.row-label):not(.column-label) {
+  background: #f1f3f5;
+}
+
+/* Hover effects */
+.pivot-table .pivot-cell.value-cell:hover {
+  background: #d4edff !important;
+  cursor: pointer;
+}
+
+/* Summary */
+.pivot-summary {
+  background: #f8f9fa;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  border-left: 4px solid #0f3460;
+}
+
+.pivot-summary p {
+  margin: 5px 0;
+  color: #16213e;
+}
+
+.pivot-summary strong {
+  color: #0f3460;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .pivot-configuration {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pivot-grid-container {
+    padding: 10px;
+  }
+
+  .pivot-configuration {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .reset-button {
+    grid-column: span 1;
+  }
+
+  .pivot-cell {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pivot-grid-container h2 {
+    font-size: 22px;
+  }
+
+  .pivot-grid-container h3 {
+    font-size: 16px;
+  }
+
+  .field-checkboxes {
+    max-height: 150px;
+  }
+
+  .pivot-table-wrapper {
+    max-height: 400px;
+  }
+}
