@@ -1,11 +1,11 @@
 ---
-name: realize-screen
-description: Realize documentation of the project
+name: plan-screen
+description: Plan screen
 ---
 
 # Goal 
 
-Realize or complete the screen documentation.
+Plan the screen documentation.
 
 # Steps
 1. Analyse docs/screens/ and understand the structure of the documentation
@@ -15,3 +15,6 @@ Realize or complete the screen documentation.
 5. Operate changes in src/ 
 6. Update docs/screens/ with the new information
 
+# Example of documentation structure
+
+[Template](/docs/template/screen.md)
