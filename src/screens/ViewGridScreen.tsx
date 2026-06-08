@@ -1,23 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../store';
-import {
-  selectRowFields,
-  selectColumnFields,
-  selectValueFields,
-  selectAggregation,
-  selectAvailableFields,
-  selectData,
-  selectDimensions,
-  selectFilters,
-  selectViews,
-  addView,
-  setRowFields,
-  setColumnFields,
-  setValueFields,
-  setAggregation,
-  setFilter,
-} from '../store';
+import { observer } from 'mobx-react-lite';
+import { store } from '../store';
 import PivotGrid from '../components/PivotGrid';
 import type { FilterConfig, View } from '../store';
 import '../screens/ViewGridScreen.css';
@@ -25,20 +9,22 @@ import '../screens/ViewGridScreen.css';
 /**
  * ViewGridScreen component
  * Allows users to configure the pivot table structure with row dimensions, column dimensions, filters, and value fields
+ * Wrapped with observer to react to MobX store changes (MVC View)
  */
 function ViewGridScreen() {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   
-  const rowFields = useAppSelector(selectRowFields);
-  const columnFields = useAppSelector(selectColumnFields);
-  const valueFields = useAppSelector(selectValueFields);
-  const aggregation = useAppSelector(selectAggregation);
-  const availableFields = useAppSelector(selectAvailableFields);
-  const data = useAppSelector(selectData);
-  const dimensions = useAppSelector(selectDimensions);
-  const filters = useAppSelector(selectFilters);
-  const views = useAppSelector(selectViews);
+  const {
+    rowFields,
+    columnFields,
+    valueFields,
+    aggregation,
+    availableFields,
+    data,
+    dimensions,
+    filters,
+    views
+  } = store;
   
   const [viewName, setViewName] = useState('');
 
@@ -100,9 +86,9 @@ function ViewGridScreen() {
       const newColumnFields = columnFields.filter(f => f !== field);
       const newValueFields = valueFields.filter(f => f !== field);
       
-      dispatch(setColumnFields(newColumnFields));
-      dispatch(setValueFields(newValueFields));
-      dispatch(setRowFields([...rowFields, field]));
+      store.setColumnFields(newColumnFields);
+      store.setValueFields(newValueFields);
+      store.setRowFields([...rowFields, field]);
     }
   };
 
@@ -117,9 +103,9 @@ function ViewGridScreen() {
       const newRowFields = rowFields.filter(f => f !== field);
       const newValueFields = valueFields.filter(f => f !== field);
       
-      dispatch(setRowFields(newRowFields));
-      dispatch(setValueFields(newValueFields));
-      dispatch(setColumnFields([...columnFields, field]));
+      store.setRowFields(newRowFields);
+      store.setValueFields(newValueFields);
+      store.setColumnFields([...columnFields, field]);
     }
   };
 
@@ -134,9 +120,9 @@ function ViewGridScreen() {
       const newRowFields = rowFields.filter(f => f !== field);
       const newColumnFields = columnFields.filter(f => f !== field);
       
-      dispatch(setRowFields(newRowFields));
-      dispatch(setColumnFields(newColumnFields));
-      dispatch(setValueFields([...valueFields, field]));
+      store.setRowFields(newRowFields);
+      store.setColumnFields(newColumnFields);
+      store.setValueFields([...valueFields, field]);
     }
   };
 
@@ -146,13 +132,13 @@ function ViewGridScreen() {
   const removeField = (field: string, category: 'row' | 'column' | 'value') => {
     switch (category) {
       case 'row':
-        dispatch(setRowFields(rowFields.filter(f => f !== field)));
+        store.setRowFields(rowFields.filter(f => f !== field));
         break;
       case 'column':
-        dispatch(setColumnFields(columnFields.filter(f => f !== field)));
+        store.setColumnFields(columnFields.filter(f => f !== field));
         break;
       case 'value':
-        dispatch(setValueFields(valueFields.filter(f => f !== field)));
+        store.setValueFields(valueFields.filter(f => f !== field));
         break;
     }
   };
@@ -168,7 +154,7 @@ function ViewGridScreen() {
       selectedValues,
     };
     
-    dispatch(setFilter(filter));
+    store.setFilter(filter);
   };
 
   /**
@@ -199,10 +185,10 @@ function ViewGridScreen() {
   /**
    * Handle aggregation function change
    */
-  const handleAggregationChange = (field: string, aggregationFunc: string) => {
+  const handleAggregationChange = (_field: string, aggregationFunc: string) => {
     // For now, we'll use the same aggregation for all value fields
     // In a more advanced implementation, each value field could have its own aggregation
-    dispatch(setAggregation(aggregationFunc as any));
+    store.setAggregation(aggregationFunc as any);
   };
 
   /**
@@ -220,7 +206,7 @@ function ViewGridScreen() {
       filters,
     };
     
-    dispatch(addView(newView));
+    store.addView(newView);
     setViewName('');
   };
 
@@ -449,4 +435,4 @@ function ViewGridScreen() {
   );
 }
 
-export default ViewGridScreen;
+export default observer(ViewGridScreen);

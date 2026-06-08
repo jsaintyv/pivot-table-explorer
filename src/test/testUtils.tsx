@@ -1,70 +1,38 @@
 /**
  * Test Utilities
  * 
- * Utility functions and components for testing Redux-enabled components.
+ * Utility functions and components for testing MobX-enabled components.
+ * Store acts as Controller in MVC pattern.
  */
 
 import { render as rtlRender } from '@testing-library/react';
-import { configureStore } from '@reduxjs/toolkit';
-import { Provider } from 'react-redux';
-import pivotReducer from '../store/pivotSlice';
-import type { PivotState } from '../store/pivotSlice';
-import type { AggregationFunction } from '../models/types';
+import { Store } from '../store/Store';
 import type { RenderOptions } from '@testing-library/react';
 import type { ReactElement } from 'react';
 
 /**
  * Create a test store with optional preloaded state
+ * Returns a fresh MobX store instance for each test to avoid pollution
  */
-export function createTestStore(preloadedState?: Partial<PivotState>) {
-  const defaultState: PivotState = {
-    rowFields: [],
-    columnFields: [],
-    valueFields: [],
-    aggregation: 'sum',
-    availableFields: [],
-    data: [],
-  };
-  
-  return configureStore({
-    reducer: {
-      pivot: pivotReducer,
-    },
-    preloadedState: {
-      pivot: {
-        ...defaultState,
-        ...preloadedState,
-      },
-    },
-  });
+export function createTestStore() {
+  return new Store();
 }
 
 /**
- * Render a component wrapped in a Redux Provider
- * This is necessary for testing components that use Redux hooks
+ * Render a component with MobX store context
+ * With MobX using singleton pattern, components directly access the global store.
+ * For testing, we render directly without a Provider since MobX uses direct references.
  */
 export function renderWithProviders(
   ui: ReactElement,
-  {
-    preloadedState = {},
-    ...renderOptions
-  }: Omit<RenderOptions, 'wrapper'> & { preloadedState?: Partial<PivotState> } = {}
+  renderOptions: RenderOptions = {}
 ) {
-  // Create a fresh store for each test
-  const store = createTestStore(preloadedState);
-
-  // Create a wrapper component that provides the store
-  const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <Provider store={store}>{children}</Provider>
-  );
-
-  // Use the custom wrapper in render
-  return rtlRender(ui, { wrapper: Wrapper, ...renderOptions });
+  // For MobX with singleton store, render directly
+  return rtlRender(ui, renderOptions);
 }
 
 // Re-export everything from testing-library
-import * as rtl from '@testing-library/react';
-export { rtl };
+export * from '@testing-library/react';
 
 // Re-export render with our custom wrapper as the default
 export { renderWithProviders as render };

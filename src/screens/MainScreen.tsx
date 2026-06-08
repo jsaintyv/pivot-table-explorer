@@ -1,18 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../store';
-import {
-  addSourceFile,
-  removeSourceFile,
-  addDimension,
-  removeDimension,
-  addView,
-  removeView,
-  loadView,
-  selectSourceFiles,
-  selectDimensions,
-  selectViews,
-} from '../store';
+import { observer } from 'mobx-react-lite';
+import { store } from '../store';
 import { parseCSV } from '../utils/csvParser';
 import type { SourceFile, Dimension, View } from '../store';
 import '../screens/MainScreen.css';
@@ -20,14 +9,12 @@ import '../screens/MainScreen.css';
 /**
  * MainScreen component
  * The primary interface for managing data sources and dimensions
+ * Wrapped with observer to react to MobX store changes (MVC View)
  */
 function MainScreen() {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   
-  const sourceFiles = useAppSelector(selectSourceFiles);
-  const dimensions = useAppSelector(selectDimensions);
-  const views = useAppSelector(selectViews);
+  const { sourceFiles, dimensions, views } = store;
   
   const [newViewName, setNewViewName] = useState('');
 
@@ -50,7 +37,7 @@ function MainScreen() {
         columns,
       };
       
-      dispatch(addSourceFile(newSourceFile));
+      store.addSourceFile(newSourceFile);
       
       // Auto-create dimensions for each column
       columns.forEach(columnName => {
@@ -60,7 +47,7 @@ function MainScreen() {
           sourceFileId: newSourceFile.id,
           columnName,
         };
-        dispatch(addDimension(newDimension));
+        store.addDimension(newDimension);
       });
     };
     reader.readAsText(file);
@@ -70,14 +57,14 @@ function MainScreen() {
    * Remove a source file
    */
   const handleRemoveSourceFile = (id: string) => {
-    dispatch(removeSourceFile(id));
+    store.removeSourceFile(id);
   };
 
   /**
    * Remove a dimension
    */
   const handleRemoveDimension = (id: string) => {
-    dispatch(removeDimension(id));
+    store.removeDimension(id);
   };
 
   /**
@@ -111,7 +98,7 @@ function MainScreen() {
       filters: [],
     };
     
-    dispatch(addView(newView));
+    store.addView(newView);
     setNewViewName('');
   };
 
@@ -119,7 +106,7 @@ function MainScreen() {
    * Load a view
    */
   const handleLoadView = (viewId: string) => {
-    dispatch(loadView(viewId));
+    store.loadView(viewId);
     // Navigate to view grid screen to see the loaded view
     navigate('/view-grid');
   };
@@ -128,7 +115,7 @@ function MainScreen() {
    * Remove a view
    */
   const handleRemoveView = (viewId: string) => {
-    dispatch(removeView(viewId));
+    store.removeView(viewId);
   };
 
   return (
@@ -231,4 +218,4 @@ function MainScreen() {
   );
 }
 
-export default MainScreen;
+export default observer(MainScreen);

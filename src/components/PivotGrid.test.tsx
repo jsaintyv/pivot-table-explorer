@@ -6,14 +6,24 @@
  */
 
 import { render as customRender, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import PivotGrid from './PivotGrid';
 import type { DataItem } from '../models/types';
 import { renderWithProviders } from '../test/testUtils';
+import { store } from '../store';
 import { parseCSV } from '../utils/csvParser';
 
 // Override the default render with our custom version
 const render = renderWithProviders;
+
+// Clear the MobX store before each test to prevent pollution
+beforeEach(() => {
+  store.clear();
+});
+
+afterEach(() => {
+  store.clear();
+});
 
 // ============================================================================
 // Test Data from sample.csv

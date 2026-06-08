@@ -28,7 +28,7 @@ function App() {
         </main>
 
         <footer className="app-footer">
-          <p>Built with React, TypeScript & Redux Toolkit | Pivot Table Explorer v1.0</p>
+          <p>Built with React, TypeScript & MobX | Pivot Table Explorer v1.0</p>
         </footer>
       </div>
     </Router>

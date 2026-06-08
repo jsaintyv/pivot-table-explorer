@@ -1,24 +1,18 @@
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../store';
-import {
-  selectSourceFiles,
-  selectDimensions,
-  updateDimension,
-  addDimension,
-} from '../store';
+import { observer } from 'mobx-react-lite';
+import { store } from '../store';
 import type { SourceFile, Dimension } from '../store';
 import '../screens/AxeScreen.css';
 
 /**
  * AxeScreen component
  * Allows users to configure which columns from source CSV files will be used as axes (dimensions)
+ * Wrapped with observer to react to MobX store changes (MVC View)
  */
 function AxeScreen() {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   
-  const sourceFiles = useAppSelector(selectSourceFiles);
-  const dimensions = useAppSelector(selectDimensions);
+  const { sourceFiles, dimensions } = store;
 
   /**
    * Handle column selection for a source file
@@ -36,7 +30,7 @@ function AxeScreen() {
         columnName,
         name: columnName,
       };
-      dispatch(updateDimension(updatedDimension));
+      store.updateDimension(updatedDimension);
     } else {
       // Create new dimension
       const newDimension: Dimension = {
@@ -45,7 +39,7 @@ function AxeScreen() {
         sourceFileId,
         columnName,
       };
-      dispatch(addDimension(newDimension));
+      store.addDimension(newDimension);
     }
   };
 
@@ -160,4 +154,4 @@ function AxeScreen() {
   );
 }
 
-export default AxeScreen;
+export default observer(AxeScreen);
