@@ -53,6 +53,15 @@ In pseudo HTML:
 </main>
 ```
 
+## Initial State
+
+When the page is opened, the application starts with an empty configuration:
+- No source files loaded
+- No dimensions configured
+- No views created
+
+This provides a clean starting point for users to begin importing their data and setting up their pivot table configurations.
+
 ## Components
 
 - **Header**: Displays the application title "Pivot Table Explorer"

@@ -96,4 +96,4 @@ Do not automate
 `git push` 
 `git stash` 
 
-Those actions should be only operated by an human
+Those actions should be only operated by a human
