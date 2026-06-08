@@ -1,4 +1,4 @@
 /* Import all screen-specific CSS files */
-@import './MainScreen.css';
-@import './AxeScreen.css';
-@import './ViewGridScreen.css';
+@import './main/MainScreen.css';
+@import './axe/AxeScreen.css';
+@import './view-grid/ViewGridScreen.css';

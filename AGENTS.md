@@ -11,13 +11,8 @@ pivot-table-explorer/
 ├── docs/ 
 │   ├── screens/
 ├── src/
-│   ├── components/
-│   │   ├── PivotGrid.tsx      # Main pivot table component
-│   │   └── PivotGrid.css      # Component styles
-│   ├── screens/
-│   │   ├── MainScreen.tsx     # Main screen component
-│   │   ├── AxeScreen.tsx      # Axe configuration screen
-│   │   └── ViewGridScreen.tsx # View grid configuration screen
+│   ├── components/           # Common components shared between screens
+│   ├── screens/              # Screens, one screen per subfolder
 │   ├── App.tsx               # Demo application
 │   ├── App.css               # App styles
 │   ├── main.tsx              # React entry point
@@ -72,7 +67,7 @@ npx tsc --noEmit
 A project has these attributes:
 - A list of source files
 - A list of axes that allow pivoting data from source files
-- A list of views. A view defines a grid that displays data
+- A list of views. A view defines a grid that displays data.
 
 
 ## Documentation
@@ -83,17 +78,19 @@ Folder `/docs` contains the documentation of the project.
 
 ## Architecture
 
-Screen state is controlled by a store.
-The `./src/screens/` directory contains a component per screen.
-A screen can be composed of many components from `./src/components`.
-Use react-router-dom to navigate between screens.
+- Screen state is controlled by a store.
+- The `./src/screens/` directory contains a subfolder per screen.
+- A screen can be composed of many components from `./src/components` or `./src/screens/{screenName}/{componentName}`.
+- Use react-router-dom to navigate between screens.
+- Each screen and each component should have its own subfolder
 
-## ** Restrictions ** 
 
-Do not automate  
-`git commit` 
-`git add` 
-`git push` 
-`git stash` 
+## **Restrictions**
+
+Do not automate:
+- `git commit`
+- `git add`
+- `git push`
+- `git stash`
 
 Those actions should be only operated by a human

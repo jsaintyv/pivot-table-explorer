@@ -6,9 +6,9 @@
  */
 
 import { observer } from 'mobx-react-lite';
-import { store } from '../store';
-import { aggregationFunctions } from '../utils/aggregations';
-import type { AggregationFunction } from '../models/types';
+import { store } from '../../store';
+import { aggregationFunctions } from '../../utils/aggregations';
+import type { AggregationFunction } from '../../models/types';
 
 interface PivotGridConfigurationProps {
   allFields: string[];

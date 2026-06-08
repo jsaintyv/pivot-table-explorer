@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { store } from '../store';
-import type { SourceFile, Dimension } from '../store';
-import '../screens/AxeScreen.css';
+import { store } from '../../store';
+import type { SourceFile, Dimension } from '../../store';
+import './AxeScreen.css';
 
 /**
  * AxeScreen component

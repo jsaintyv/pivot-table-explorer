@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { store } from '../store';
-import { parseCSV } from '../utils/csvParser';
-import type { SourceFile, Dimension, View } from '../store';
-import '../screens/MainScreen.css';
+import { store } from '../../store';
+import { parseCSV } from '../../utils/csvParser';
+import type { SourceFile, Dimension, View } from '../../store';
+import './MainScreen.css';
 
 /**
  * MainScreen component

@@ -6,8 +6,8 @@
  */
 
 import { observer } from 'mobx-react-lite';
-import { store } from '../store';
-import type { PivotData } from '../models/types';
+import { store } from '../../store';
+import type { PivotData } from '../../models/types';
 
 interface PivotGridSummaryProps {
   pivotData: PivotData;

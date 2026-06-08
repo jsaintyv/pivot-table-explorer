@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { store } from '../store';
-import PivotGrid from '../components/PivotGrid';
-import type { FilterConfig, View } from '../store';
-import '../screens/ViewGridScreen.css';
+import { store } from '../../store';
+import PivotGrid from '../../components/pivot-grid/PivotGrid';
+import type { FilterConfig, View } from '../../store';
+import './ViewGridScreen.css';
 
 /**
  * ViewGridScreen component
