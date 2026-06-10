@@ -9,7 +9,8 @@ This is a **React + TypeScript** project featuring a **PivotGrid component** for
 ```
 pivot-table-explorer/
 ├── docs/ 
-│   ├── screens/
+│   ├── models/               # Describe models and business functions which transform models
+│   ├── screens/              # Describe screens
 ├── src/
 │   ├── components/           # Common components shared between screens
 │   ├── screens/              # Screens, one screen per subfolder

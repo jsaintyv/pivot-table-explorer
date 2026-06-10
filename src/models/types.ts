@@ -168,35 +168,3 @@ export interface PivotConfiguration {
   valueFields: string[];
   aggregation: AggregationFunction;
 }
-
-// ============================================================================
-// SAMPLE DATA TYPES (for documentation/examples)
-// ============================================================================
-
-/**
- * Example structure for sales data used in the demo.
- * This shows a typical use case for the PivotGrid component.
- */
-export interface SalesDataItem extends DataItem {
-  id?: number;
-  region: string;
-  product: string;
-  category: string;
-  quarter: string;
-  sales: number;
-  units: number;
-  profit: number;
-}
-
-/**
- * Example structure for personnel/HR data.
- * Another common use case for pivot tables.
- */
-export interface PersonnelDataItem extends DataItem {
-  department: string;
-  role: string;
-  experience: string;
-  gender: string;
-  salary: number;
-  count: number;
-}
