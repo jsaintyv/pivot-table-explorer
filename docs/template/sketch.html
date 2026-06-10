@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe Mid-Fidelity - Écran de Login</title>
+    <style>
+        /* Imported from src/App.css */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #1a1a2e;
+            line-height: 1.6;
+        }
+        
+        /* Header Styles from App.css */
+        .app-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .app-header h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        /* Main Content */
+        .app-main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+        
+        /* Card Styles (from preset-selector, instructions, data-info) */
+        .login-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin: 0 auto 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+        }
+        
+        .login-card h2 {
+            color: #1a1a2e;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        /* Form Elements - Mid-Fidelity */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #16213e;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+        
+        .form-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            color: #1a1a2e;
+            background: white;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #0f3460;
+            box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: #6c757d;
+        }
+        
+        /* Password Container with Eye Icon */
+        .password-container {
+            position: relative;
+        }
+        
+        .eye-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background: #0f3460;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        /* Checkbox */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .checkbox-input {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            accent-color: #0f3460;
+        }
+        
+        .checkbox-label {
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        /* Buttons - Using App.css style */
+        .btn-primary {
+            width: 100%;
+            height: 48px;
+            padding: 0 24px;
+            border: none;
+            background: #0f3460;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary:hover {
+            background: #16213e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(15, 52, 96, 0.3);
+        }
+        
+        .btn-secondary {
+            padding: 12px 24px;
+            border: 2px solid #0f3460;
+            background: white;
+            color: #0f3460;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        
+        .btn-secondary:hover {
+            background: #0f3460;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Links */
+        .text-link {
+            color: #0f3460;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-block;
+        }
+        
+        .text-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 28px 0;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+        
+        .divider-text {
+            margin: 0 16px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        /* Social Buttons */
+        .social-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        
+        .social-button {
+            flex: 1;
+            height: 48px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .social-button:hover {
+            border-color: #0f3460;
+            box-shadow: 0 2px 8px rgba(15, 52, 96, 0.2);
+        }
+        
+        .social-icon {
+            width: 24px;
+            height: 24px;
+            background: #0f3460;
+            border-radius: 4px;
+        }
+        
+        /* Footer */
+        .app-footer {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 40px;
+        }
+        
+        /* Mid-Fidelity Annotations */
+        .annotation {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 4px;
+            font-style: italic;
+            text-align: right;
+        }
+        
+        .annotation-block {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            border-radius: 6px;
+            border-left: 3px solid #0f3460;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #495057;
+        }
+        
+        /* Responsive Notes */
+        .responsive-notes {
+            margin-top: 40px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .responsive-notes h3 {
+            color: #0f3460;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .responsive-notes ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .responsive-notes li {
+            padding: 6px 0;
+            color: #495057;
+            font-size: 14px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .responsive-notes li:before {
+            content: "•";
+            color: #0f3460;
+            position: absolute;
+            left: 0;
+        }
+        
+        /* Container */
+        .wireframe-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Signup Section */
+        .signup-section {
+            text-align: center;
+            margin-top: 20px;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="wireframe-container">
+        <!-- Header from App.css -->
+        <header class="app-header">
+            <h1>Pivot Table Explorer</h1>
+            <p class="app-subtitle" style="font-size: 18px; opacity: 0.9; max-width: 800px; margin: 0 auto;">
+                Wireframe Mid-Fidelity - Écran de Login
+            </p>
+        </header>
+        
+        <main class="app-main">
+            <!-- Login Card -->
+            <div class="login-card">
+                <h2>Se connecter</h2>
+                
+                <form>
+                    <div class="form-group">
+                        <label for="email">Adresse e-mail</label>
+                        <input type="email" id="email" class="form-input" placeholder="votre@email.com">
+                        <p class="annotation">Champ email avec validation</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Mot de passe</label>
+                        <div class="password-container">
+                            <input type="password" id="password" class="form-input" placeholder="••••••••">
+                            <button type="button" class="eye-icon" title="Afficher/masquer">👁</button>
+                        </div>
+                        <p class="annotation">Affichage masqué par défaut</p>
+                    </div>
+                    
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="remember" class="checkbox-input">
+                        <label for="remember" class="checkbox-label">Se souvenir de moi</label>
+                        <p class="annotation">Option persistante</p>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">
+                        Se connecter
+                    </button>
+                    
+                    <div class="forgot-password" style="text-align: center; margin: 16px 0;">
+                        <a href="#" class="text-link">Mot de passe oublié ?</a>
+                    </div>
+                    
+                    <div class="divider">
+                        <span class="divider-text">ou</span>
+                    </div>
+                    
+                    <div class="social-buttons">
+                        <button type="button" class="social-button">
+                            <div class="social-icon"></div>
+                        </button>
+                        <button type="button" class="social-button">
+                            <div class="social-icon"></div>
+                        </button>
+                        <button type="button" class="social-button">
+                            <div class="social-icon"></div>
+                        </button>
+                    </div>
+                    <p class="annotation">Connexion via Google, GitHub, etc.</p>
+                    
+                    <div class="signup-section">
+                        <span style="color: #6c757d; margin-right: 8px;">Nouveau ici ?</span>
+                        <a href="#" class="text-link">Créer un compte</a>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Annotations for Mid-Fidelity -->
+            <div class="annotation-block">
+                <strong>Éléments interactifs :</strong> Boutons cliquables, champs focusables, icône de visibilité du mot de passe
+            </div>
+            
+            <div class="responsive-notes">
+                <h3>📱 Comportement Responsif</h3>
+                <ul>
+                    <li><strong>Mobile (&lt;768px):</strong> Card en pleine largeur, boutons sociaux empilés verticalement</li>
+                    <li><strong>Tablette (768px-1024px):</strong> Largeur max du card ~450px, centré</li>
+                    <li><strong>Desktop (&gt;1024px):</strong> Layout actuel avec espace généreux</li>
+                    <li>Le header conserve sa hauteur et son gradient sur tous les écrans</li>
+                    <li>Les champs de formulaire s'adaptent à 100% de la largeur du card</li>
+                </ul>
+            </div>
+        </main>
+        
+        <footer class="app-footer">
+            <p>© 2026 Pivot Table Explorer - Tous droits réservés</p>
+        </footer>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            const eyeIcons = document.querySelectorAll('.eye-icon');
+            const passwordInput = document.getElementById('password');
+            
+            eyeIcons.forEach(icon => {
+                icon.addEventListener('click', function() {
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        icon.textContent = '🙈';
+                        icon.title = 'Masquer';
+                    } else {
+                        passwordInput.type = 'password';
+                        icon.textContent = '👁';
+                        icon.title = 'Afficher';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

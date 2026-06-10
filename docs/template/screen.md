@@ -2,16 +2,10 @@
 
 ## Design 
 
-In pseudo HTML
-```
-<border>
-Login: <input>
-Password: <password>
-<button>Connect</button>
-</border>
-```
+@sketch.html 
 
-A component <component name>
+Note: This sketch.html use src/App.css to be consistent with the global design
+
 
 ## Actions
 
