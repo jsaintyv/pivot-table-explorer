@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { store } from '../../store';
 import { parseCSV } from '../../utils/csvParser';
-import type { SourceFile, Dimension, View } from '../../store';
+import type { LocalDataSource, Dimension, View, DataColumn } from '../../models/pivot-project/types';
+import { saveProjectToFile } from '../../models/pivot-project/serialization';
 import './MainScreen.css';
 
 /**
@@ -14,7 +15,12 @@ import './MainScreen.css';
 function MainScreen() {
   const navigate = useNavigate();
   
-  const { sourceFiles, dimensions, views } = store;
+  // Get data from the new PivotProject model
+  const { pivotProject, exportProject } = store;
+  
+  const dataSources = store.getLocalDataSources();
+  const dimensions = store.getDimensions();
+  const views = store.getViews();
   
   const [newViewName, setNewViewName] = useState('');
 
@@ -31,33 +37,104 @@ function MainScreen() {
       const csvData = parseCSV(content);
       const columns = csvData.length > 0 ? Object.keys(csvData[0]) : [];
       
-      const newSourceFile: SourceFile = {
-        id: Date.now().toString(),
-        name: file.name,
-        columns,
-      };
+      // Convert to row-major format (array of arrays)
+      const data: any[][] = csvData.map(row => columns.map(col => row[col]));
       
-      store.addSourceFile(newSourceFile);
+      // Create DataColumn metadata
+      const dataColumns: DataColumn[] = columns.map((name, index) => ({
+        index,
+        name,
+        dataType: detectColumnType(csvData, name, index),
+        nullable: false,
+        unique: isColumnUnique(csvData, name),
+      }));
+      
+      // Add the data source
+      const dsId = store.addLocalDataSource(
+        file.name,
+        'csv',
+        dataColumns,
+        data
+      );
       
       // Auto-create dimensions for each column
-      columns.forEach(columnName => {
-        const newDimension: Dimension = {
-          id: `${Date.now()}-${columnName}`,
-          name: columnName,
-          sourceFileId: newSourceFile.id,
-          columnName,
-        };
-        store.addDimension(newDimension);
+      dataColumns.forEach((column, colIndex) => {
+        const dimId = store.addDimension(
+          column.name,
+          column.dataType as 'string' | 'number' | 'date' | 'boolean',
+          `Dimension for ${column.name}`,
+          [{
+            dataSourceId: dsId,
+            columnIndex: colIndex,
+            level: 0,
+            name: column.name,
+          }]
+        );
+        
+        // Create root node for this dimension
+        const uniqueValues = getUniqueValues(csvData, column.name);
+        uniqueValues.forEach((value) => {
+          store.addNode(
+            dimId,
+            String(value),
+            value,
+            {},
+            [],
+            [dsId]
+          );
+        });
       });
     };
     reader.readAsText(file);
   };
 
   /**
-   * Remove a source file
+   * Detect the data type of a column
    */
-  const handleRemoveSourceFile = (id: string) => {
-    store.removeSourceFile(id);
+  function detectColumnType(csvData: any[], columnName: string, index: number): 'string' | 'number' | 'date' | 'boolean' | 'unknown' {
+    if (csvData.length === 0) return 'unknown';
+    
+    const values = csvData.map(row => row[columnName]);
+    
+    // Check if all values are numbers
+    const allNumbers = values.every(v => typeof v === 'number' || (typeof v === 'string' && !isNaN(Number(v)) && v.trim() !== ''));
+    if (allNumbers) return 'number';
+    
+    // Check if all values are dates
+    const allDates = values.every(v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v));
+    if (allDates) return 'date';
+    
+    // Check if all values are booleans
+    const allBooleans = values.every(v => typeof v === 'boolean' || v === 'true' || v === 'false');
+    if (allBooleans) return 'boolean';
+    
+    return 'string';
+  }
+
+  /**
+   * Check if a column has unique values
+   */
+  function isColumnUnique(csvData: any[], columnName: string): boolean {
+    if (csvData.length === 0) return false;
+    const values = csvData.map(row => row[columnName]);
+    const uniqueValues = new Set(values);
+    return uniqueValues.size === values.length;
+  }
+
+  /**
+   * Get unique values from a column
+   */
+  function getUniqueValues(csvData: any[], columnName: string): any[] {
+    if (csvData.length === 0) return [];
+    const values = csvData.map(row => row[columnName]);
+    return [...new Set(values)];
+  }
+
+  /**
+   * Remove a data source
+   */
+  const handleRemoveDataSource = (id: string) => {
+    store.removeDataSource(id);
   };
 
   /**
@@ -87,18 +164,7 @@ function MainScreen() {
   const handleCreateView = () => {
     if (!newViewName.trim()) return;
     
-    // For now, create a view with empty configuration
-    // The actual configuration will be managed by the ViewGridScreen
-    const newView: Omit<View, 'id'> = {
-      name: newViewName.trim(),
-      rowFields: [],
-      columnFields: [],
-      valueFields: [],
-      aggregation: 'sum',
-      filters: [],
-    };
-    
-    store.addView(newView);
+    const viewId = store.addView(newViewName.trim());
     setNewViewName('');
   };
 
@@ -107,7 +173,6 @@ function MainScreen() {
    */
   const handleLoadView = (viewId: string) => {
     store.loadView(viewId);
-    // Navigate to view grid screen to see the loaded view
     navigate('/view-grid');
   };
 
@@ -118,20 +183,36 @@ function MainScreen() {
     store.removeView(viewId);
   };
 
+  /**
+   * Get the name of a data source by ID
+   */
+  const getDataSourceName = (id: string): string => {
+    const ds = pivotProject.dataSources.find(d => d.id === id);
+    return ds?.name || 'Unknown';
+  };
+
+  /**
+   * Export project to file
+   */
+  const handleExportProject = () => {
+    const project = exportProject();
+    saveProjectToFile(project, `${project.name || 'pivot-project'}.pivot.json`);
+  };
+
   return (
     <main className="main-screen">
       <h1>Pivot Table Explorer</h1>
       <p>Manage your data sources and dimensions</p>
 
-      {/* Source Files Section */}
+      {/* Data Sources Section */}
       <section className="section">
-        <h2>Source Files</h2>
+        <h2>Data Sources</h2>
         <div className="file-list">
-          {sourceFiles.map((sourceFile) => (
-            <div key={sourceFile.id} className="file-item">
-              <span>{sourceFile.name} ({sourceFile.columns.length} columns)</span>
+          {dataSources.map((dataSource: LocalDataSource) => (
+            <div key={dataSource.id} className="file-item">
+              <span>{dataSource.name} ({dataSource.columns.length} columns)</span>
               <button 
-                onClick={() => handleRemoveSourceFile(sourceFile.id)}
+                onClick={() => handleRemoveDataSource(dataSource.id)}
                 className="remove-button"
               >
                 Delete
@@ -154,12 +235,15 @@ function MainScreen() {
       <section className="section">
         <h2>Dimensions</h2>
         <div className="dimension-list">
-          {dimensions.map((dimension) => {
-            const sourceFile = sourceFiles.find(sf => sf.id === dimension.sourceFileId);
+          {dimensions.map((dimension: Dimension) => {
+            // Find the first data source that this dimension references
+            const firstMapping = dimension.columnMappings[0];
+            const dsName = firstMapping ? getDataSourceName(firstMapping.dataSourceId) : 'Unknown';
+            
             return (
               <div key={dimension.id} className="dimension-item">
-                <span>{dimension.name}</span>
-                {sourceFile && <span className="source-hint"> from {sourceFile.name}</span>}
+                <span>{dimension.name} ({dimension.dataType})</span>
+                <span className="source-hint"> from {dsName}</span>
                 <button 
                   onClick={() => handleRemoveDimension(dimension.id)}
                   className="remove-button"
@@ -170,13 +254,17 @@ function MainScreen() {
             );
           })}
         </div>
+        <p className="info-text">
+          Dimensions are automatically created from CSV columns. 
+          Use the Axe screen to configure which columns map to which dimensions.
+        </p>
       </section>
 
       {/* Views Section */}
       <section className="section">
         <h2>Views</h2>
         <div className="view-list">
-          {views.map((view) => (
+          {views.map((view: View) => (
             <div key={view.id} className="view-item">
               <span>{view.name}</span>
               <button 
@@ -202,6 +290,22 @@ function MainScreen() {
             placeholder="View name"
           />
           <button onClick={handleCreateView}>Add new view</button>
+        </div>
+      </section>
+
+      {/* Project Actions */}
+      <section className="section project-actions">
+        <h2>Project</h2>
+        <div className="action-buttons">
+          <button onClick={() => store.createProject()} className="nav-button">
+            New Project
+          </button>
+          <button 
+            onClick={handleExportProject}
+            className="nav-button"
+          >
+            Export Project
+          </button>
         </div>
       </section>
 

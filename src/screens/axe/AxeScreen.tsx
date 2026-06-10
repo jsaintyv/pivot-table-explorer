@@ -1,66 +1,106 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { store } from '../../store';
-import type { SourceFile, Dimension } from '../../store';
+import type { LocalDataSource, Dimension, DataColumn } from '../../models/pivot-project/types';
 import './AxeScreen.css';
 
 /**
  * AxeScreen component
- * Allows users to configure which columns from source CSV files will be used as axes (dimensions)
+ * Allows users to configure ColumnMappings for dimensions
  * Wrapped with observer to react to MobX store changes (MVC View)
  */
 function AxeScreen() {
   const navigate = useNavigate();
   
-  const { sourceFiles, dimensions } = store;
+  const { 
+    pivotProject, 
+    getLocalDataSources, 
+    getDimensions,
+    updateDimension,
+    getDimension
+  } = store;
+  
+  const dataSources = getLocalDataSources();
+  const dimensions = getDimensions();
 
   /**
-   * Handle column selection for a source file
+   * Get all unique column names across all data sources
    */
-  const handleColumnSelect = (sourceFileId: string, columnName: string) => {
-    // Check if there's already a dimension for this source file
-    const existingDimension = dimensions.find(
-      dim => dim.sourceFileId === sourceFileId
+  const getAllColumnNames = (): string[] => {
+    const allColumns: string[] = [];
+    dataSources.forEach(ds => {
+      ds.columns.forEach(col => {
+        if (!allColumns.includes(col.name)) {
+          allColumns.push(col.name);
+        }
+      });
+    });
+    return allColumns;
+  };
+
+  /**
+   * Handle adding a column mapping to a dimension
+   */
+  const handleAddColumnMapping = (
+    dimensionId: string,
+    dataSourceId: string,
+    columnIndex: number,
+    level: number
+  ) => {
+    const dimension = getDimension(dimensionId);
+    if (!dimension) return;
+    
+    // Check if this column is already mapped
+    const existingMapping = dimension.columnMappings.find(
+      cm => cm.dataSourceId === dataSourceId && cm.columnIndex === columnIndex
     );
     
-    if (existingDimension) {
-      // Update existing dimension
-      const updatedDimension: Dimension = {
-        ...existingDimension,
-        columnName,
-        name: columnName,
-      };
-      store.updateDimension(updatedDimension);
+    if (existingMapping) {
+      // Remove the mapping
+      dimension.columnMappings = dimension.columnMappings.filter(
+        cm => !(cm.dataSourceId === dataSourceId && cm.columnIndex === columnIndex)
+      );
     } else {
-      // Create new dimension
-      const newDimension: Dimension = {
-        id: `${Date.now()}-${sourceFileId}-${columnName}`,
+      // Add the mapping
+      const dataSource = dataSources.find(ds => ds.id === dataSourceId);
+      const columnName = dataSource?.columns[columnIndex]?.name || `Column ${columnIndex}`;
+      
+      dimension.columnMappings.push({
+        dataSourceId,
+        columnIndex,
+        level,
         name: columnName,
-        sourceFileId,
-        columnName,
-      };
-      store.addDimension(newDimension);
-    }
-  };
-
-  /**
-   * Get the currently selected column for a source file
-   */
-  const getSelectedColumn = (sourceFileId: string): string | undefined => {
-    const dimension = dimensions.find(dim => dim.sourceFileId === sourceFileId);
-    return dimension?.columnName;
-  };
-
-  /**
-   * Get associated columns for a dimension name across all source files
-   */
-  const getAssociatedColumns = (columnName: string) => {
-    return dimensions
-      .filter(dim => dim.name === columnName)
-      .map(dim => {
-        const sourceFile = sourceFiles.find(sf => sf.id === dim.sourceFileId);
-        return { sourceFileName: sourceFile?.name || 'Unknown', columnName: dim.columnName };
       });
+    }
+    
+    updateDimension(dimensionId, dimension);
+  };
+
+  /**
+   * Check if a column is already mapped to a dimension
+   */
+  const isColumnMapped = (
+    dimensionId: string,
+    dataSourceId: string,
+    columnIndex: number
+  ): boolean => {
+    const dimension = getDimension(dimensionId);
+    if (!dimension) return false;
+    
+    return dimension.columnMappings.some(
+      cm => cm.dataSourceId === dataSourceId && cm.columnIndex === columnIndex
+    );
+  };
+
+  /**
+   * Get the level for a new mapping (next available level)
+   */
+  const getNextLevel = (dimensionId: string): number => {
+    const dimension = getDimension(dimensionId);
+    if (!dimension || dimension.columnMappings.length === 0) return 0;
+    
+    return Math.max(...dimension.columnMappings.map(cm => cm.level)) + 1;
   };
 
   /**
@@ -70,77 +110,130 @@ function AxeScreen() {
     navigate('/');
   };
 
-  /**
-   * Get unique dimension names (columns used as axes)
-   */
-  const getUniqueDimensionNames = (): string[] => {
-    const names = dimensions.map(dim => dim.name);
-    return [...new Set(names)];
-  };
-
   return (
     <main className="axe-screen">
       <h1>Configure Axes</h1>
-      <p>Select which columns from your source files will be used as dimensions (axes) for pivoting data.</p>
+      <p>Configure ColumnMappings for your dimensions. Select which columns from which DataSources map to which dimensions.</p>
 
-      {/* Column Selection Section */}
+      {/* Dimensions Configuration Section */}
       <section className="section">
-        <h2>Select Columns for Axes</h2>
+        <h2>Configure Dimension Mappings</h2>
         <p className="hint">
-          By default, all columns with the same name in different source files are automatically associated to the same dimension.
+          Each dimension can map to columns from multiple DataSources. 
+          The level defines the hierarchy (0 = root, 1 = child, etc.).
         </p>
         
-        <div className="source-file-list">
-          {sourceFiles.map((sourceFile) => {
-            const selectedColumn = getSelectedColumn(sourceFile.id);
-            
+        <div className="dimension-mapping-list">
+          {dimensions.map((dimension: Dimension) => {
             return (
-              <div key={sourceFile.id} className="source-file-item">
-                <h3>{sourceFile.name}</h3>
-                <select
-                  value={selectedColumn || ''}
-                  onChange={(e) => handleColumnSelect(sourceFile.id, e.target.value)}
-                  className="column-select"
-                >
-                  <option value="" disabled>
-                    Select a column for axe
-                  </option>
-                  {sourceFile.columns.map((column) => (
-                    <option key={column} value={column}>
-                      {column}
-                    </option>
-                  ))}
-                </select>
+              <div key={dimension.id} className="dimension-mapping-item">
+                <h3>{dimension.name} ({dimension.dataType})</h3>
+                
+                {/* Show current mappings */}
+                <div className="current-mappings">
+                  <h4>Current ColumnMappings:</h4>
+                  {dimension.columnMappings.length === 0 ? (
+                    <p className="no-mappings">No mappings defined</p>
+                  ) : (
+                    <ul>
+                      {dimension.columnMappings.map((cm, index) => {
+                        const ds = dataSources.find(d => d.id === cm.dataSourceId);
+                        const colName = ds?.columns[cm.columnIndex]?.name || `Column ${cm.columnIndex}`;
+                        return (
+                          <li key={index}>
+                            Level {cm.level}: {ds?.name}.{colName}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+                
+                {/* Add new mappings */}
+                <div className="add-mapping">
+                  <h4>Add ColumnMapping:</h4>
+                  <select
+                    onChange={(e) => {
+                      const dsId = e.target.value;
+                      if (dsId) {
+                        const ds = dataSources.find(d => d.id === dsId);
+                        if (ds) {
+                          // For simplicity, map the first column
+                          handleAddColumnMapping(dimension.id, dsId, 0, getNextLevel(dimension.id));
+                        }
+                      }
+                    }}
+                    value=""
+                    className="mapping-select"
+                  >
+                    <option value="" disabled>Select a DataSource</option>
+                    {dataSources.map(ds => (
+                      <option key={ds.id} value={ds.id}>
+                        {ds.name} ({ds.columns.length} columns)
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             );
           })}
         </div>
       </section>
 
-      {/* Associated Columns Section */}
+      {/* Column Overview Section */}
       <section className="section">
-        <h2>Associated Columns</h2>
+        <h2>All Available Columns</h2>
         <p className="hint">
-          Columns with the same name across different source files are automatically grouped together.
+          These are all columns from all imported DataSources.
         </p>
         
-        <div className="associated-columns">
-          {getUniqueDimensionNames().map((dimensionName) => {
-            const associatedColumns = getAssociatedColumns(dimensionName);
-            
-            return (
-              <div key={dimensionName} className="dimension-group">
-                <h4>{dimensionName}</h4>
-                <ul>
-                  {associatedColumns.map((assoc, index) => (
-                    <li key={index}>
-                      {assoc.sourceFileName}.{assoc.columnName}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
+        <div className="column-overview">
+          {dataSources.map((dataSource: LocalDataSource) => (
+            <div key={dataSource.id} className="data-source-columns">
+              <h3>{dataSource.name}</h3>
+              <table className="column-table">
+                <thead>
+                  <tr>
+                    <th>Index</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Used in Dimensions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dataSource.columns.map((column: DataColumn, colIndex) => {
+                    // Find dimensions that use this column
+                    const usingDimensions = dimensions.filter(dim =>
+                      dim.columnMappings.some(
+                        cm => cm.dataSourceId === dataSource.id && cm.columnIndex === colIndex
+                      )
+                    );
+                    
+                    return (
+                      <tr key={colIndex}>
+                        <td>{column.index}</td>
+                        <td>{column.name}</td>
+                        <td>{column.dataType}</td>
+                        <td>
+                          {usingDimensions.length > 0 ? (
+                            <ul className="using-dimensions">
+                              {usingDimensions.map(dim => (
+                                <li key={dim.id}>
+                                  {dim.name} (level {dim.columnMappings.find(cm => cm.dataSourceId === dataSource.id && cm.columnIndex === colIndex)?.level})
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <span className="not-used">Not used</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ))}
         </div>
       </section>
 

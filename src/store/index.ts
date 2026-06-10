@@ -6,9 +6,25 @@
  * 
  * Example:
  *   import { store } from './store';
- *   import { Store, SourceFile, Dimension, View, FilterConfig } from './store';
+ *   import { Store, PivotProject, DataSource, Dimension, View } from './store';
  */
 
 export { Store, store } from './Store';
-export type { SourceFile, Dimension, FilterConfig, View } from './Store';
+export type {
+  PivotProject,
+  DataSource,
+  LocalDataSource,
+  LazyDataSource,
+  Dimension,
+  ColumnMapping,
+  Node,
+  MetaData,
+  NodeSchema,
+  View,
+  Measure,
+  PivotFilterDimension,
+  AggregationType,
+  DataColumn,
+  ValidationError,
+} from './Store';
 

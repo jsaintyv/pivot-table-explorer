@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { store } from '../../store';
 import PivotGrid from '../../components/pivot-grid/PivotGrid';
-import type { FilterConfig, View } from '../../store';
+import type { Dimension, Node, View, Measure, AggregationType } from '../../models/pivot-project/types';
 import './ViewGridScreen.css';
 
 /**
@@ -14,223 +14,337 @@ import './ViewGridScreen.css';
 function ViewGridScreen() {
   const navigate = useNavigate();
   
+  /*
   const {
-    rowFields,
-    columnFields,
-    valueFields,
-    aggregation,
-    availableFields,
-    data,
-    dimensions,
-    filters,
-    views
+    pivotProject,
+    getDimensions,
+    getNodesByDimension,
+    getRootNodes,
+    getActiveView,
+    getViews,
+    updateView,
+    addView,
+    activeViewId,
+    // Legacy compatibility
+    rowFields: legacyRowFields,
+    columnFields: legacyColumnFields,
+    valueFields: legacyValueFields,
+    aggregation: legacyAggregation,
+    data: legacyData,
+    setRowFields: setLegacyRowFields,
+    setColumnFields: setLegacyColumnFields,
+    setValueFields: setLegacyValueFields,
+    setAggregation: setLegacyAggregation,
   } = store;
+  */
   
   const [viewName, setViewName] = useState('');
 
-  // Available dimensions are the dimension names from the store
-  const availableDimensions = useMemo(() => {
-    return [...new Set(dimensions.map(dim => dim.name))];
+  // Get the active view or create a temporary one
+  const activeView = store.getActiveView();
+  const dimensions = store.getDimensions();
+  const views = store.getViews();
+
+  // Get row and column dimensions from active view
+  const rowDimensionIds = activeView?.rowDimensions || [];
+  const columnDimensionIds = activeView?.columnDimensions || [];
+  const measures = activeView?.measures || [];
+  const filterDimensions = activeView?.filterDimensions || [];
+
+  // Get dimension names for display
+  const dimensionMap = useMemo(() => {
+    const map: Record<string, Dimension> = {};
+    dimensions.forEach(dim => {
+      map[dim.id] = dim;
+    });
+    return map;
   }, [dimensions]);
 
-  // All fields that can be used (from availableFields or dimensions)
-  const allAvailableFields = useMemo(() => {
-    return [...new Set([...availableFields, ...availableDimensions])];
-  }, [availableFields, availableDimensions]);
+  // Available dimensions
+  const availableDimensions = useMemo(() => {
+    return dimensions.map(dim => ({
+      id: dim.id,
+      name: dim.name,
+      dataType: dim.dataType,
+    }));
+  }, [dimensions]);
 
-  /**
-   * Check if a field is already used in any category
-   */
-  const isFieldUsed = (field: string): boolean => {
+ 
+  // Get root nodes for a dimension    
+  // Check if a dimension is used in any category
+  const isDimensionUsed = (dimensionId: string): boolean => {
     return (
-      rowFields.includes(field) ||
-      columnFields.includes(field) ||
-      valueFields.includes(field)
+      rowDimensionIds.includes(dimensionId) ||
+      columnDimensionIds.includes(dimensionId) ||
+      measures.some(m => 
+        m.source.type === 'column' && 
+        store.pivotProject.dataSources.some(ds => 
+          ds.type === 'local' && (m.source.columnIndex) < ds.columns.length
+        )
+      ) ||
+      filterDimensions.some(fd => fd.dimensionId === dimensionId)
     );
   };
 
-  /**
-   * Get the category a field belongs to
-   */
-  const getFieldCategory = (field: string): 'row' | 'column' | 'value' | null => {
-    if (rowFields.includes(field)) return 'row';
-    if (columnFields.includes(field)) return 'column';
-    if (valueFields.includes(field)) return 'value';
+  // Get the category a dimension belongs to
+  const getDimensionCategory = (dimensionId: string): 'row' | 'column' | 'value' | null => {
+    if (rowDimensionIds.includes(dimensionId)) return 'row';
+    if (columnDimensionIds.includes(dimensionId)) return 'column';
+    // Check if used in measures (simplified)
+    if (measures.some(m => 
+      m.source.type === 'column' && 
+      store.pivotProject.dataSources.some(ds => 
+        ds.type === 'local' && m.source.columnIndex < ds.columns.length &&
+        ds.columns[(m.source.columnIndex)].name === dimensionMap[dimensionId]?.name
+      )
+    )) return 'value';
     return null;
   };
 
-  /**
-   * Handle drag start
-   */
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, field: string) => {
-    e.dataTransfer.setData('text/plain', field);
+  // Get all unique values from nodes of a dimension
+  const getDimensionValues = (dimensionId: string): { code: string; value: any; metaData: any }[] => {
+    const nodes = store.getNodesByDimension(dimensionId);
+    return nodes.map(node => ({
+      code: node.code,
+      value: node.value,
+      metaData: node.metaData,
+    }));
+  };
+
+  // Get current filter values for a dimension
+  const getCurrentFilterValues = (dimensionId: string): string[] => {
+    const filter = filterDimensions.find(f => f.dimensionId === dimensionId);
+    return filter ? filter.selectedNodes : [];
+  };
+
+  // Get filter options for a dimension
+  const getFilterOptions = (dimensionId: string): { value: string; label: string }[] => {
+    const nodes = store.getNodesByDimension(dimensionId);
+    const dimension = dimensionMap[dimensionId];
+    
+    if (!dimension || !dimension.nodeSchema) {
+      return nodes.map(node => ({
+        value: node.id,
+        label: String(node.value),
+      }));
+    }
+    
+    // Use label from metaData if available
+    return nodes.map(node => ({
+      value: node.id,
+      label: node.metaData.label ? String(node.metaData.label) : String(node.value),
+    }));
+  };
+
+  // Handle drag start
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, dimensionId: string) => {
+    e.dataTransfer.setData('text/plain', dimensionId);
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  /**
-   * Handle drag over
-   */
+  // Handle drag over
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   };
 
-  /**
-   * Handle drop on row dimensions zone
-   */
+  // Handle drop on row dimensions zone
   const handleDropOnRows = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    const field = e.dataTransfer.getData('text/plain');
-    if (field && !rowFields.includes(field)) {
+    const dimensionId = e.dataTransfer.getData('text/plain');
+    if (dimensionId && !rowDimensionIds.includes(dimensionId)) {
       // Remove from other categories if present
-      const newColumnFields = columnFields.filter(f => f !== field);
-      const newValueFields = valueFields.filter(f => f !== field);
+      const newColumnDimensions = columnDimensionIds.filter(id => id !== dimensionId);
       
-      store.setColumnFields(newColumnFields);
-      store.setValueFields(newValueFields);
-      store.setRowFields([...rowFields, field]);
+      if (activeView) {
+        activeView.columnDimensions = newColumnDimensions;
+        if (!activeView.rowDimensions.includes(dimensionId)) {
+          activeView.rowDimensions = [...activeView.rowDimensions, dimensionId];
+        }
+        activeView.updatedAt = new Date().toISOString();
+        store.updateView(activeView.id, activeView);
+      } else {
+        // Create a new temporary view
+        const viewId = store.addView(
+          'Temporary View',
+          [dimensionId],
+          newColumnDimensions,
+          [],
+          'View for pivot configuration'
+        );
+        store.loadView(viewId);
+      }
     }
   };
 
-  /**
-   * Handle drop on column dimensions zone
-   */
+  // Handle drop on column dimensions zone
   const handleDropOnColumns = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    const field = e.dataTransfer.getData('text/plain');
-    if (field && !columnFields.includes(field)) {
+    const dimensionId = e.dataTransfer.getData('text/plain');
+    if (dimensionId && !columnDimensionIds.includes(dimensionId)) {
       // Remove from other categories if present
-      const newRowFields = rowFields.filter(f => f !== field);
-      const newValueFields = valueFields.filter(f => f !== field);
+      const newRowDimensions = rowDimensionIds.filter(id => id !== dimensionId);
       
-      store.setRowFields(newRowFields);
-      store.setValueFields(newValueFields);
-      store.setColumnFields([...columnFields, field]);
+      if (activeView) {
+        activeView.rowDimensions = newRowDimensions;
+        if (!activeView.columnDimensions.includes(dimensionId)) {
+          activeView.columnDimensions = [...activeView.columnDimensions, dimensionId];
+        }
+        activeView.updatedAt = new Date().toISOString();
+        store.updateView(activeView.id, activeView);
+      } else {
+        // Create a new temporary view
+        const viewId = store.addView(
+          'Temporary View',
+          newRowDimensions,
+          [dimensionId],
+          [],
+          'View for pivot configuration'
+        );
+        store.loadView(viewId);
+      }
     }
   };
 
-  /**
-   * Handle drop on value fields zone
-   */
+  // Handle drop on value fields zone
   const handleDropOnValues = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    const field = e.dataTransfer.getData('text/plain');
-    if (field && !valueFields.includes(field)) {
-      // Remove from other categories if present
-      const newRowFields = rowFields.filter(f => f !== field);
-      const newColumnFields = columnFields.filter(f => f !== field);
+    const dimensionId = e.dataTransfer.getData('text/plain');
+    if (dimensionId) {
+      // For now, values come from DataSource columns, not dimensions
+      // Find a numeric column from a LocalDataSource
+      const localDs = store.getLocalDataSources()[0];
+      if (!localDs) return;
       
-      store.setRowFields(newRowFields);
-      store.setColumnFields(newColumnFields);
-      store.setValueFields([...valueFields, field]);
+      // Find numeric columns
+      const numericColumns = localDs.columns.filter(c => c.dataType === 'number');
+      if (numericColumns.length === 0) return;
+      
+      // Use the first numeric column
+      const measure: Measure = {
+        id: `measure-${Date.now()}`,
+        name: numericColumns[0].name,
+        source: {
+          type: 'column',
+          dataSourceId: localDs.id,
+          columnIndex: numericColumns[0].index,
+        },
+        aggregation: 'sum',
+        format: undefined,
+        visible: true,
+      };
+      
+      if (activeView) {
+        activeView.measures = [...activeView.measures, measure];
+        activeView.updatedAt = new Date().toISOString();
+        store.updateView(activeView.id, activeView);
+      } else {
+        // Create a new temporary view with the measure
+        const viewId = store.addView(
+          'Temporary View',
+          [],
+          [],
+          [measure]
+        );
+        store.loadView(viewId);
+      }
     }
   };
 
-  /**
-   * Remove a field from its category
-   */
-  const removeField = (field: string, category: 'row' | 'column' | 'value') => {
+  // Remove a dimension from its category
+  const removeDimension = (dimensionId: string, category: 'row' | 'column' | 'value') => {
+    if (!activeView) return;
+    
     switch (category) {
       case 'row':
-        store.setRowFields(rowFields.filter(f => f !== field));
+        activeView.rowDimensions = activeView.rowDimensions.filter(id => id !== dimensionId);
         break;
       case 'column':
-        store.setColumnFields(columnFields.filter(f => f !== field));
+        activeView.columnDimensions = activeView.columnDimensions.filter(id => id !== dimensionId);
         break;
       case 'value':
-        store.setValueFields(valueFields.filter(f => f !== field));
+        activeView.measures = activeView.measures.filter(m => 
+          !(m.source.type === 'column' && m.source.dataSourceId && m.source.columnIndex)
+        );
         break;
+    }
+    
+    activeView.updatedAt = new Date().toISOString();
+    store.updateView(activeView.id, activeView);
+  };
+
+  // Handle filter change for a dimension
+  const handleFilterChange = (dimensionId: string, selectedNodeIds: string[]) => {
+    let activeView = store.getActiveView();
+    if (!activeView) {
+      // Create a new view if none exists
+      const viewId = store.addView('Temporary View');
+      store.loadView(viewId);
+    }
+    activeView = store.getActiveView();
+    
+    if (!activeView) return;
+    
+    // Find or create filter dimension
+    let filterDim = activeView.filterDimensions?.find(fd => fd.dimensionId === dimensionId);
+    
+    if (!filterDim) {
+      filterDim = {
+        dimensionId,
+        selectedNodes: selectedNodeIds,
+        operator: 'include',
+      };
+      activeView.filterDimensions = [...(activeView.filterDimensions || []), filterDim];
+    } else {
+      filterDim.selectedNodes = selectedNodeIds;
+    }
+    
+    activeView.updatedAt = new Date().toISOString();
+    store.updateView(activeView.id, activeView);
+  };
+
+  // Handle aggregation function change
+  const handleAggregationChange = (measureId: string, aggregationFunc: AggregationType) => {
+    if (!activeView) return;
+    
+    const measure = activeView.measures.find(m => m.id === measureId);
+    if (measure) {
+      measure.aggregation = aggregationFunc;
+      activeView.updatedAt = new Date().toISOString();
+      store.updateView(activeView.id, activeView);
     }
   };
 
-  /**
-   * Handle filter change for a dimension
-   */
-  const handleFilterChange = (dimensionName: string, selectedValues: string[]) => {
-    const existingFilter = filters.find(f => f.dimensionId === dimensionName);
-    
-    const filter: FilterConfig = {
-      dimensionId: dimensionName,
-      selectedValues,
-    };
-    
-    store.setFilter(filter);
-  };
-
-  /**
-   * Get all values for a dimension from the data
-   */
-  const getDimensionValues = (dimensionName: string): string[] => {
-    if (!data.length) return [];
-    
-    const values = new Set<string>();
-    data.forEach((item: any) => {
-      const value = item[dimensionName];
-      if (value !== undefined && value !== null) {
-        values.add(String(value));
-      }
-    });
-    
-    return Array.from(values).sort();
-  };
-
-  /**
-   * Get current filter values for a dimension
-   */
-  const getCurrentFilterValues = (dimensionName: string): string[] => {
-    const filter = filters.find(f => f.dimensionId === dimensionName);
-    return filter ? filter.selectedValues : [];
-  };
-
-  /**
-   * Handle aggregation function change
-   */
-  const handleAggregationChange = (_field: string, aggregationFunc: string) => {
-    // For now, we'll use the same aggregation for all value fields
-    // In a more advanced implementation, each value field could have its own aggregation
-    store.setAggregation(aggregationFunc as any);
-  };
-
-  /**
-   * Save current configuration as a view
-   */
+  // Save current configuration as a view
   const handleSaveView = () => {
-    if (!viewName.trim()) return;
+    if (!viewName.trim() || !activeView) return;
     
-    const newView: Omit<View, 'id'> = {
-      name: viewName.trim(),
-      rowFields,
-      columnFields,
-      valueFields,
-      aggregation,
-      filters,
-    };
-    
-    store.addView(newView);
+    activeView.name = viewName.trim();
+    activeView.updatedAt = new Date().toISOString();
+    store.updateView(activeView.id, activeView);
     setViewName('');
   };
 
-  /**
-   * Navigate back to Main screen
-   */
+  // Navigate back to Main screen
   const navigateToMainScreen = () => {
     navigate('/');
   };
 
-  // Filter the data based on current filter configuration
-  const filteredData = useMemo(() => {
-    if (filters.length === 0) return data;
+  // Prepare data for PivotGrid component (legacy format)
+  // This converts the new PivotProject model to the old format expected by PivotGrid
+  const pivotDataForGrid = useMemo(() => {
+    if (store.data.length > 0) {
+      return store.data;
+    }
     
-    return data.filter((item: any) => {
-      return filters.every((filter) => {
-        const fieldValue = item[filter.dimensionId];
-        // If no values are selected for this filter, include all
-        if (filter.selectedValues.length === 0) return true;
-        // Otherwise, check if the value is in the selected values
-        return filter.selectedValues.includes(String(fieldValue));
-      });
-    });
-  }, [data, filters]);
+    // If we have active view and data sources, try to convert
+    if (!activeView || rowDimensionIds.length === 0 || measures.length === 0) {
+      return [];
+    }
+    
+    // For now, return empty array - the PivotGrid will need to be updated to use the new model
+    return [];
+  }, [store.data]);
 
   return (
     <main className="view-grid-screen">
@@ -265,18 +379,18 @@ function ViewGridScreen() {
         <div className="dimension-config">
           {/* Available Dimensions */}
           <div className="available-dimensions">
-            <h3>Available Fields</h3>
+            <h3>Available Dimensions</h3>
             <div className="available-list">
-              {allAvailableFields
-                .filter(field => !isFieldUsed(field))
-                .map((field) => (
+              {availableDimensions
+                .filter(dim => !isDimensionUsed(dim.id))
+                .map((dim) => (
                   <div
-                    key={field}
+                    key={dim.id}
                     className="field-item"
                     draggable
-                    onDragStart={(e) => handleDragStart(e, field)}
+                    onDragStart={(e) => handleDragStart(e, dim.id)}
                   >
-                    {field}
+                    {dim.name} ({dim.dataType})
                   </div>
                 ))}
             </div>
@@ -292,20 +406,23 @@ function ViewGridScreen() {
             >
               <h3>Row Dimensions</h3>
               <div className="drop-area">
-                {rowFields.length === 0 ? (
-                  <p>Drop fields here for rows</p>
+                {rowDimensionIds.length === 0 ? (
+                  <p>Drop dimensions here for rows</p>
                 ) : (
-                  rowFields.map((field) => (
-                    <div key={field} className="field-badge">
-                      {field}
-                      <button 
-                        onClick={() => removeField(field, 'row')}
-                        className="remove-field"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))
+                  rowDimensionIds.map((dimId) => {
+                    const dim = dimensionMap[dimId];
+                    return (
+                      <div key={dimId} className="field-badge">
+                        {dim?.name || dimId} ({dim?.dataType})
+                        <button 
+                          onClick={() => removeDimension(dimId, 'row')}
+                          className="remove-field"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -318,20 +435,23 @@ function ViewGridScreen() {
             >
               <h3>Column Dimensions</h3>
               <div className="drop-area">
-                {columnFields.length === 0 ? (
-                  <p>Drop fields here for columns</p>
+                {columnDimensionIds.length === 0 ? (
+                  <p>Drop dimensions here for columns</p>
                 ) : (
-                  columnFields.map((field) => (
-                    <div key={field} className="field-badge">
-                      {field}
-                      <button 
-                        onClick={() => removeField(field, 'column')}
-                        className="remove-field"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))
+                  columnDimensionIds.map((dimId) => {
+                    const dim = dimensionMap[dimId];
+                    return (
+                      <div key={dimId} className="field-badge">
+                        {dim?.name || dimId} ({dim?.dataType})
+                        <button 
+                          onClick={() => removeDimension(dimId, 'column')}
+                          className="remove-field"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -342,33 +462,43 @@ function ViewGridScreen() {
               onDragOver={handleDragOver}
               onDrop={handleDropOnValues}
             >
-              <h3>Value Fields</h3>
+              <h3>Measures</h3>
               <div className="drop-area">
-                {valueFields.length === 0 ? (
-                  <p>Drop fields here for values</p>
+                {measures.length === 0 ? (
+                  <p>Drop numeric columns here for values</p>
                 ) : (
-                  valueFields.map((field) => (
-                    <div key={field} className="field-badge">
-                      {field}
-                      <select
-                        value={aggregation}
-                        onChange={(e) => handleAggregationChange(field, e.target.value)}
-                        className="aggregation-select"
-                      >
-                        <option value="sum">Sum</option>
-                        <option value="avg">Average</option>
-                        <option value="count">Count</option>
-                        <option value="min">Min</option>
-                        <option value="max">Max</option>
-                      </select>
-                      <button 
-                        onClick={() => removeField(field, 'value')}
-                        className="remove-field"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))
+                  measures.map((measure) => {
+                    const ds = store.pivotProject.dataSources.find(
+                      d => d.id === measure.source.dataSourceId && d.type === 'local'
+                    ) as any;
+                    const colName = ds?.columns[measure.source.columnIndex]?.name || 
+                      `Column ${measure.source.columnIndex}`;
+                    
+                    return (
+                      <div key={measure.id} className="field-badge">
+                        {measure.name || colName}
+                        <select
+                          value={measure.aggregation}
+                          onChange={(e) => handleAggregationChange(measure.id, e.target.value as AggregationType)}
+                          className="aggregation-select"
+                        >
+                          <option value="sum">Sum</option>
+                          <option value="average">Average</option>
+                          <option value="count">Count</option>
+                          <option value="min">Min</option>
+                          <option value="max">Max</option>
+                          <option value="first">First</option>
+                          <option value="last">Last</option>
+                        </select>
+                        <button 
+                          onClick={() => removeDimension(measure.id, 'value')}
+                          className="remove-field"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -379,29 +509,33 @@ function ViewGridScreen() {
       {/* Filters Configuration */}
       <section className="section">
         <h2>Filters</h2>
-        <p className="hint">Select which values to include for each dimension.</p>
+        <p className="hint">Select which node values to include for each dimension.</p>
         
         <div className="filters-config">
-          {availableDimensions.map((dimensionName) => {
-            const values = getDimensionValues(dimensionName);
-            const currentValues = getCurrentFilterValues(dimensionName);
+          {dimensions.map((dimension: Dimension) => {
+            const nodes = store.getNodesByDimension(dimension.id);
+            if (nodes.length === 0) return null;
+            
+            const filterOptions = getFilterOptions(dimension.id);
+            const currentValues = getCurrentFilterValues(dimension.id);
             
             return (
-              <div key={dimensionName} className="filter-group">
-                <h4>{dimensionName}</h4>
+              <div key={dimension.id} className="filter-group">
+                <h4>{dimension.name}</h4>
                 <select
                   multiple
                   value={currentValues}
                   onChange={(e) => {
                     const selectedValues = Array.from(e.target.selectedOptions)
                       .map(option => option.value);
-                    handleFilterChange(dimensionName, selectedValues);
+                    handleFilterChange(dimension.id, selectedValues);
                   }}
                   className="filter-select"
+                  size={Math.min(filterOptions.length, 5)}
                 >
-                  {values.map((value) => (
-                    <option key={value} value={value}>
-                      {value}
+                  {filterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
                     </option>
                   ))}
                 </select>
@@ -414,13 +548,19 @@ function ViewGridScreen() {
       {/* Pivot Grid Display */}
       <section className="section pivot-grid-section">
         <h2>Pivot Table Preview</h2>
+        <p className="hint">
+          {activeView ? 
+            `Current view: ${activeView.name} | Rows: [${rowDimensionIds.join(', ')}] | Columns: [${columnDimensionIds.join(', ')}]` 
+            : 'Configure dimensions and measures to see the pivot table'}
+        </p>
         <div className="pivot-grid-container">
+          {/* PivotGrid component will be updated to use the new model */}
           <PivotGrid
-            data={filteredData}
-            defaultRowFields={rowFields}
-            defaultColumnFields={columnFields}
-            defaultValueFields={valueFields}
-            defaultAggregation={aggregation}
+            data={pivotDataForGrid}
+            defaultRowFields={store.rowFields}
+            defaultColumnFields={store.columnFields}
+            defaultValueFields={store.valueFields}
+            defaultAggregation={store.aggregation}
           />
         </div>
       </section>

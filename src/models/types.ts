@@ -3,6 +3,8 @@
  * 
  * This file contains all TypeScript interfaces and types for the PivotGrid component
  * and related data structures.
+ * 
+ * For the new PivotProject model, see ./pivot-project/index.ts
  */
 
 // ============================================================================
@@ -16,6 +18,9 @@
 export interface DataItem {
   [key: string]: string | number | boolean | null | undefined;
 }
+
+// Re-export PivotProject types for backward compatibility
+export * from './pivot-project/types';
 
 // ============================================================================
 // GRID CELL MODELS
