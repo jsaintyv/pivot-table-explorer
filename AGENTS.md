@@ -14,6 +14,9 @@ pivot-table-explorer/
 ├── src/
 │   ├── components/           # Common components shared between screens
 │   ├── screens/              # Screens, one screen per subfolder
+│   ├── stores/               # MobX stores (singletons)
+│   ├── services/             # Services for model operations
+│   ├── models/               # Data models and interfaces
 │   ├── App.tsx               # Demo application
 │   ├── App.css               # App styles
 │   ├── main.tsx              # React entry point
@@ -30,22 +33,10 @@ pivot-table-explorer/
 - **Bundler**: Vite
 - **Styling**: CSS Modules / Vanilla CSS
 - **Language**: TypeScript (strict mode)
+- **State Management**: MobX
 
-### Code Style
-- Use **Functional Components** with React Hooks
-- Type all props and state with **TypeScript interfaces**
-- Use **descriptive type names** for complex types
-- Follow **React best practices** (useState, useEffect, useMemo, useCallback)
-- **Component naming**: PascalCase (e.g., `PivotGrid`, `DataCell`)
-- **File naming**: `ComponentName.tsx`, `ComponentName.css`
-- **Variable naming**: camelCase for variables, UPPER_CASE for constants
-
-### TypeScript Conventions
-- Define **interfaces** for complex data structures
-- Use **type aliases** for union types and literal types
-- Always specify **return types** for functions
-- Use **generics** when appropriate for reusable components
-- Handle **null/undefined** cases explicitly
+### Typescript / React guidelines
+See [@docs/typescript/pattern.md](docs/typescript/pattern.md)
 
 ## Build & Run
 
@@ -73,25 +64,27 @@ A project has these attributes:
 
 ## Documentation
 
-Folder `/docs` contains the documentation of the project.
-`/docs/screens/screenflow.md` describes how we navigate between screens.
+The `/docs` folder contains the project documentation.
+The `/docs/screens/screenflow.md` file describes navigation between screens.
 
 
 ## Architecture
 
-- Screen state is controlled by a store.
+- **Screen state is controlled by a singleton store**, instantiated at the screen level.
+- The store is **propagated down via React Context** to child components.
 - The `./src/screens/` directory contains a subfolder per screen.
 - A screen can be composed of many components from `./src/components` or `./src/screens/{screenName}/{componentName}`.
 - Use react-router-dom to navigate between screens.
-- Each screen and each component should have its own subfolder
+- Each screen and each component should have its own subfolder.
+- **Context files** are located in `src/stores/contexts/` for explicit store propagation.
 
 
 ## **Restrictions**
 
-Do not automate:
+Do not automate the following actions:
 - `git commit`
 - `git add`
 - `git push`
 - `git stash`
 
-Those actions should be only operated by a human
+These actions should only be operated by a human.
