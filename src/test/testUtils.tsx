@@ -6,7 +6,8 @@
  */
 
 import { render as rtlRender } from '@testing-library/react';
-import { Store } from '../store/Store';
+import { Store } from '../stores/Store';
+import { StoreContext } from '../stores/contexts/StoreContext';
 import type { RenderOptions } from '@testing-library/react';
 import type { ReactElement } from 'react';
 
@@ -15,20 +16,31 @@ import type { ReactElement } from 'react';
  * Returns a fresh MobX store instance for each test to avoid pollution
  */
 export function createTestStore() {
-  return new Store();
+  return Store.createTestInstance();
 }
 
 /**
  * Render a component with MobX store context
- * With MobX using singleton pattern, components directly access the global store.
- * For testing, we render directly without a Provider since MobX uses direct references.
+ * Wraps the component in StoreContext.Provider with either:
+ * - The provided store (for isolated tests)
+ * - The singleton instance (for integration tests)
  */
 export function renderWithProviders(
   ui: ReactElement,
-  renderOptions: RenderOptions = {}
+  renderOptions: RenderOptions = {},
+  testStore?: Store
 ) {
-  // For MobX with singleton store, render directly
-  return rtlRender(ui, renderOptions);
+  // Use provided test store or get singleton instance
+  const store = testStore || Store.getInstance();
+  
+  // Wrap with StoreContext.Provider
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <StoreContext.Provider value={store}>
+      {children}
+    </StoreContext.Provider>
+  );
+  
+  return rtlRender(ui, { wrapper, ...renderOptions });
 }
 
 // Re-export everything from testing-library

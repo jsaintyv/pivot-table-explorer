@@ -38,10 +38,31 @@ export class Store {
   // MODEL: Main state
   pivotProject: PivotProject;
   activeViewId?: string;
+  
+  private static instance: Store | null = null;
 
-  constructor() {
+  // Protected constructor allows test utilities to create instances
+  protected constructor() {
     this.pivotProject = createEmptyPivotProject();
     makeAutoObservable(this);
+  }
+  
+  /**
+   * Singleton accessor - returns the global store instance
+   */
+  public static getInstance(): Store {
+    if (!Store.instance) {
+      Store.instance = new Store();
+    }
+    return Store.instance;
+  }
+  
+  /**
+   * Create a new store instance for testing purposes
+   * This bypasses the singleton pattern for test isolation
+   */
+  public static createTestInstance(): Store {
+    return new Store();
   }
 
   // ==========================================================================
@@ -651,16 +672,6 @@ export class Store {
 
   
 }
-
-// ============================================================================
-// SINGLETON INSTANCE
-// ============================================================================
-
-/**
- * Singleton store instance to be used throughout the application
- * This is the Controller in the MVC pattern
- */
-export const store = new Store();
 
 // ============================================================================
 // EXPORT TYPES

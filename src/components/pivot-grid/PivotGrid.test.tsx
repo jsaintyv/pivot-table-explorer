@@ -10,8 +10,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import PivotGrid from './PivotGrid';
 import type { DataItem } from '../../models/types';
 import { renderWithProviders } from '../../test/testUtils';
-import { store } from '../../store';
+import { Store } from '../../stores/Store';
 import { parseCSV } from '../../utils/csvParser';
+
+// Get the store instance
+const store = Store.getInstance();
 
 // Override the default render with our custom version
 // Wrap in act() to handle MobX state updates
@@ -20,12 +23,17 @@ const render = (ui: React.ReactElement, options?: any) => {
 };
 
 // Clear the MobX store before each test to prevent pollution
+// Wrap in act() to handle MobX state updates
 beforeEach(() => {
-  store.clear();
+  act(() => {
+    store.clear();
+  });
 });
 
 afterEach(() => {
-  store.clear();
+  act(() => {
+    store.clear();
+  });
 });
 
 // ============================================================================

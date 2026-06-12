@@ -6,7 +6,7 @@
  */
 
 import { observer } from 'mobx-react-lite';
-import { store } from '../../store';
+import { useStore } from '../../stores/contexts/StoreContext';
 import { aggregationFunctions } from '../../utils/aggregations';
 import type { AggregationFunction } from '../../models/types';
 
@@ -15,6 +15,7 @@ interface PivotGridConfigurationProps {
 }
 
 export const PivotGridConfiguration: React.FC<PivotGridConfigurationProps> = observer(({ allFields }) => {
+  const store = useStore();
   const {
     rowFields,
     columnFields,

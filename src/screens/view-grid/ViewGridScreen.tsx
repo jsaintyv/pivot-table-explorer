@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { store } from '../../store';
+import { store, StoreContext } from './store';
 import PivotGrid from '../../components/pivot-grid/PivotGrid';
 import type { Dimension, Node, View, Measure, AggregationType } from '../../models/pivot-project/types';
 import './ViewGridScreen.css';
@@ -11,7 +11,7 @@ import './ViewGridScreen.css';
  * Allows users to configure the pivot table structure with row dimensions, column dimensions, filters, and value fields
  * Wrapped with observer to react to MobX store changes (MVC View)
  */
-function ViewGridScreen() {
+function ViewGridScreenComponent() {
   const navigate = useNavigate();
   
   /*
@@ -575,4 +575,11 @@ function ViewGridScreen() {
   );
 }
 
-export default observer(ViewGridScreen);
+// Wrap the component with StoreContext.Provider
+export default observer(function ViewGridScreen() {
+  return (
+    <StoreContext.Provider value={store}>
+      <ViewGridScreenComponent />
+    </StoreContext.Provider>
+  );
+});

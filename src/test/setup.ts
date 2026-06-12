@@ -22,16 +22,25 @@ configure({
   observableRequiresReaction: false,
 });
 
-// Import and reset the singleton store before each test
-import { store } from '../store/Store';
+// Import the Store class to access singleton instance
+import { act } from '@testing-library/react';
+import { Store } from '../stores/Store';
+
+// Get the singleton instance for test cleanup
+const store = Store.getInstance();
 
 // Reset the store before each test to ensure clean state
+// Wrap in act() to handle MobX state updates
 beforeEach(() => {
-  store.clear();
+  act(() => {
+    store.clear();
+  });
 });
 
 afterEach(() => {
-  store.clear();
+  act(() => {
+    store.clear();
+  });
 });
 
 // Mock console methods to reduce noise in test output

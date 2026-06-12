@@ -1,15 +1,16 @@
 /**
- * Store Index
+ * Stores Index
  * 
- * Re-exports everything from the MobX store.
+ * Re-exports the Store class and types.
+ * Use Store.getInstance() to access the singleton instance.
  * Import from this file for a cleaner import path.
  * 
  * Example:
- *   import { store } from './store';
- *   import { Store, PivotProject, DataSource, Dimension, View } from './store';
+ *   import { Store } from './stores';
+ *   import { Store, PivotProject, DataSource, Dimension, View } from './stores';
  */
 
-export { Store, store } from './Store';
+export { Store } from './Store';
 export type {
   PivotProject,
   DataSource,

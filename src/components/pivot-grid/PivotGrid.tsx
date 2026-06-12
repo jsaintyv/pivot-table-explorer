@@ -9,7 +9,7 @@ import type {
   DimensionValues,
 } from '../../models/types';
 import { aggregationFunctions } from '../../utils/aggregations';
-import { store } from '../../store';
+import { useStore } from '../../stores/contexts/StoreContext';
 
 /**
  * PivotGrid Component - A pivot table component for data exploration
@@ -35,7 +35,8 @@ const PivotGrid: React.FC<PivotGridProps> = observer(function PivotGrid({
   defaultValueFields = [],
   defaultAggregation = 'sum'
 }) {
-  // Get state from MobX store
+  // Get state from MobX store via context
+  const store = useStore();
   const {
     rowFields,
     columnFields,

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { store } from '../../store';
+import { store, StoreContext } from './store';
 import { parseCSV } from '../../utils/csvParser';
 import type { LocalDataSource, Dimension, View, DataColumn } from '../../models/pivot-project/types';
 import { saveProjectToFile } from '../../models/pivot-project/serialization';
@@ -322,4 +322,11 @@ function MainScreen() {
   );
 }
 
-export default observer(MainScreen);
+// Wrap the component with StoreContext.Provider
+export default observer(function MainScreenWrapper() {
+  return (
+    <StoreContext.Provider value={store}>
+      <MainScreen />
+    </StoreContext.Provider>
+  );
+});

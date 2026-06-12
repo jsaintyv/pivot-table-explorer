@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { store } from '../../store';
+import { store, StoreContext } from './store';
 import type { LocalDataSource, Dimension, DataColumn } from '../../models/pivot-project/types';
 import './AxeScreen.css';
 
@@ -10,7 +10,7 @@ import './AxeScreen.css';
  * Allows users to configure ColumnMappings for dimensions
  * Wrapped with observer to react to MobX store changes (MVC View)
  */
-function AxeScreen() {
+function AxeScreenComponent() {
   const navigate = useNavigate();
   
   const { 
@@ -247,4 +247,11 @@ function AxeScreen() {
   );
 }
 
-export default observer(AxeScreen);
+// Wrap the component with StoreContext.Provider
+export default observer(function AxeScreen() {
+  return (
+    <StoreContext.Provider value={store}>
+      <AxeScreenComponent />
+    </StoreContext.Provider>
+  );
+});
