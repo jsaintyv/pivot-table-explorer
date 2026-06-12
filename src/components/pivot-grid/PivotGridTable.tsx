@@ -24,7 +24,7 @@ interface PivotGridTableProps {
   aggregation: AggregationFunction;
 }
 
-export const PivotGridTable: React.FC<PivotGridTableProps> = observer(({
+export const PivotGridTable: React.FC<PivotGridTableProps> = ({
   data,
   rowFields,
   columnFields,
@@ -195,7 +195,7 @@ export const PivotGridTable: React.FC<PivotGridTableProps> = observer(({
   // Empty state
   if (pivotData.grid.length === 0) {
     return (
-      <div className="empty-message">
+      <div className="empty-message">        
         Select at least one field for Rows, Columns, and Values to generate the pivot table
       </div>
     );
@@ -235,6 +235,6 @@ export const PivotGridTable: React.FC<PivotGridTableProps> = observer(({
       </table>
     </div>
   );
-});
+};
 
 export default PivotGridTable;

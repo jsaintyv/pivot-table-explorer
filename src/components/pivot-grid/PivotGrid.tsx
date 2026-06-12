@@ -37,6 +37,10 @@ const PivotGrid: React.FC<PivotGridProps> = observer(function PivotGrid({
 }) {
   // Get state from MobX store via context
   const store = useStore();
+  const pivotProject = store.pivotProject;
+  if(!pivotProject) {
+    return (<div className="pivot-grid-container">Empty !</div>)
+  }
   const {
     rowFields,
     columnFields,
