@@ -93,3 +93,18 @@ export const detectSeparator = (line: string): string => {
   
   return hasSemicolons ? ';' : hasCommas ? ',' : ';';
 };
+
+
+export function importCSV(file: File, callback: (columns: any[], data: any[][]) => void) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+        const content = e.target?.result as string;
+        const csvData = parseCSV(content);
+        const columns = csvData.length > 0 ? Object.keys(csvData[0]) : [];
+
+        callback(columns, csvData);
+        
+       
+        };
+        reader.readAsText(file);
+    }

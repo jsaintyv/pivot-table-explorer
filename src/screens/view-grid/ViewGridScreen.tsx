@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { store, StoreContext } from './store';
 import PivotGrid from '../../components/pivot-grid/PivotGrid';
 import type { Dimension, Node, View, Measure, AggregationType } from '../../models/pivot-project/types';
 import './ViewGridScreen.css';
+import { StoreContext, useStore } from '../../stores/contexts/StoreContext';
+import { Store } from '../../stores';
 
 /**
  * ViewGridScreen component
@@ -13,31 +14,7 @@ import './ViewGridScreen.css';
  */
 function ViewGridScreenComponent() {
   const navigate = useNavigate();
-  
-  /*
-  const {
-    pivotProject,
-    getDimensions,
-    getNodesByDimension,
-    getRootNodes,
-    getActiveView,
-    getViews,
-    updateView,
-    addView,
-    activeViewId,
-    // Legacy compatibility
-    rowFields: legacyRowFields,
-    columnFields: legacyColumnFields,
-    valueFields: legacyValueFields,
-    aggregation: legacyAggregation,
-    data: legacyData,
-    setRowFields: setLegacyRowFields,
-    setColumnFields: setLegacyColumnFields,
-    setValueFields: setLegacyValueFields,
-    setAggregation: setLegacyAggregation,
-  } = store;
-  */
-  
+  const store = useStore();   
   const [viewName, setViewName] = useState('');
 
   // Get the active view or create a temporary one
@@ -578,7 +555,7 @@ function ViewGridScreenComponent() {
 // Wrap the component with StoreContext.Provider
 export default observer(function ViewGridScreen() {
   return (
-    <StoreContext.Provider value={store}>
+    <StoreContext.Provider value={Store.getInstance()}>
       <ViewGridScreenComponent />
     </StoreContext.Provider>
   );

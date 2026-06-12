@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { store, StoreContext } from './store';
 import type { LocalDataSource, Dimension, DataColumn } from '../../models/pivot-project/types';
 import './AxeScreen.css';
+import { StoreContext, useStore } from '../../stores/contexts/StoreContext';
+import { Store } from '../../stores';
 
 /**
  * AxeScreen component
@@ -14,12 +15,12 @@ function AxeScreenComponent() {
   const navigate = useNavigate();
   
   const { 
-    pivotProject, 
+    
     getLocalDataSources, 
     getDimensions,
     updateDimension,
     getDimension
-  } = store;
+  } = useStore();
   
   const dataSources = getLocalDataSources();
   const dimensions = getDimensions();
@@ -250,7 +251,7 @@ function AxeScreenComponent() {
 // Wrap the component with StoreContext.Provider
 export default observer(function AxeScreen() {
   return (
-    <StoreContext.Provider value={store}>
+    <StoreContext.Provider value={Store.getInstance()}>
       <AxeScreenComponent />
     </StoreContext.Provider>
   );

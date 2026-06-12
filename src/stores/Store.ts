@@ -10,7 +10,7 @@
  * - View: React components that observe and render the state
  */
 
-import { makeAutoObservable } from 'mobx';
+import { action, makeAutoObservable, makeObservable, observable } from 'mobx';
 import type {
   PivotProject,
   DataSource,
@@ -28,7 +28,9 @@ import type {
   DataColumn,
   ValidationError,
 } from '../models/pivot-project/types';
-import { createEmptyPivotProject } from '../models/pivot-project/migration';
+import { importCSV } from '../utils/csvParser';
+import { detectColumnType, getUniqueValues, isColumnUnique } from '../utils/ParserUtils';
+import { PivotProjectService } from '../services/PivotProjectService';
 
 // ============================================================================
 // STORE CLASS (Controller + Model)
@@ -42,9 +44,13 @@ export class Store {
   private static instance: Store | null = null;
 
   // Protected constructor allows test utilities to create instances
-  protected constructor() {
-    this.pivotProject = createEmptyPivotProject();
-    makeAutoObservable(this);
+  protected constructor() {    
+    makeObservable(this, {
+      pivotProject: observable.ref,
+      activeViewId: observable,
+      updateProject: action,
+    });
+    this.pivotProject = PivotProjectService.createEmptyPivotProject();
   }
   
   /**
@@ -73,7 +79,7 @@ export class Store {
    * Create a new empty project
    */
   createProject(name?: string): void {
-    this.pivotProject = createEmptyPivotProject(name);
+    this.pivotProject = PivotProjectService.createEmptyPivotProject(name);
     this.activeViewId = undefined;
   }
 
@@ -104,30 +110,7 @@ export class Store {
   // DATA SOURCE ACTIONS
   // ==========================================================================
 
-  /**
-   * Add a LocalDataSource from CSV or Excel
-   */
-  addLocalDataSource(
-    name: string,
-    originalFormat: 'csv' | 'excel',
-    columns: DataColumn[],
-    data: any[][]
-  ): string {
-    const id = `ds-${Date.now()}`;
-    const dataSource: LocalDataSource = {
-      id,
-      name,
-      type: 'local',
-      originalFormat,
-      loadedAt: new Date().toISOString(),
-      columns,
-      data,
-    };
-    this.pivotProject.dataSources.push(dataSource);
-    this.pivotProject.updatedAt = new Date().toISOString();
-    return id;
-  }
-
+  
   /**
    * Add a LazyDataSource for JSON-API
    */
@@ -158,25 +141,28 @@ export class Store {
    */
   removeDataSource(id: string): void {
     // Remove the DataSource
-    this.pivotProject.dataSources = this.pivotProject.dataSources.filter(ds => ds.id !== id);
+    var newProject = { ...this.pivotProject };
+
+    newProject.dataSources = newProject.dataSources.filter(ds => ds.id !== id);
     
     // Remove ColumnMappings that reference this DataSource
-    this.pivotProject.dimensions.forEach(dim => {
+    newProject.dimensions.forEach(dim => {
       dim.columnMappings = dim.columnMappings.filter(cm => cm.dataSourceId !== id);
     });
     
     // Update Nodes - remove those that only have this source
     const newNodes: Record<string, Node> = {};
-    Object.entries(this.pivotProject.nodes).forEach(([nodeId, node]) => {
+    Object.entries(newProject.nodes).forEach(([nodeId, node]) => {
       const newSourceIds = node.sourceIds.filter(sid => sid !== id);
       if (newSourceIds.length > 0) {
         newNodes[nodeId] = { ...node, sourceIds: newSourceIds };
       }
       // If no more sources, don't include (manual nodes would need special handling)
     });
-    this.pivotProject.nodes = newNodes;
+    newProject.nodes = newNodes;
     
-    this.pivotProject.updatedAt = new Date().toISOString();
+    newProject.updatedAt = new Date().toISOString();
+    this.updateProject(newProject);
   }
 
   /**
@@ -208,30 +194,7 @@ export class Store {
   // DIMENSION ACTIONS
   // ==========================================================================
 
-  /**
-   * Add a new dimension
-   */
-  addDimension(
-    name: string,
-    dataType: 'string' | 'number' | 'date' | 'boolean',
-    description?: string,
-    columnMappings?: ColumnMapping[],
-    nodeSchema?: NodeSchema
-  ): string {
-    const id = `dim-${Date.now()}`;
-    const dimension: Dimension = {
-      id,
-      name,
-      description,
-      dataType,
-      columnMappings: columnMappings || [],
-      rootNodes: [],
-      nodeSchema,
-    };
-    this.pivotProject.dimensions.push(dimension);
-    this.pivotProject.updatedAt = new Date().toISOString();
-    return id;
-  }
+  
 
   /**
    * Update an existing dimension
@@ -288,38 +251,7 @@ export class Store {
   // NODE ACTIONS
   // ==========================================================================
 
-  /**
-   * Add a new node
-   */
-  addNode(
-    dimensionId: string,
-    code: string,
-    value: string | number | Date | boolean,
-    metaData?: MetaData,
-    children?: string[],
-    sourceIds?: string[]
-  ): string {
-    const id = `node-${Date.now()}`;
-    const node: Node = {
-      id,
-      dimensionId,
-      code,
-      value,
-      metaData: metaData || {},
-      children: children || [],
-      sourceIds: sourceIds || [],
-    };
-    this.pivotProject.nodes[id] = node;
-    
-    // Add to rootNodes of the dimension if not already there
-    const dim = this.getDimension(dimensionId);
-    if (dim && !dim.rootNodes.includes(id)) {
-      dim.rootNodes.push(id);
-    }
-    
-    this.pivotProject.updatedAt = new Date().toISOString();
-    return id;
-  }
+  
 
   /**
    * Update an existing node
@@ -666,11 +598,77 @@ export class Store {
    */
   clear() {
     this.resetAll();
-    this.pivotProject = createEmptyPivotProject();
+    this.pivotProject = PivotProjectService.createEmptyPivotProject();
     this.activeViewId = undefined;
   }
 
-  
+  updateProject(update: PivotProject) {
+      console.log('Updating project:', update);
+      this.pivotProject = update;
+  } 
+
+    
+  importCsv(file: File) {
+     importCSV(file, (columns, csvData) => {
+      // Convert to row-major format (array of arrays)
+        const data: any[][] = csvData.map(row => columns.map(col => row[col]));
+        
+        // Create DataColumn metadata
+        const dataColumns: DataColumn[] = columns.map((name, index) => ({
+            index,
+            name,
+            dataType: detectColumnType(csvData, name, index),
+            nullable: false,
+            unique: isColumnUnique(csvData, name),
+        }));
+        
+        // Add the data source
+        const dataSource = PivotProjectService.buildLocalDataSource(            
+            file.name,
+            'csv',
+            dataColumns,
+            data
+        );
+        
+        const dimensions: Dimension[] = [...this.pivotProject.dimensions];
+        
+        // Auto-create dimensions for each column
+        dataColumns.forEach((column, colIndex) => {
+            
+            const dim = PivotProjectService.buildDimension(
+            column.name,
+            column.dataType as 'string' | 'number' | 'date' | 'boolean',
+            `Dimension for ${column.name}`,
+            [{
+                dataSourceId: dataSource.id,
+                columnIndex: colIndex,
+                level: 0,
+                name: column.name,
+            }]
+            );
+            dimensions.push(dim);
+            
+            // Create root node for this dimension
+            const uniqueValues = getUniqueValues(csvData, column.name);
+            uniqueValues.forEach((value) => {
+            PivotProjectService.buildNode(
+                dim.id,
+                String(value),
+                value,
+                {},
+                [],
+                [dataSource.id]
+            );
+            });
+        });
+        this.updateProject({
+            ...this.pivotProject,
+            dimensions: dimensions,
+            dataSources: [...this.pivotProject.dataSources, dataSource],
+            updatedAt: new Date().toISOString()
+        });
+     });
+  }
 }
 
 // ============================================================================
