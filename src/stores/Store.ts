@@ -10,7 +10,7 @@
  * - View: React components that observe and render the state
  */
 
-import { action, makeAutoObservable, makeObservable, observable } from 'mobx';
+import { action, computed, makeAutoObservable, makeObservable, observable } from 'mobx';
 import type {
   PivotProject,
   DataSource,
@@ -49,6 +49,7 @@ export class Store {
       pivotProject: observable.ref,
       activeViewId: observable,
       updateProject: action,
+      
     });
     this.pivotProject = PivotProjectService.createEmptyPivotProject();
   }
@@ -211,9 +212,13 @@ export class Store {
    * Remove a dimension by ID
    */
   removeDimension(id: string): void {
-    // Remove the dimension
-    this.pivotProject.dimensions = this.pivotProject.dimensions.filter(d => d.id !== id);
     
+    var newProject = { ...this.pivotProject };
+    console.log('Before dimension:', id, 'Updated project:', JSON.stringify(newProject.dimensions));
+    // Remove the dimension
+    newProject.dimensions = newProject.dimensions.filter(d => d.id != id);
+
+    console.log('Removing dimension:', id, 'Updated project:', JSON.stringify(newProject.dimensions));
     // Remove all Nodes that belong to this dimension
     const newNodes: Record<string, Node> = {};
     Object.entries(this.pivotProject.nodes).forEach(([nodeId, node]) => {
@@ -221,16 +226,18 @@ export class Store {
         newNodes[nodeId] = node;
       }
     });
-    this.pivotProject.nodes = newNodes;
+    newProject.nodes = newNodes;
     
     // Remove references from Views
-    this.pivotProject.views.forEach(view => {
+    newProject.views.forEach(view => {
       view.rowDimensions = view.rowDimensions.filter(did => did !== id);
       view.columnDimensions = view.columnDimensions.filter(did => did !== id);
       view.filterDimensions = view.filterDimensions?.filter(fd => fd.dimensionId !== id);
     });
     
-    this.pivotProject.updatedAt = new Date().toISOString();
+    newProject.updatedAt = new Date().toISOString();
+    
+    this.updateProject(newProject);
   }
 
   /**

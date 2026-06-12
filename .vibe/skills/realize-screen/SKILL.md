@@ -5,7 +5,7 @@ description: Realize documentation of the project
 
 # Goal 
 
-Realize or complete the screen documentation.
+Realize or complete the screen.
 
 # Steps
 1. Analyse docs/screens/ and understand the structure of the documentation

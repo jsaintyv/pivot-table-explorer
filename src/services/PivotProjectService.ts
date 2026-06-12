@@ -2,7 +2,7 @@ import type { ColumnMapping, DataColumn, Dimension, LocalDataSource, MetaData, N
 import { parseCSV } from "../utils/csvParser";
 import { detectColumnType, isColumnUnique } from "../utils/ParserUtils";
 
-
+var nextId = 1;
 
 export class PivotProjectService {
 
@@ -11,7 +11,7 @@ export class PivotProjectService {
      */
     static createEmptyPivotProject(name?: string): PivotProject {
     return {
-        id: `project-${Date.now()}`,
+        id: `project-${nextId++}`,
         name: name || 'Untitled Project',
         description: undefined,
         createdAt: new Date().toISOString(),
@@ -33,7 +33,7 @@ export class PivotProjectService {
         columns: DataColumn[],
         data: any[][]
     ): LocalDataSource {
-        const id = `ds-${Date.now()}`;
+        const id = `ds-${nextId++}`;
         return {
             id,
             name,
@@ -55,7 +55,7 @@ export class PivotProjectService {
         columnMappings?: ColumnMapping[],
         nodeSchema?: NodeSchema
     ): Dimension {
-        const id = `dim-${Date.now()}`;
+        const id = `dim-${nextId++}`;
         return  {
             id,
             name,
@@ -78,7 +78,7 @@ export class PivotProjectService {
         children?: string[],
         sourceIds?: string[]
     ): Node {
-        const id: string = `node-${Date.now()}`;
+        const id: string = `node-${nextId++}`;
         return {
             id,
             dimensionId,

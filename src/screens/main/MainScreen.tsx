@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { parseCSV } from '../../utils/csvParser';
-import type { LocalDataSource, Dimension, View, DataColumn } from '../../models/pivot-project/types';
+import type { LocalDataSource, View, DataColumn } from '../../models/pivot-project/types';
 import { saveProjectToFile } from '../../models/pivot-project/serialization';
 import './MainScreen.css';
 import { StoreContext, useStore } from '../../stores/contexts/StoreContext';
 import { Store } from '../../stores';
 import { SourceList } from './sources-list/SourceList';
+import { Dimensions } from './dimensions/Dimensions';
 
 /**
  * MainScreen component
@@ -24,20 +25,10 @@ const MainScreen = observer(() => {
   const exportProject = store.exportProject;
   
   const dataSources = store.getLocalDataSources();
-  const dimensions = store.getDimensions();
   const views = store.getViews();
   
   const [newViewName, setNewViewName] = useState('');
-
   
-  
-  /**
-   * Remove a dimension
-   */
-  const handleRemoveDimension = (id: string) => {
-    store.removeDimension(id);
-  };
-
   /**
    * Navigate to Axe screen
    */
@@ -77,13 +68,6 @@ const MainScreen = observer(() => {
     store.removeView(viewId);
   };
 
-  /**
-   * Get the name of a data source by ID
-   */
-  const getDataSourceName = (id: string): string => {
-    const ds = pivotProject.dataSources.find(d => d.id === id);
-    return ds?.name || 'Unknown';
-  };
 
   /**
    * Export project to file
@@ -102,33 +86,7 @@ const MainScreen = observer(() => {
       <SourceList />
 
       {/* Dimensions Section */}
-      <section className="section">
-        <h2>Dimensions</h2>
-        <div className="dimension-list">
-          {dimensions.map((dimension: Dimension) => {
-            // Find the first data source that this dimension references
-            const firstMapping = dimension.columnMappings[0];
-            const dsName = firstMapping ? getDataSourceName(firstMapping.dataSourceId) : 'Unknown';
-            
-            return (
-              <div key={dimension.id} className="dimension-item">
-                <span>{dimension.name} ({dimension.dataType})</span>
-                <span className="source-hint"> from {dsName}</span>
-                <button 
-                  onClick={() => handleRemoveDimension(dimension.id)}
-                  className="remove-button"
-                >
-                  Delete
-                </button>
-              </div>
-            );
-          })}
-        </div>
-        <p className="info-text">
-          Dimensions are automatically created from CSV columns. 
-          Use the Axe screen to configure which columns map to which dimensions.
-        </p>
-      </section>
+      <Dimensions />
 
       {/* Views Section */}
       <section className="section">
