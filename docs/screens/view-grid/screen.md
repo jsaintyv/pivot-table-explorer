@@ -1,132 +1,97 @@
 # View Grid Screen
 
-The View Grid screen allows users to configure the pivot table structure by defining row dimensions, column dimensions, filters, and value fields to display.
+The View Grid screen allows users to configure and visualize the pivot table structure by defining row dimensions, column dimensions, filters, and value fields. The pivot grid occupies **80% of the screen space** for optimal data visualization, with a **20% sidebar** for configuration.
 
-## Design
-
-In pseudo HTML:
-```
-<h2>Configure Pivot View</h2>
-<h3>Name: <inputText>[View name]</inputText></h3>
-  
-
-
-<h3>Dimensions</h3>
-<div class="dimension-config">
-  <div class="available-dimensions">
-    <h4>Available Dimensions</h4>
-    <forEach dimension in dimensions>
-      <div class="dimension-item" draggable="true">{dimension.name}</div>
-    </forEach>
-  </div>
-  
-  <div class="drop-zones">
-    <div class="drop-zone" id="rows">
-      <h4>Row Dimensions</h4>
-      <div class="drop-area">Drop dimensions here for rows</div>
-      <forEach rowDim in rowDimensions>
-        <div class="dimension-badge">{rowDim.name} <button>Remove</button></div>
-      </forEach>
-    </div>
-    
-    <div class="drop-zone" id="columns">
-      <h4>Column Dimensions</h4>
-      <div class="drop-area">Drop dimensions here for columns</div>
-      <forEach colDim in columnDimensions>
-        <div class="dimension-badge">{colDim.name} <button>Remove</button></div>
-      </forEach>
-    </div>
-    
-    <div class="drop-zone" id="values">
-      <h4>Value Fields</h4>
-      <div class="drop-area">Drop value fields here</div>
-      <forEach valueField in valueFields>
-        <div class="dimension-badge">{valueField.name} <button>Remove</button></div>
-      </forEach>
-    </div>
-  </div>
-</div>
-
-<h3>Filters</h3>
-<div class="filters-config">
-  <forEach dimension in allDimensions>
-    <div class="filter-group">
-      <h4>{dimension.name}</h4>
-      <select multiple>
-        <forEach value in dimension.values>
-          <option value="{value}" selected>{value}</option>
-        </forEach>
-      </select>
-    </div>
-  </forEach>
-</div>
-
-<h3>Value Configuration</h3>
-<div class="value-config">
-  <forEach valueField in valueFields>
-    <div class="value-field">
-      <span>{valueField.name}</span>
-      <select>
-        <option>sum</option>
-        <option>avg</option>
-        <option>count</option>
-        <option>min</option>
-        <option>max</option>
-      </select>
-    </div>
-  </forEach>
-</div>
-
-<pivotGrid></pivotGrid>
-
-<button>Back to Main screen</button>
-<button>Apply Configuration</button>
-```
+> **👉 [View Interactive Design Mockup](./design.html)** - Open this file in a browser to see the visual layout.
 
 ## Components
 
-- **Available Dimensions Panel**: Lists all available dimensions that can be dragged to drop zones
-- **Row Dimensions Drop Zone**: Target area for dropping dimensions to be used as row axes
-- **Column Dimensions Drop Zone**: Target area for dropping dimensions to be used as column axes
-- **Value Fields Drop Zone**: Target area for dropping fields that contain values to be aggregated
-- **Filter Configuration**: Multi-select controls for each dimension to filter which values to include
-- **Value Configuration**: For each value field, select the aggregation function (sum, avg, count, min, max)
-- **pivot grid**: The pivot grid 
-- **Back Button**: Returns to the Main screen
-- **Apply Button**: Applies the current configuration and generates the pivot table
+### Layout Structure
+- **View Header**: Contains row and column dimension selectors with (+) buttons to add dimensions
+- **Screen Layout**: Flex container with sidebar (20%) and grid area (80%)
+
+### Sidebar Components (20%)
+- **Available Dimensions**: List of all available dimensions that can be selected
+- **Selected Dimensions**: Clickable badges showing currently selected row and column dimensions (click to configure aggregation)
+- **Filters Configuration**: Multi-select controls for each dimension to filter included values
+
+### Main Content (80%)
+- **PivotGrid**: The main data visualization component displaying the cross-tabulated data
+
+### Action Bar
+- **Back Button**: Returns to Main screen
+- **Apply Button**: Applies the current configuration
+
+## Layout Constraints
+
+| Element | Width | Behavior |
+|---------|-------|----------|
+| Sidebar | 20% | Fixed width, scrollable if content overflows |
+| Grid Area | 80% | Flexible width, minimum height for data display |
+| Full Layout | 100% | Responsive: on small screens, sidebar moves to top |
+
+## Responsive Behavior
+
+On screens smaller than 1024px:
+- Sidebar moves from left to top
+- Sidebar width becomes 100%
+- Grid area remains 100% width
+- Minimum height of 500px for grid area
 
 ## Actions
 
 ```gherkin
 Given I am on the View Grid screen
-When I drag a dimension from Available Dimensions to Row Dimensions drop zone
-Then that dimension is added to row dimensions and update the pivot grid
+When I click the (+) button next to Row dimensions
+Then a modal opens allowing me to select dimensions to add as row dimensions
 
 Given I am on the View Grid screen
-When I drag a dimension from Available Dimensions to Column Dimensions drop zone
-Then that dimension is added to column dimensions and update the pivot grid
+When I click the (+) button next to Column dimensions
+Then a modal opens allowing me to select dimensions to add as column dimensions
 
 Given I am on the View Grid screen
-When I drag a value field from Available Dimensions to Value Fields drop zone
-Then that field is added to value fields and update the pivot grid
-
-Given I am on the View Grid screen
-When I drag a dimension from Row Dimensions back to Available Dimensions
-Then that dimension is removed from row dimensions and update the pivot grid
+When I click on a selected dimension badge in the sidebar
+Then a modal opens allowing me to configure the aggregation function for that dimension
 
 Given I am on the View Grid screen
 When I select specific values in a dimension's multi-select filter
-Then only those selected values will be included for that dimension  and update the pivot grid
+Then only those selected values are included for that dimension and the pivot grid updates
 
 Given I am on the View Grid screen
-When I select an aggregation function for a value field
-Then that aggregation function is applied to the value field and update the pivot grid
+When I change the aggregation function for a dimension by clicking its badge
+Then that aggregation is applied to the dimension and the pivot grid updates
+
+Given I am on the View Grid screen
+When I enter a view name and click "Save View"
+Then the current configuration is saved as a new view
 
 Given I am on the View Grid screen
 When I click on "Apply Configuration"
-Then the pivot table is generated with the current row, column, filter, and value configurations and update the pivot grid
+Then the pivot table is generated with the current row, column, filter, and aggregation configurations
 
 Given I am on the View Grid screen
 When I click on "Back to Main screen"
 Then I return to the Main screen
 ```
+
+## CSS Classes Reference
+
+| Class | Purpose |
+|-------|---------|
+| `.view-grid-screen` | Main container |
+| `.view-header` | Header with row/column dimension selectors |
+| `.dimension-config-line` | Configuration line for row or column dimensions |
+| `.config-label` | Label for dimension configuration |
+| `.add-dimension-btn` | Button to add dimensions |
+| `.selected-badge` | Badge showing selected dimension in header |
+| `.screen-layout` | Flex container for sidebar + grid |
+| `.config-sidebar` | Left sidebar (20%) with all configuration |
+| `.config-section` | Section within sidebar |
+| `.grid-main` | Main grid container (80%) |
+| `.dimension-item` | Dimension from available list |
+| `.dimension-badge-full` | Clickable dimension badge in sidebar |
+| `.dimension-name` | Name of the dimension in badge |
+| `.agg-indicator` | Aggregation indicator on dimension badge |
+| `.filter-group` | Filter controls for a single dimension |
+| `.filter-select` | Multi-select filter dropdown |
+| `.view-actions` | Container for action buttons |
