@@ -41,6 +41,9 @@ export class Store {
   pivotProject: PivotProject;
   activeViewId?: string;
   
+  // EDITING STATE: Dimension being edited
+  editingDimension: Dimension | null = null;
+  
   private static instance: Store | null = null;
 
   // Protected constructor allows test utilities to create instances
@@ -48,7 +51,12 @@ export class Store {
     makeObservable(this, {
       pivotProject: observable.ref,
       activeViewId: observable,
+      editingDimension: observable.ref,
       updateProject: action,
+      startEditingDimension: action,
+      updateEditingDimension: action,
+      saveEditingDimension: action,
+      cancelEditingDimension: action,
       
     });
     this.pivotProject = PivotProjectService.createEmptyPivotProject();
@@ -195,7 +203,28 @@ export class Store {
   // DIMENSION ACTIONS
   // ==========================================================================
 
-  
+  /**
+   * Add a new dimension
+   */
+  addDimension(
+    name: string,
+    dataType: 'string' | 'number' | 'date' | 'boolean',
+    description?: string,
+    columnMappings?: ColumnMapping[]
+  ): string {
+    const id = `dim-${Date.now()}`;
+    const dimension: Dimension = {
+      id,
+      name,
+      description,
+      dataType,
+      columnMappings: columnMappings || [],
+      rootNodes: [],
+    };
+    this.pivotProject.dimensions.push(dimension);
+    this.pivotProject.updatedAt = new Date().toISOString();
+    return id;
+  }
 
   /**
    * Update an existing dimension
@@ -206,6 +235,103 @@ export class Store {
       Object.assign(dim, updates);
       this.pivotProject.updatedAt = new Date().toISOString();
     }
+  }
+
+  // ==========================================================================
+  // EDITING DIMENSION ACTIONS
+  // ==========================================================================
+
+  /**
+   * Start editing a dimension
+   * If dimensionId is provided, loads existing dimension for editing
+   * If not, creates a new empty dimension template
+   */
+  startEditingDimension(dimensionId?: string): void {
+    if (dimensionId) {
+      const existingDim = this.getDimension(dimensionId);
+      if (existingDim) {
+        // Clone the dimension to avoid mutating the original
+        this.editingDimension = {
+          ...existingDim,
+          columnMappings: [...existingDim.columnMappings],
+        };
+      }
+    } else {
+      // Create new empty dimension template
+      this.editingDimension = {
+        id: '',
+        name: '',
+        description: '',
+        dataType: 'string',
+        columnMappings: [],
+        rootNodes: [],
+      };
+    }
+  }
+
+  /**
+   * Update the dimension being edited
+   */
+  updateEditingDimension(updates: Partial<Dimension>): void {
+    if (this.editingDimension) {
+      Object.assign(this.editingDimension, updates);
+    }
+  }
+
+  /**
+   * Save the dimension being edited
+   * If it has an ID, updates existing dimension
+   * Otherwise, creates a new dimension
+   */
+  saveEditingDimension(): string {
+    if (!this.editingDimension) {
+      throw new Error('No dimension to save');
+    }
+
+    // Validate required fields
+    if (!this.editingDimension.name.trim()) {
+      throw new Error('Dimension name is required');
+    }
+
+    let dimensionId: string;
+    
+    if (this.editingDimension.id) {
+      // Update existing dimension
+      this.updateDimension(this.editingDimension.id, {
+        name: this.editingDimension.name,
+        description: this.editingDimension.description,
+        dataType: this.editingDimension.dataType,
+        columnMappings: this.editingDimension.columnMappings,
+      });
+      dimensionId = this.editingDimension.id;
+    } else {
+      // Create new dimension
+      dimensionId = this.addDimension(
+        this.editingDimension.name,
+        this.editingDimension.dataType,
+        this.editingDimension.description,
+        this.editingDimension.columnMappings
+      );
+    }
+
+    // Clear editing state
+    this.cancelEditingDimension();
+    
+    return dimensionId;
+  }
+
+  /**
+   * Cancel editing and clear the editing dimension
+   */
+  cancelEditingDimension(): void {
+    this.editingDimension = null;
+  }
+
+  /**
+   * Get the dimension being edited
+   */
+  getEditingDimension(): Dimension | null {
+    return this.editingDimension;
   }
 
   /**

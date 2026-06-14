@@ -1,57 +1,78 @@
 # Axe Screen
 
-The Axe screen allows users to configure which columns from source CSV files will be used as axes (dimensions) for pivoting data.
+The Axe screen allows users to **create and edit dimensions** by associating columns from source CSV files as axes for pivoting data.
 
 ## Design
 
 In pseudo HTML:
 ```
-<forEach sourceFile in sourceFiles>
+<h1>Edit Dimension</h1>
+
+<!-- Dimension Identity -->
+<div class="dimension-identity">
+  <input type="text" placeholder="Dimension name" value="{dimension.name}"/>
   <select>
-    <option disabled>Select a column for axis</option>
-    <forEach column in sourceFile.columns>
-      <option value="{column.name}">{column.name}</option>
-    </forEach>
+    <option value="string">String</option>
+    <option value="number">Number</option>
+    <option value="date">Date</option>
+    <option value="boolean">Boolean</option>
   </select>
-  <button>Unlink</button>
+</div>
+
+<!-- Column Mappings -->
+<h3>Map Source Columns</h3>
+<forEach sourceFile in sourceFiles>
+  <div class="source-file-mapping">
+    <span>{sourceFile.name}</span>
+    <select>
+      <option value="" disabled>Select a column</option>
+      <forEach column in sourceFile.columns>
+        <option value="{column.index}">{column.name}</option>
+      </forEach>
+    </select>
+    <button onClick="unlink()">Unlink</button>
+  </div>
 </forEach>
 
-<h3>Associated columns</h3>
-<forEach dimension in dimensions>
-  <h4>{dimension.name}</h4>
-  <forEach sourceFile in dimension.sourceFiles>
-    {sourceFile.name}.{sourceFile.column.name}
-  </forEach>
-</forEach>
-
+<button>Save Dimension</button>
 <button>Back to Main screen</button>
 ```
 
 ## Components
 
-- **Source file dropdowns**: Dropdown selector for each source file to select which column will be used as an axis
-- **Unlink button**: Allows users to unlink a dimension from a column in a specific source file
-- **Associated columns display**: Shows all columns currently associated with each dimension across source files
-- **Back button**: Returns to the Main screen
+- **Dimension identity form**: Input for dimension name + datatype selector
+- **Source file mappers**: For each source file, dropdown to select which column maps to this dimension
+- **Unlink button**: Remove the mapping for a specific source file
+- **Save button**: Persist the dimension with its current mappings
+- **Back button**: Return to Main screen
 
 ## Actions
 
 ```gherkin
-Given there are source files loaded
-When I navigate to the Axe screen
-Then I see a dropdown for each source file with all its columns as options
+Given I am on the Main screen
+When I click "Create Dimension"
+Then I navigate to Axe screen with a new empty dimension
 
 Given I am on the Axe screen
-When I select a column from a source file dropdown
-Then that column is associated with the selected dimension
+When I enter a dimension name and select a datatype
+And I select a column from a source file dropdown
+Then that column is mapped to the dimension
+
+Given I am on the Axe screen with an existing dimension
+When I change the dimension name
+Then the name is updated when I save
+
+Given I am on the Axe screen
+When I click "Save Dimension"
+Then the dimension is persisted in the Store with all current column mappings
+
+Given a dimension has a column mapped from a source file
+When I click Unlink for that source file
+Then the mapping is removed from the dimension
 
 Given there are multiple source files with columns of the same name
-When I select that column name in multiple source files
-Then all those columns are automatically associated with the same dimension
-
-Given a column is associated with a dimension in a source file
-When I click the Unlink button for that source file
-Then that column is no longer associated with the dimension
+When I select that column name for the dimension in multiple source files
+Then all those columns are mapped to the same dimension
 
 Given I am on the Axe screen
 When I click on "Back to Main screen"

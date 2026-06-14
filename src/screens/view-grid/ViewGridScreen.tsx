@@ -552,11 +552,5 @@ function ViewGridScreenComponent() {
   );
 }
 
-// Wrap the component with StoreContext.Provider
-export default observer(function ViewGridScreen() {
-  return (
-    <StoreContext.Provider value={Store.getInstance()}>
-      <ViewGridScreenComponent />
-    </StoreContext.Provider>
-  );
-});
+// Export the component directly - StoreContext is now provided at App level
+export default observer(ViewGridScreenComponent);

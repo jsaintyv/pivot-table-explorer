@@ -1,13 +1,15 @@
 import { observer } from "mobx-react-lite";
+import { useNavigate } from "react-router-dom";
 import type { Dimension } from "../../../models/pivot-project/types";
 import { useStore } from "../../../stores/contexts/StoreContext";
 
 /**
  * Dimensions component
- * Displays the list of dimensions and allows their removal
+ * Displays the list of dimensions and allows their removal and editing
  */
 export const Dimensions = observer(() => {
     const store = useStore();
+    const navigate = useNavigate();
     const pivotProject = store.pivotProject;
     const dimensions = store.getDimensions();
     
@@ -17,6 +19,13 @@ export const Dimensions = observer(() => {
     const getDataSourceName = (id: string): string => {
         const ds = pivotProject.dataSources.find(d => d.id === id);
         return ds?.name || 'Unknown';
+    };
+
+    /**
+     * Navigate to Axe screen to edit a dimension
+     */
+    const handleEditDimension = (dimensionId: string) => {
+        navigate(`/axe?dimensionId=${dimensionId}`);
     };
 
     return (
@@ -33,6 +42,12 @@ export const Dimensions = observer(() => {
                             <span>{dimension.name} ({dimension.dataType})</span>
                             <span className="source-hint"> from {dsName}</span>
                             <button 
+                                onClick={() => handleEditDimension(dimension.id)}
+                                className="edit-button"
+                            >
+                                Edit
+                            </button>
+                            <button 
                                 onClick={() => store.removeDimension(dimension.id)}
                                 className="remove-button"
                             >
@@ -43,8 +58,8 @@ export const Dimensions = observer(() => {
                 })}
             </div>
             <p className="info-text">
-                Dimensions are automatically created from CSV columns. 
-                Use the Axe screen to configure which columns map to which dimensions.
+                Dimensions define how your data is organized. 
+                Click "Create Dimension" to add new dimensions or Edit to modify existing ones.
             </p>
         </section>
     );
