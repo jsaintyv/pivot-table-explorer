@@ -31,6 +31,8 @@ import type {
 import { importCSV } from '../utils/csvParser';
 import { detectColumnType, getUniqueValues, isColumnUnique } from '../utils/ParserUtils';
 import { PivotProjectService } from '../services/PivotProjectService';
+import { ViewStore } from './ViewStore';
+import type { PivotData } from './ViewStore';
 
 // ============================================================================
 // STORE CLASS (Controller + Model)
@@ -43,6 +45,9 @@ export class Store {
   
   // EDITING STATE: Dimension being edited
   editingDimension: Dimension | null = null;
+  
+  // VIEW STORE: Dédié à la gestion de la vue courante
+  viewStore: ViewStore;
   
   private static instance: Store | null = null;
 
@@ -60,6 +65,7 @@ export class Store {
       
     });
     this.pivotProject = PivotProjectService.createEmptyPivotProject();
+    this.viewStore = new ViewStore(this);
   }
   
   /**
@@ -109,10 +115,10 @@ export class Store {
 
   /**
    * Get the active view
+   * Délégué à ViewStore
    */
   getActiveView(): View | undefined {
-    if (!this.activeViewId) return undefined;
-    return this.pivotProject.views.find(v => v.id === this.activeViewId);
+    return this.viewStore.getActiveView();
   }
 
   // ==========================================================================
@@ -414,7 +420,7 @@ export class Store {
     }
     
     // Remove from parent's children
-    Object.entries(this.pivotProject.nodes).forEach(([parentId, parentNode]) => {
+    Object.entries(this.pivotProject.nodes).forEach(([_parentId, parentNode]) => {
       if (parentNode.children.includes(id)) {
         parentNode.children = parentNode.children.filter(cid => cid !== id);
       }
@@ -504,23 +510,19 @@ export class Store {
 
   /**
    * Remove a view by ID
+   * Délégué à ViewStore
    */
   removeView(id: string): void {
-    this.pivotProject.views = this.pivotProject.views.filter(v => v.id !== id);
-    if (this.activeViewId === id) {
-      this.activeViewId = undefined;
-    }
+    this.viewStore.removeView(id);
     this.pivotProject.updatedAt = new Date().toISOString();
   }
 
   /**
    * Load a view (set as active)
+   * Délégué à ViewStore
    */
   loadView(id: string): void {
-    const view = this.pivotProject.views.find(v => v.id === id);
-    if (view) {
-      this.activeViewId = id;
-    }
+    this.viewStore.loadView(id);
   }
 
   /**
@@ -532,9 +534,10 @@ export class Store {
 
   /**
    * Get all views
+   * Délégué à ViewStore
    */
   getViews(): View[] {
-    return this.pivotProject.views;
+    return this.viewStore.getViews();
   }
 
   // ==========================================================================
