@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { useStore } from '../../stores/contexts/StoreContext';
 import { useViewStore } from '../../stores/contexts/ViewStoreContext';
 import type { AggregationType, View, Measure } from '../../models/pivot-project/types';
+import type { PivotData } from '../../stores';
 import { ViewHeader } from './components/ViewHeader';
 import { ConfigSidebar } from './components/ConfigSidebar';
 import { GridMain } from './components/GridMain';
@@ -152,7 +153,10 @@ function ViewGridScreenComponent() {
         />
         
         {/* Zone Grid - 80% */}
-        <GridMain view={activeView} />
+        <GridMain 
+          view={activeView} 
+          pivotData={viewStore.buildPivotFromView()}
+        />
       </div>
       
       {/* Barre d'actions */}

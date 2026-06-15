@@ -1,0 +1,237 @@
+/* GridMain Component Styles */
+
+.grid-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-left: 1px solid #e0e0e0;
+  overflow: auto;
+}
+
+.pivot-grid-container {
+  flex: 1;
+  padding: 16px;
+  overflow: auto;
+}
+
+/* Pivot Grid Table Styles */
+.pivot-grid-wrapper {
+  width: 100%;
+  overflow: auto;
+  min-height: 400px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #ffffff;
+}
+
+.pivot-grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 14px;
+}
+
+/* Header Cells */
+.pivot-grid-table .corner-cell {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 120px;
+  min-width: 120px;
+  height: 48px;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-left: 2px solid #d0d0d0;
+  border-top: 2px solid #d0d0d0;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.pivot-grid-table .grid-cell.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  min-width: 100px;
+  height: 48px;
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-top: 2px solid #d0d0d0;
+  text-align: left;
+  vertical-align: middle;
+  font-weight: 600;
+  color: #333;
+}
+
+.pivot-grid-table .grid-cell.header.total {
+  background-color: #e8f5e8;
+  border-left: 2px solid #a0d0a0;
+  font-weight: 700;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-label {
+  display: inline-block;
+  transform: rotate(-45deg);
+  transform-origin: center left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* Row Header Cells */
+.pivot-grid-table .grid-cell.header.row-header {
+  position: sticky;
+  left: 0;
+  z-index: 9;
+  width: 120px;
+  min-width: 120px;
+  height: 36px;
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-left: 2px solid #d0d0d0;
+  text-align: left;
+  vertical-align: middle;
+  font-weight: 600;
+  color: #333;
+}
+
+.pivot-grid-table .grid-cell.header.row-header.total {
+  background-color: #e8f5e8;
+  border-bottom: 2px solid #a0d0a0;
+}
+
+.pivot-grid-table .grid-cell.header.row-header.grand-total {
+  background-color: #d4edda;
+  border-bottom: 2px solid #80c080;
+}
+
+.row-header-content {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-header-label {
+  display: inline-block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* Data Cells */
+.pivot-grid-table .grid-cell {
+  min-width: 100px;
+  height: 36px;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  text-align: right;
+  vertical-align: middle;
+  background-color: #ffffff;
+}
+
+.pivot-grid-table .grid-cell.total {
+  background-color: #e8f5e8;
+  font-weight: 600;
+  border-right: 2px solid #a0d0a0;
+}
+
+.pivot-grid-table .grid-cell.grand-total {
+  background-color: #d4edda;
+  font-weight: 700;
+  border: 2px solid #80c080;
+}
+
+/* Cell content styling */
+.cell-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  width: 100%;
+  padding-right: 4px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Row styling */
+.pivot-grid-table .grid-row {
+  background-color: #ffffff;
+}
+
+.pivot-grid-table .grid-row:nth-child(even) .grid-cell {
+  background-color: #f9f9f9;
+}
+
+.pivot-grid-table .grid-row.total .grid-cell {
+  background-color: #e8f5e8;
+}
+
+.pivot-grid-table .grid-row.grand-total .grid-cell {
+  background-color: #d4edda;
+}
+
+/* Empty message */
+.pivot-grid-table .empty-message {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+  background-color: #f9f9f9;
+}
+
+/* Hover effects */
+.pivot-grid-table .grid-cell:hover:not(.header) {
+  background-color: #f0f7ff;
+  cursor: pointer;
+}
+
+.pivot-grid-table .grid-row.total .grid-cell:hover {
+  background-color: #d4edda;
+}
+
+/* Focus effects for keyboard navigation */
+.pivot-grid-table .grid-cell:focus {
+  outline: 2px solid #0066cc;
+  outline-offset: -2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .pivot-grid-table .corner-cell,
+  .pivot-grid-table .grid-cell.header.row-header {
+    width: 80px;
+    min-width: 80px;
+    font-size: 12px;
+  }
+  
+  .pivot-grid-table .grid-cell.header,
+  .pivot-grid-table .grid-cell {
+    min-width: 80px;
+    font-size: 12px;
+  }
+  
+  .header-label {
+    transform: rotate(0deg);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
