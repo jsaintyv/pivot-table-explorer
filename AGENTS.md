@@ -54,6 +54,8 @@ npm run preview
 npx tsc --noEmit
 ```
 
+*** Never end development without checking that `npm run build` and `npm run test` succeed *** 
+
 ## Models
 
 A project has these attributes:

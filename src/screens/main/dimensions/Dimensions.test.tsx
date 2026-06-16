@@ -47,7 +47,7 @@ describe('Dimensions Component - Rendering', () => {
 
   it('should display info text', () => {
     render(<Dimensions />);
-    expect(screen.getByText(/Dimensions are automatically created from CSV columns/)).toBeInTheDocument();
+    expect(screen.getByText(/Dimensions define how your data is organized/)).toBeInTheDocument();
   });
 
   it('should display the dimension list container', () => {

@@ -8,6 +8,7 @@
 import { render as rtlRender } from '@testing-library/react';
 import { Store } from '../stores/Store';
 import { StoreContext } from '../stores/contexts/StoreContext';
+import { MemoryRouter } from 'react-router-dom';
 import type { RenderOptions } from '@testing-library/react';
 import type { ReactElement } from 'react';
 
@@ -20,10 +21,10 @@ export function createTestStore() {
 }
 
 /**
- * Render a component with MobX store context
- * Wraps the component in StoreContext.Provider with either:
- * - The provided store (for isolated tests)
- * - The singleton instance (for integration tests)
+ * Render a component with MobX store context and Router context
+ * Wraps the component in both StoreContext.Provider and MemoryRouter for:
+ * - MobX store access (for isolated or integration tests)
+ * - React Router hooks support (useNavigate, useParams, etc.)
  */
 export function renderWithProviders(
   ui: ReactElement,
@@ -33,10 +34,12 @@ export function renderWithProviders(
   // Use provided test store or get singleton instance
   const store = testStore || Store.getInstance();
   
-  // Wrap with StoreContext.Provider
+  // Wrap with both StoreContext.Provider and MemoryRouter
   const wrapper = ({ children }: { children: React.ReactNode }) => (
     <StoreContext.Provider value={store}>
-      {children}
+      <MemoryRouter>
+        {children}
+      </MemoryRouter>
     </StoreContext.Provider>
   );
   
