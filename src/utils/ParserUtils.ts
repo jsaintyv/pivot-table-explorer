@@ -24,7 +24,7 @@ export function isColumnUnique(csvData: any[], columnName: string): boolean {
 export function detectColumnType(csvData: any[], columnName: string, index: number): 'string' | 'number' | 'date' | 'boolean' | 'unknown' {
     if (csvData.length === 0) return 'unknown';
 
-    const values = csvData.map(row => row[columnName]);
+    const values = csvData.map(row => row[columnName] || row[index]);
 
     // Check if all values are numbers
     const allNumbers = values.every(v => typeof v === 'number' || (typeof v === 'string' && !isNaN(Number(v)) && v.trim() !== ''));

@@ -273,6 +273,7 @@ export class Store {
         dataType: 'string',
         columnMappings: [],
         rootNodes: [],
+        nodes: [],
       };
     }
   }

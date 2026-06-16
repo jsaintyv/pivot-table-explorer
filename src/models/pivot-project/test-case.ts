@@ -108,6 +108,7 @@ function createCustomerDimension(): Dimension {
         { name: 'label', type: 'string', required: true },
       ],
     },
+    nodes: [],
   };
 }
 
@@ -131,6 +132,7 @@ function createProductDimension(): Dimension {
         { name: 'label', type: 'string', required: true },
       ],
     },
+    nodes: [],
   };
 }
 
@@ -147,6 +149,7 @@ function createOrderDateDimension(): Dimension {
       { dataSourceId: 'ds-order', columnIndex: 1, level: 0, name: 'OrderDate' },
     ],
     rootNodes: [],
+    nodes: []
   };
 }
 

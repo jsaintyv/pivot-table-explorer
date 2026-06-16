@@ -373,7 +373,7 @@ function validateConstraints(project: any): ValidationError[] {
   });
   
   // Validate data types of Nodes
-  project.dimensions?.forEach((dim: any, dimIndex: number) => {
+  project.dimensions?.forEach((dim: any) => {
     Object.entries(project.nodes || {}).forEach(([nodeId, node]: [string, any]) => {
       if (node.dimensionId === dim.id) {
         const expectedType = dim.dataType;
