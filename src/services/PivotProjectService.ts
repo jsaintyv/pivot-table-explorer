@@ -53,7 +53,7 @@ export class PivotProjectService {
         dataType: 'string' | 'number' | 'date' | 'boolean',
         description?: string,
         columnMappings?: ColumnMapping[],
-        nodeSchema?: NodeSchema
+        nodeSchema?: NodeSchema        
     ): Dimension {
         const id = `dim-${nextId++}`;
         return  {
@@ -64,6 +64,7 @@ export class PivotProjectService {
             columnMappings: columnMappings || [],
             rootNodes: [],
             nodeSchema,
+            nodes: [],
         };        
     }
 

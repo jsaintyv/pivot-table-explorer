@@ -90,6 +90,7 @@ export interface Dimension {
   columnMappings: ColumnMapping[];
   rootNodes: string[]; // IDs of root nodes in this dimension's hierarchy
   nodeSchema?: NodeSchema;
+  nodes: Node[]; // All nodes in this dimension
 }
 
 /**

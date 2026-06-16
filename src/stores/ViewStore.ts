@@ -665,7 +665,7 @@ export class ViewStore {
       if (dimension) {
         const nodes = this.rootStore.getNodesByDimension(dimId);
         console.log("Nodes for row dimension:", dimId, nodes);
-        for (const node of nodes) {
+        for (const node of dimension.nodes) {
           // Vérifier si ce node est filtré
           if (hasFilters) {
             const filterDim = view.filterDimensions?.find(fd => fd.dimensionId === dimId);
@@ -808,11 +808,13 @@ export class ViewStore {
               }
             }
           }
-          
+          console.log("Row match:", rowMatch, "Col match:", colMatch, "Row data:", rowDataArray, "Value:", rowDataArray[measureColumnIndex]);
+
           if (rowMatch && colMatch) {
             // Récupérer la valeur de la mesure
-            const value = rowDataArray[measureColumnIndex];
-            if (typeof value === 'number') {
+            const value = rowDataArray[measureColumnIndex] * 1;
+          
+            if (! Number.isNaN(value)) {
               values.push(value);
             }
           }
@@ -850,6 +852,8 @@ export class ViewStore {
           }
         }
         
+        console.log("Final value for row:", row.key, "col:", col.key," values", values, "is:", finalValue);
+
         rowData.push({
           value: finalValue,
           formattedValue: finalValue !== null && finalValue !== undefined ? finalValue.toString() : '',

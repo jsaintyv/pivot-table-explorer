@@ -82,8 +82,7 @@
 }
 
 .header-label {
-  display: inline-block;
-  transform: rotate(-45deg);
+  display: inline-block;  
   transform-origin: center left;
   white-space: nowrap;
   text-overflow: ellipsis;

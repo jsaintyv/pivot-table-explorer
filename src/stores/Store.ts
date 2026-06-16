@@ -226,6 +226,8 @@ export class Store {
       dataType,
       columnMappings: columnMappings || [],
       rootNodes: [],
+      nodes: [],
+      nodeSchema: undefined,
     };
     this.pivotProject.dimensions.push(dimension);
     this.pivotProject.updatedAt = new Date().toISOString();
@@ -440,8 +442,7 @@ export class Store {
    * Get all nodes for a dimension
    */
   getNodesByDimension(dimensionId: string): Node[] {
-    return Object.values(this.pivotProject.nodes)
-      .filter(node => node.dimensionId === dimensionId);
+    return this.getDimension(dimensionId)?.nodes || [];
   }
 
   /**
@@ -785,17 +786,19 @@ export class Store {
             dimensions.push(dim);
             
             // Create root node for this dimension
-            const uniqueValues = getUniqueValues(csvData, column.name);
-            uniqueValues.forEach((value) => {
-            PivotProjectService.buildNode(
-                dim.id,
-                String(value),
-                value,
-                {},
-                [],
-                [dataSource.id]
+          const uniqueValues = getUniqueValues(csvData, column.name);          
+          uniqueValues.forEach((value) => {
+            let n = PivotProjectService.buildNode(
+              dim.id,
+              String(value),
+              value,
+              {},
+              [],
+              [dataSource.id]
             );
-            });
+            dim.rootNodes.push(n.id);
+            dim.nodes.push(n);
+          });
         });
         this.updateProject({
             ...this.pivotProject,
