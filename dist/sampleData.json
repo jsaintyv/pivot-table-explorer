@@ -1,0 +1,322 @@
+{
+  "sales": [
+    {
+      "id": 1,
+      "region": "North",
+      "product": "Laptop",
+      "category": "Electronics",
+      "quarter": "Q1",
+      "sales": 15000,
+      "units": 150,
+      "profit": 3000
+    },
+    {
+      "id": 2,
+      "region": "North",
+      "product": "Laptop",
+      "category": "Electronics",
+      "quarter": "Q2",
+      "sales": 18000,
+      "units": 180,
+      "profit": 3600
+    },
+    {
+      "id": 3,
+      "region": "North",
+      "product": "Laptop",
+      "category": "Electronics",
+      "quarter": "Q3",
+      "sales": 22000,
+      "units": 220,
+      "profit": 4400
+    },
+    {
+      "id": 4,
+      "region": "North",
+      "product": "Laptop",
+      "category": "Electronics",
+      "quarter": "Q4",
+      "sales": 25000,
+      "units": 250,
+      "profit": 5000
+    },
+    {
+      "id": 5,
+      "region": "North",
+      "product": "Phone",
+      "category": "Electronics",
+      "quarter": "Q1",
+      "sales": 12000,
+      "units": 240,
+      "profit": 2400
+    },
+    {
+      "id": 6,
+      "region": "North",
+      "product": "Phone",
+      "category": "Electronics",
+      "quarter": "Q2",
+      "sales": 14000,
+      "units": 280,
+      "profit": 2800
+    },
+    {
+      "id": 7,
+      "region": "North",
+      "product": "Phone",
+      "category": "Electronics",
+      "quarter": "Q3",
+      "sales": 16000,
+      "units": 320,
+      "profit": 3200
+    },
+    {
+      "id": 8,
+      "region": "North",
+      "product": "Phone",
+      "category": "Electronics",
+      "quarter": "Q4",
+      "sales": 18000,
+      "units": 360,
+      "profit": 3600
+    },
+    {
+      "id": 9,
+      "region": "South",
+      "product": "Laptop",
+      "category": "Electronics",
+      "quarter": "Q1",
+      "sales": 12000,
+      "units": 120,
+      "profit": 2400
+    },
+    {
+      "id": 10,
+      "region": "South",
+      "product": "Laptop",
+      "category": "Electronics",
+      "quarter": "Q2",
+      "sales": 14000,
+      "units": 140,
+      "profit": 2800
+    },
+    {
+      "id": 11,
+      "region": "South",
+      "product": "Laptop",
+      "category": "Electronics",
+      "quarter": "Q3",
+      "sales": 16000,
+      "units": 160,
+      "profit": 3200
+    },
+    {
+      "id": 12,
+      "region": "South",
+      "product": "Laptop",
+      "category": "Electronics",
+      "quarter": "Q4",
+      "sales": 18000,
+      "units": 180,
+      "profit": 3600
+    },
+    {
+      "id": 13,
+      "region": "South",
+      "product": "Phone",
+      "category": "Electronics",
+      "quarter": "Q1",
+      "sales": 10000,
+      "units": 200,
+      "profit": 2000
+    },
+    {
+      "id": 14,
+      "region": "South",
+      "product": "Phone",
+      "category": "Electronics",
+      "quarter": "Q2",
+      "sales": 11000,
+      "units": 220,
+      "profit": 2200
+    },
+    {
+      "id": 15,
+      "region": "South",
+      "product": "Phone",
+      "category": "Electronics",
+      "quarter": "Q3",
+      "sales": 12000,
+      "units": 240,
+      "profit": 2400
+    },
+    {
+      "id": 16,
+      "region": "South",
+      "product": "Phone",
+      "category": "Electronics",
+      "quarter": "Q4",
+      "sales": 13000,
+      "units": 260,
+      "profit": 2600
+    },
+    {
+      "id": 17,
+      "region": "East",
+      "product": "Laptop",
+      "category": "Electronics",
+      "quarter": "Q1",
+      "sales": 10000,
+      "units": 100,
+      "profit": 2000
+    },
+    {
+      "id": 18,
+      "region": "East",
+      "product": "Laptop",
+      "category": "Electronics",
+      "quarter": "Q2",
+      "sales": 11000,
+      "units": 110,
+      "profit": 2200
+    },
+    {
+      "id": 19,
+      "region": "East",
+      "product": "Tablet",
+      "category": "Electronics",
+      "quarter": "Q1",
+      "sales": 8000,
+      "units": 160,
+      "profit": 1600
+    },
+    {
+      "id": 20,
+      "region": "East",
+      "product": "Tablet",
+      "category": "Electronics",
+      "quarter": "Q2",
+      "sales": 9000,
+      "units": 180,
+      "profit": 1800
+    },
+    {
+      "id": 21,
+      "region": "West",
+      "product": "Laptop",
+      "category": "Electronics",
+      "quarter": "Q1",
+      "sales": 9000,
+      "units": 90,
+      "profit": 1800
+    },
+    {
+      "id": 22,
+      "region": "West",
+      "product": "Phone",
+      "category": "Electronics",
+      "quarter": "Q1",
+      "sales": 7000,
+      "units": 140,
+      "profit": 1400
+    }
+  ],
+  "personnel": [
+    {
+      "department": "Engineering",
+      "role": "Developer",
+      "experience": "Junior",
+      "gender": "Male",
+      "salary": 60000,
+      "count": 5
+    },
+    {
+      "department": "Engineering",
+      "role": "Developer",
+      "experience": "Junior",
+      "gender": "Female",
+      "salary": 62000,
+      "count": 3
+    },
+    {
+      "department": "Engineering",
+      "role": "Developer",
+      "experience": "Senior",
+      "gender": "Male",
+      "salary": 90000,
+      "count": 8
+    },
+    {
+      "department": "Engineering",
+      "role": "Developer",
+      "experience": "Senior",
+      "gender": "Female",
+      "salary": 92000,
+      "count": 4
+    },
+    {
+      "department": "Engineering",
+      "role": "Manager",
+      "experience": "Senior",
+      "gender": "Male",
+      "salary": 120000,
+      "count": 2
+    },
+    {
+      "department": "Engineering",
+      "role": "Manager",
+      "experience": "Senior",
+      "gender": "Female",
+      "salary": 125000,
+      "count": 1
+    },
+    {
+      "department": "Marketing",
+      "role": "Specialist",
+      "experience": "Junior",
+      "gender": "Female",
+      "salary": 55000,
+      "count": 6
+    },
+    {
+      "department": "Marketing",
+      "role": "Specialist",
+      "experience": "Senior",
+      "gender": "Female",
+      "salary": 75000,
+      "count": 4
+    },
+    {
+      "department": "Marketing",
+      "role": "Manager",
+      "experience": "Senior",
+      "gender": "Male",
+      "salary": 100000,
+      "count": 2
+    },
+    {
+      "department": "Sales",
+      "role": "Representative",
+      "experience": "Junior",
+      "gender": "Male",
+      "salary": 50000,
+      "count": 8
+    },
+    {
+      "department": "Sales",
+      "role": "Representative",
+      "experience": "Senior",
+      "gender": "Male",
+      "salary": 70000,
+      "count": 5
+    },
+    {
+      "department": "Sales",
+      "role": "Manager",
+      "experience": "Senior",
+      "gender": "Male",
+      "salary": 110000,
+      "count": 3
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+"Customer";"Year";"Month";"Product";"Quantity";"Total TTC" 
+"Magasin A";2025;1;"Dentifrice";10;200
+"Magasin B";2025;2;"Dentifrice";40;300
+"Magasin B";2025;3;"Dentifrice";40;300
+"Magasin A";2025;1;"Yaourt";5;100
+"Magasin B";2025;2;"Yaourt";20;200
+"Magasin B";2025;3;"Yaourt";40;300
+"Magasin A";2025;2;"Jouet A";5;300
+"Magasin B";2025;3;"Jouet A";20;400
+"Magasin B";2025;1;"Jouet A";40;500
+
