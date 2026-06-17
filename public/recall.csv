@@ -1,0 +1,11 @@
+"Customer";"Year";"Month";"Product";"Recall";"Anomay" 
+"Magasin A";2025;1;"Dentifrice";3;5
+"Magasin B";2025;2;"Dentifrice";24;10
+"Magasin B";2025;3;"Dentifrice";43;320
+"Magasin A";2025;1;"Yaourt";20;15
+"Magasin B";2025;2;"Yaourt";20;201
+"Magasin B";2025;3;"Yaourt";43;302
+"Magasin A";2025;2;"Jouet A";4;303
+"Magasin B";2025;3;"Jouet A";23;403
+"Magasin B";2025;1;"Jouet A";41;500
+
