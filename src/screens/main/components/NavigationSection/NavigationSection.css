@@ -1,0 +1,28 @@
+/**
+ * NavigationSection CSS
+ * 
+ * Styles for the navigation section component
+ */
+
+.navigation {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+}
+
+.nav-button {
+  padding: 10px 20px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.nav-button:hover {
+  background-color: #5a6268;
+}

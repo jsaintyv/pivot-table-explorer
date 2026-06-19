@@ -31,7 +31,9 @@ import type {
 import { importCSV } from '../utils/csvParser';
 import { detectColumnType, getUniqueValues, isColumnUnique } from '../utils/ParserUtils';
 import { PivotProjectService } from '../services/PivotProjectService';
+import { StorageService, type StoredProject } from '../services/StorageService';
 import { ViewStore } from './ViewStore';
+import { ToastStore } from './ToastStore';
 import type { PivotData } from './ViewStore';
 
 // ============================================================================
@@ -42,12 +44,16 @@ export class Store {
   // MODEL: Main state
   pivotProject: PivotProject;
   activeViewId?: string;
+  projectName: string = '';
   
   // EDITING STATE: Dimension being edited
   editingDimension: Dimension | null = null;
   
   // VIEW STORE: Dédié à la gestion de la vue courante
   viewStore: ViewStore;
+  
+  // TOAST STORE: For notifications
+  toastStore: ToastStore;
   
   private static instance: Store | null = null;
 
@@ -56,16 +62,26 @@ export class Store {
     makeObservable(this, {
       pivotProject: observable.ref,
       activeViewId: observable,
+      projectName: observable,
       editingDimension: observable.ref,
       updateProject: action,
       startEditingDimension: action,
       updateEditingDimension: action,
       saveEditingDimension: action,
       cancelEditingDimension: action,
+      setProjectName: action,
+      autoSetProjectNameFromCSV: action,
+      autoGenerateNameFromFilename: action,
+      exportProject: action,
+      importProject: action,
+      saveProjectAs: action,
+      loadSavedProject: action,
+      listSavedProjects: action,
       
     });
     this.pivotProject = PivotProjectService.createEmptyPivotProject();
     this.viewStore = new ViewStore(this);
+    this.toastStore = new ToastStore();
   }
   
   /**
@@ -104,12 +120,122 @@ export class Store {
   loadProject(project: PivotProject): void {
     this.pivotProject = project;
     this.activeViewId = undefined;
+    this.projectName = project.name || '';
   }
 
   /**
-   * Export the current project
+   * Set the project name
    */
-  exportProject(): PivotProject {
+  setProjectName(name: string): void {
+    this.projectName = name;
+    if (this.pivotProject) {
+      this.pivotProject.name = name;
+    }
+  }
+
+  /**
+   * Auto-generate project name from CSV filename
+   */
+  autoGenerateNameFromFilename(filename: string): string {
+    const basename = filename.split('/').pop() || filename;
+    const nameWithoutExt = basename.split('.').slice(0, -1).join('.');
+    return nameWithoutExt;
+  }
+
+  /**
+   * Auto-set project name from CSV filename if project name is empty
+   */
+  autoSetProjectNameFromCSV(filename: string): void {
+    if (!this.projectName.trim()) {
+      this.projectName = this.autoGenerateNameFromFilename(filename);
+      this.pivotProject.name = this.projectName;
+    }
+  }
+
+  /**
+   * Export the current project as JSON file
+   */
+  async exportProject(): Promise<void> {
+    try {
+      const filename = `${this.projectName || 'pivot-project'}-${new Date().toISOString().split('T')[0]}.json`;
+      await StorageService.exportProjectToFile(this.pivotProject, filename);
+      this.toastStore.addSuccess('Project exported successfully');
+    } catch (error) {
+      this.toastStore.addError((error as Error).message || 'Failed to export project');
+    }
+  }
+
+  /**
+   * Import a project from JSON file
+   */
+  async importProject(file: File): Promise<void> {
+    try {
+      const project = await StorageService.importProjectFromFile(file);
+      this.loadProject(project);
+      this.projectName = project.name || this.autoGenerateNameFromFilename(file.name);
+      this.toastStore.addSuccess('Project imported successfully');
+    } catch (error) {
+      this.toastStore.addError((error as Error).message || 'Failed to import project');
+    }
+  }
+
+  /**
+   * Save the current project to IndexedDB with a specific name
+   */
+  async saveProjectAs(name: string): Promise<void> {
+    try {
+      if (!name.trim()) {
+        this.toastStore.addError('Project name is required');
+        return;
+      }
+      
+      const projectToSave = {
+        ...this.pivotProject,
+        name,
+      };
+      
+      await StorageService.saveProject(name, projectToSave);
+      this.projectName = name;
+      this.toastStore.addSuccess(`Project saved as "${name}"`);
+    } catch (error) {
+      this.toastStore.addError((error as Error).message || 'Failed to save project');
+    }
+  }
+
+  /**
+   * Load a saved project from IndexedDB by name
+   */
+  async loadSavedProject(name: string): Promise<void> {
+    try {
+      const storedProject = await StorageService.loadProject(name);
+      if (storedProject) {
+        this.loadProject(storedProject.pivotProject);
+        this.projectName = storedProject.name;
+        this.toastStore.addSuccess(`Project "${name}" loaded`);
+      } else {
+        this.toastStore.addError(`Project "${name}" not found`);
+      }
+    } catch (error) {
+      this.toastStore.addError((error as Error).message || 'Failed to load project');
+    }
+  }
+
+  /**
+   * List all saved projects from IndexedDB
+   */
+  async listSavedProjects(): Promise<StoredProject[]> {
+    try {
+      return await StorageService.listProjects();
+    } catch (error) {
+      this.toastStore.addError((error as Error).message || 'Failed to list projects');
+      return [];
+    }
+  }
+
+  /**
+   * Get the current project (for backward compatibility)
+   */
+  getPivotProject(): PivotProject {
     return this.pivotProject;
   }
 
