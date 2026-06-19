@@ -13,5 +13,6 @@ Realize or complete the screen.
 3. Analyse react src/screens/ and create or complete a screen 
 4. Ask the user to clarify any missing information or to validate the documentation
 5. Operate changes in src/ 
-6. Update docs/screens/ with the new information
+6. Never end development if `npm run build` or `npm run test`
+
 

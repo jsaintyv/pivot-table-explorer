@@ -17,33 +17,9 @@ Analyse React components and update docs/screens/, with one screen per folder
    * Be concise and clear
    * Use markdown format
    * Content should be at user level, not technical level
+   * Generate an view interactive design mockup in design.html
    
 
 # Example of documentation structure
 
-```markdown
-
-# Name of the screen
-
-## Design 
-
-A component <component name>
-
-```
-<border>
-Login: <input>
-Password: <password>
-<button>Connect</button>
-</border>
-
-```
-
-## Actions
-
-```gerkin
-Given login is filled, password is empty
-When I click the Connect button
-Then I should see an error message "Password is required"
-``` 
-
-``` 
+[Template](/docs/template/screen.md)

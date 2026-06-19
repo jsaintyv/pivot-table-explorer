@@ -1,9 +1,8 @@
 # {Name of the screen}
 
-## Design 
 
-@sketch.html 
-
+## Design
+> **👉 [View Interactive Design Mockup](./design.html)** - Open this file in a browser to see the visual layout.
 Note: This sketch.html use src/App.css to be consistent with the global design
 
 

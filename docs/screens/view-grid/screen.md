@@ -1,26 +1,43 @@
 # View Grid Screen
 
-The View Grid screen allows users to configure and visualize the pivot table structure by defining row dimensions, column dimensions, filters, and value fields. The pivot grid occupies **80% of the screen space** for optimal data visualization, with a **20% sidebar** for configuration.
+The View Grid screen allows users to configure and visualize pivot table data by defining row dimensions, column dimensions, value fields, and applying filters. The screen features a main grid area occupying **80% of the space** for data visualization, with a **20% sidebar** for configuration options.
 
+## Design
 > **👉 [View Interactive Design Mockup](./design.html)** - Open this file in a browser to see the visual layout.
 
 ## Components
 
 ### Layout Structure
-- **View Header**: Contains row and column dimension selectors with (+) buttons to add dimensions
+- **View Header**: Contains row dimensions, column dimensions, and value fields selectors with (+) buttons to add new dimensions/measures
 - **Screen Layout**: Flex container with sidebar (20%) and grid area (80%)
 
+### Header Components
+- **Row Dimensions Selector**: Add row dimensions via (+) button, displays selected dimensions as badges with remove option
+- **Column Dimensions Selector**: Add column dimensions via (+) button, displays selected dimensions as badges with remove option
+- **Value Fields Selector**: Add measures via (+) button, displays selected measures with their aggregation type (sum, average, etc.) and remove option
+- **View Name Input**: Editable text field to rename the current view
+
 ### Sidebar Components (20%)
-- **Available Dimensions**: List of all available dimensions that can be selected
-- **Selected Dimensions**: Clickable badges showing currently selected row and column dimensions (click to configure aggregation)
-- **Filters Configuration**: Multi-select controls for each dimension to filter included values
+- **Filters Section**: Contains filter controls for each dimension
+- **Filter Groups**: For each dimension, shows a multi-select dropdown to include/exclude specific values
+- **Clear Filter Button**: Removes all filters for a specific dimension
 
 ### Main Content (80%)
-- **PivotGrid**: The main data visualization component displaying the cross-tabulated data
+- **PivotGridTable**: Displays the cross-tabulated pivot table with:
+  - Row headers showing row dimension values
+  - Column headers showing column dimension values
+  - Data cells showing aggregated values
+  - Row totals (optional)
+  - Column totals (optional)
+  - Grand total (optional)
+
+### Modal Dialogs
+- **Add Dimension Modal**: Opens when clicking (+) buttons, allows selecting available dimensions to add as row, column, or value
+- **Aggregation Modal**: Opens when clicking on a measure badge, allows selecting aggregation function (sum, average, count, min, max, first, last)
 
 ### Action Bar
 - **Back Button**: Returns to Main screen
-- **Apply Button**: Applies the current configuration
+- **Apply Button**: Triggers pivot table generation with current configuration
 
 ## Layout Constraints
 
@@ -41,57 +58,80 @@ On screens smaller than 1024px:
 ## Actions
 
 ```gherkin
+# Navigation
+Given I am on the View Grid screen
+When I click on "Back to Main screen"
+Then I return to the Main screen
+
+# Dimension Management
 Given I am on the View Grid screen
 When I click the (+) button next to Row dimensions
-Then a modal opens allowing me to select dimensions to add as row dimensions
+Then a modal opens showing all available dimensions
+When I select a dimension from the modal
+Then that dimension is added as a row dimension
+And the pivot grid updates automatically
 
 Given I am on the View Grid screen
 When I click the (+) button next to Column dimensions
-Then a modal opens allowing me to select dimensions to add as column dimensions
+Then a modal opens showing all available dimensions
+When I select a dimension from the modal
+Then that dimension is added as a column dimension
+And the pivot grid updates automatically
 
 Given I am on the View Grid screen
-When I click on a selected dimension badge in the sidebar
-Then a modal opens allowing me to configure the aggregation function for that dimension
+When I click the (+) button next to Value fields
+Then a modal opens showing all available dimensions
+When I select a dimension from the modal
+Then that dimension is added as a measure with default aggregation (sum)
+And the pivot grid updates automatically
 
 Given I am on the View Grid screen
-When I select specific values in a dimension's multi-select filter
-Then only those selected values are included for that dimension and the pivot grid updates
+When I click the remove button (×) on a row dimension badge
+Then that dimension is removed from row dimensions
+And the pivot grid updates automatically
 
 Given I am on the View Grid screen
-When I change the aggregation function for a dimension by clicking its badge
-Then that aggregation is applied to the dimension and the pivot grid updates
+When I click the remove button (×) on a column dimension badge
+Then that dimension is removed from column dimensions
+And the pivot grid updates automatically
 
 Given I am on the View Grid screen
-When I enter a view name and click "Save View"
-Then the current configuration is saved as a new view
+When I click the remove button (×) on a measure badge
+Then that measure is removed from value fields
+And the pivot grid updates automatically
 
+# Aggregation Configuration
+Given I am on the View Grid screen
+When I click on a measure badge in the Value fields section
+Then an aggregation modal opens
+When I select a different aggregation function (e.g., average, count, min, max)
+Then the measure's aggregation is updated
+And the pivot grid recalculates with the new aggregation
+
+# Filter Configuration
+Given I am on the View Grid screen
+When I select specific values in a dimension's filter dropdown
+Then only rows/columns matching those selected values are displayed
+And the pivot grid updates to show only filtered data
+
+Given I am on the View Grid screen
+When I click the trash can button (🗑) next to a dimension filter
+Then all filters for that dimension are cleared
+And the pivot grid shows all values for that dimension
+
+# View Management
+Given I am on the View Grid screen
+When I change the text in the View Name input
+Then the current view is renamed
+
+# Pivot Table Generation
 Given I am on the View Grid screen
 When I click on "Apply Configuration"
 Then the pivot table is generated with the current row, column, filter, and aggregation configurations
 
+# Empty State
 Given I am on the View Grid screen
-When I click on "Back to Main screen"
-Then I return to the Main screen
+When there are no views available
+Then I see a message "No view available. Create a view from the main screen."
+And a button to return to the Main screen
 ```
-
-## CSS Classes Reference
-
-| Class | Purpose |
-|-------|---------|
-| `.view-grid-screen` | Main container |
-| `.view-header` | Header with row/column dimension selectors |
-| `.dimension-config-line` | Configuration line for row or column dimensions |
-| `.config-label` | Label for dimension configuration |
-| `.add-dimension-btn` | Button to add dimensions |
-| `.selected-badge` | Badge showing selected dimension in header |
-| `.screen-layout` | Flex container for sidebar + grid |
-| `.config-sidebar` | Left sidebar (20%) with all configuration |
-| `.config-section` | Section within sidebar |
-| `.grid-main` | Main grid container (80%) |
-| `.dimension-item` | Dimension from available list |
-| `.dimension-badge-full` | Clickable dimension badge in sidebar |
-| `.dimension-name` | Name of the dimension in badge |
-| `.agg-indicator` | Aggregation indicator on dimension badge |
-| `.filter-group` | Filter controls for a single dimension |
-| `.filter-select` | Multi-select filter dropdown |
-| `.view-actions` | Container for action buttons |
