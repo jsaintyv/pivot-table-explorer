@@ -1,0 +1,139 @@
+/**
+ * DimensionsSection CSS
+ * 
+ * Styles for the dimensions section component
+ */
+
+.section {
+  margin-bottom: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.create-button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.create-button:hover {
+  background-color: #0069d9;
+}
+
+.dimensions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dimension-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+.dimension-item:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dimension-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.dimension-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.dimension-type {
+  font-size: 12px;
+  color: #6c757d;
+  text-transform: capitalize;
+}
+
+.dimension-source {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.dimension-description {
+  font-size: 12px;
+  color: #6c757d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.dimension-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-button {
+  padding: 4px 8px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.edit-button:hover {
+  background-color: #0069d9;
+}
+
+.remove-button {
+  padding: 4px 8px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.remove-button:hover {
+  background-color: #c82333;
+}
+
+.empty-message {
+  color: #6c757d;
+  font-style: italic;
+  margin: 0;
+  padding: 10px;
+  text-align: center;
+}
+
+.info-text {
+  font-size: 14px;
+  color: #6c757d;
+  margin: 10px 0 0 0;
+}

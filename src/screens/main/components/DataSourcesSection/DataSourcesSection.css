@@ -1,0 +1,103 @@
+/**
+ * DataSourcesSection CSS
+ * 
+ * Styles for the data sources section component
+ */
+
+.section {
+  margin-bottom: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.import-button {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.import-button:hover {
+  background-color: #218838;
+}
+
+.data-sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.data-source-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+.data-source-item:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.data-source-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.data-source-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.data-source-type {
+  font-size: 12px;
+  color: #6c757d;
+  text-transform: capitalize;
+}
+
+.data-source-stats {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.remove-button {
+  padding: 4px 8px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.remove-button:hover {
+  background-color: #c82333;
+}
+
+.empty-message {
+  color: #6c757d;
+  font-style: italic;
+  margin: 0;
+  padding: 10px;
+  text-align: center;
+}
