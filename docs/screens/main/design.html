@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Screen - Design Mockup</title>
+    <link rel="stylesheet" type="text/css" href="../../../src/App.css">
+    <style>
+        /* Custom styles for the mockup */
+        .design-mockup {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Project Header Bar */
+        .project-header {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .project-name-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .project-name-container label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .project-name-container input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            min-width: 250px;
+        }
+
+        .project-name-container input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .project-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            background: #007bff;
+            color: white;
+        }
+
+        .project-actions button:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .project-actions button:nth-child(2) {
+            background: #28a745;
+        }
+
+        .project-actions button:nth-child(2):hover {
+            background: #1e7e34;
+        }
+
+        .project-actions button:nth-child(3) {
+            background: #17a2b8;
+        }
+
+        .project-actions button:nth-child(3):hover {
+            background: #117a8b;
+        }
+
+        .project-actions button:nth-child(4) {
+            background: #6c757d;
+        }
+
+        .project-actions button:nth-child(4):hover {
+            background: #566164;
+        }
+
+        .project-actions button:nth-child(5) {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .project-actions button:nth-child(5):hover {
+            background: #d4a207;
+        }
+
+        /* Section Styles */
+        .section {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            color: #444;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        /* Data Sources Section */
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+
+        .file-item span {
+            flex: 1;
+        }
+
+        .file-item button {
+            background-color: #dc3545;
+            color: white;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .upload-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            margin-bottom: 15px;
+            border: none;
+        }
+
+        .upload-button:hover {
+            background-color: #0069d9;
+        }
+
+        .upload-button input {
+            display: none;
+        }
+
+        /* Dimensions Section */
+        .dimension-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .dimension-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+
+        .dimension-item span {
+            flex: 1;
+        }
+
+        .source-hint {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-left: 10px;
+        }
+
+        .dimension-item button {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            margin-left: 5px;
+        }
+
+        .dimension-item button:first-of-type {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .dimension-item button:last-of-type {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* Views Section */
+        .view-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .view-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+
+        .view-item span {
+            flex: 1;
+        }
+
+        .view-item button {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            margin-left: 5px;
+        }
+
+        .view-item button:first-of-type {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .view-item button:last-of-type {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .create-view {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .create-view input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        .create-view button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+        }
+
+        /* Navigation */
+        .navigation {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .nav-button {
+            background-color: #17a2b8;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            background-color: #138496;
+        }
+
+        /* Empty States */
+        .empty-state {
+            color: #6c757d;
+            font-style: italic;
+            padding: 10px;
+            text-align: center;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        /* Legend */
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .project-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .project-name-container {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 5px;
+            }
+
+            .project-name-container label {
+                text-align: left;
+            }
+
+            .project-actions {
+                justify-content: stretch;
+            }
+
+            .project-actions button {
+                width: 100%;
+            }
+
+            .section {
+                padding: 15px;
+            }
+        }
+
+        /* Button styles for general buttons */
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="design-mockup">
+        <!-- PROJECT HEADER BAR -->
+        <header class="project-header">
+            <div class="project-name-container">
+                <label>Project Name:</label>
+                <input 
+                    type="text" 
+                    placeholder="Enter project name or import a CSV to auto-generate"
+                    value=""
+                    onchange="updateProjectName(this.value)"
+                />
+            </div>
+            <div class="project-actions">
+                <button onclick="showMessage('Created new empty project')">New Project</button>
+                <button onclick="showMessage('Project exported to JSON file')">Export</button>
+                <button onclick="showMessage('Project imported from JSON file')">Import</button>
+                <button onclick="showMessage('Project saved to IndexedDB')">Save As</button>
+                <button onclick="showMessage('Project loaded from IndexedDB')">Load</button>
+            </div>
+        </header>
+
+        <!-- DATA SOURCES SECTION -->
+        <section class="section data-sources">
+            <h2>Data Sources</h2>
+            <div class="file-list" id="fileList">
+                <div class="file-item">
+                    <span>sales_2024.csv (5 columns)</span>
+                    <button onclick="removeFile(this)">Delete</button>
+                </div>
+                <div class="file-item">
+                    <span>customers.csv (8 columns)</span>
+                    <button onclick="removeFile(this)">Delete</button>
+                </div>
+                <div class="file-item">
+                    <span>products.csv (6 columns)</span>
+                    <button onclick="removeFile(this)">Delete</button>
+                </div>
+            </div>
+            <p class="empty-state" id="emptySources" style="display: none;">No data sources loaded. Import a CSV to get started.</p>
+            <label class="upload-button">
+                <input type="file" accept=".csv" onchange="addFile(this)">
+                Import CSV
+            </label>
+        </section>
+
+        <!-- DIMENSIONS SECTION -->
+        <section class="section dimensions">
+            <h2>Dimensions</h2>
+            <div class="dimension-list" id="dimensionList">
+                <div class="dimension-item">
+                    <span>Date (date)</span>
+                    <span class="source-hint">from sales_2024.csv</span>
+                    <button onclick="showMessage('Editing dimension: Date')">Edit</button>
+                    <button onclick="removeDimension(this)">Delete</button>
+                </div>
+                <div class="dimension-item">
+                    <span>Region (string)</span>
+                    <span class="source-hint">from sales_2024.csv</span>
+                    <button onclick="showMessage('Editing dimension: Region')">Edit</button>
+                    <button onclick="removeDimension(this)">Delete</button>
+                </div>
+                <div class="dimension-item">
+                    <span>Sales (number)</span>
+                    <span class="source-hint">from sales_2024.csv</span>
+                    <button onclick="showMessage('Editing dimension: Sales')">Edit</button>
+                    <button onclick="removeDimension(this)">Delete</button>
+                </div>
+                <div class="dimension-item">
+                    <span>ProductName (string)</span>
+                    <span class="source-hint">from products.csv</span>
+                    <button onclick="showMessage('Editing dimension: ProductName')">Edit</button>
+                    <button onclick="removeDimension(this)">Delete</button>
+                </div>
+            </div>
+            <p class="empty-state" id="emptyDimensions" style="display: none;">No dimensions configured. Import a CSV to auto-create dimensions.</p>
+            <button onclick="showMessage('Navigate to Axe Screen')" class="nav-button">Create Dimension</button>
+        </section>
+
+        <!-- VIEWS SECTION -->
+        <section class="section views">
+            <h2>Views</h2>
+            <div class="view-list" id="viewList">
+                <div class="view-item">
+                    <span>Sales by Region</span>
+                    <button onclick="showMessage('Showing view: Sales by Region')">Show</button>
+                    <button onclick="removeView(this)">Delete</button>
+                </div>
+                <div class="view-item">
+                    <span>Product Performance</span>
+                    <button onclick="showMessage('Showing view: Product Performance')">Show</button>
+                    <button onclick="removeView(this)">Delete</button>
+                </div>
+            </div>
+            <p class="empty-state" id="emptyViews" style="display: none;">No views created.</p>
+            <div class="create-view">
+                <input type="text" placeholder="View name" id="newViewName">
+                <button onclick="addView()">Add View</button>
+            </div>
+        </section>
+
+        <!-- NAVIGATION SECTION -->
+        <section class="navigation">
+            <button onclick="showMessage('Navigate to View Grid Screen')" class="nav-button">Configure View Grid</button>
+        </section>
+
+        <!-- Legend -->
+        <div class="legend">
+            <h3>📏 Layout Structure</h3>
+            <div class="legend-item">
+                <div class="color-box" style="background: #007bff;"></div>
+                <span><strong>Project Header Bar</strong> - Project name input + Project actions (New, Export, Import, Save As, Load)</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box" style="background: #28a745;"></div>
+                <span><strong>Data Sources Section</strong> - Import CSV files and view/remove them</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box" style="background: #17a2b8;"></div>
+                <span><strong>Dimensions Section</strong> - List, edit, and delete dimensions</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box" style="background: #ffc107;"></div>
+                <span><strong>Views Section</strong> - Create, show, and delete views</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box" style="background: #6c757d;"></div>
+                <span><strong>Navigation Section</strong> - Access View Grid Screen</span>
+            </div>
+        </div>
+
+        <!-- Modal for messages -->
+        <div id="messageModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000;">
+            <h3 style="color: #007bff; margin-bottom: 15px;" id="messageTitle">Message</h3>
+            <p style="color: #2c3e50;" id="messageText"></p>
+            <button onclick="closeMessage()" style="margin-top: 15px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // Show message in modal
+        function showMessage(message) {
+            const modal = document.getElementById('messageModal');
+            const title = document.getElementById('messageTitle');
+            const text = document.getElementById('messageText');
+            
+            title.textContent = 'Action Performed';
+            text.textContent = message;
+            modal.style.display = 'block';
+        }
+
+        function closeMessage() {
+            document.getElementById('messageModal').style.display = 'none';
+        }
+
+        // Project name handling
+        function updateProjectName(name) {
+            console.log('Project name updated to:', name);
+            
+            // Auto-generate if empty and first CSV imported
+            if (name === '' && document.querySelectorAll('.file-item').length > 0) {
+                const firstFile = document.querySelector('.file-item span');
+                if (firstFile) {
+                    const fileName = firstFile.textContent.split(' ')[0];
+                    const baseName = fileName.replace('.csv', '');
+                    // In real implementation, this would be set automatically
+                }
+            }
+        }
+
+        // Add file to list
+        function addFile(input) {
+            const file = input.files[0];
+            if (file) {
+                const fileList = document.getElementById('fileList');
+                const emptyState = document.getElementById('emptySources');
+                
+                // Create new file item
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name} (0 columns)</span>
+                    <button onclick="removeFile(this)">Delete</button>
+                `;
+                fileList.appendChild(fileItem);
+                emptyState.style.display = 'none';
+                
+                showMessage(`Imported: ${file.name}`);
+                
+                // Reset input
+                input.value = '';
+            }
+        }
+
+        // Remove file from list
+        function removeFile(button) {
+            const fileItem = button.parentElement;
+            fileItem.remove();
+            
+            const fileList = document.getElementById('fileList');
+            const emptyState = document.getElementById('emptySources');
+            
+            if (fileList.children.length === 0) {
+                emptyState.style.display = 'block';
+            }
+            
+            showMessage('Data source removed');
+        }
+
+        // Remove dimension from list
+        function removeDimension(button) {
+            const dimensionItem = button.parentElement;
+            dimensionItem.remove();
+            
+            const dimensionList = document.getElementById('dimensionList');
+            const emptyState = document.getElementById('emptyDimensions');
+            
+            if (dimensionList.children.length === 0) {
+                emptyState.style.display = 'block';
+            }
+            
+            showMessage('Dimension removed');
+        }
+
+        // Remove view from list
+        function removeView(button) {
+            const viewItem = button.parentElement;
+            viewItem.remove();
+            
+            const viewList = document.getElementById('viewList');
+            const emptyState = document.getElementById('emptyViews');
+            
+            if (viewList.children.length === 0) {
+                emptyState.style.display = 'block';
+            }
+            
+            showMessage('View removed');
+        }
+
+        // Add new view
+        function addView() {
+            const viewNameInput = document.getElementById('newViewName');
+            const viewName = viewNameInput.value.trim();
+            
+            if (viewName) {
+                const viewList = document.getElementById('viewList');
+                const emptyState = document.getElementById('emptyViews');
+                
+                const viewItem = document.createElement('div');
+                viewItem.className = 'view-item';
+                viewItem.innerHTML = `
+                    <span>${viewName}</span>
+                    <button onclick="showMessage('Showing view: ${viewName}')">Show</button>
+                    <button onclick="removeView(this)">Delete</button>
+                `;
+                viewList.appendChild(viewItem);
+                emptyState.style.display = 'none';
+                
+                viewNameInput.value = '';
+                showMessage(`View created: ${viewName}`);
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('messageModal');
+            if (event.target === modal) {
+                closeMessage();
+            }
+        }
+    </script>
+</body>
+</html>

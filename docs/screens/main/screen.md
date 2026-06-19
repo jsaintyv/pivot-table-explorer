@@ -1,112 +1,223 @@
 # Main Screen
 
-The Main screen is the primary interface for managing data sources, dimensions, and views in the Pivot Table Explorer application. It serves as the entry point and central hub for the application.
+The Main screen is the primary interface for managing pivot table projects in the Pivot Table Explorer application. It serves as the entry point and central hub where users can create, load, save, and manage their pivot table configurations.
 
 ## Design
 
+> **👉 [View Interactive Design Mockup](./design.html)** - Open this file in a browser to see the visual layout.
+
 In pseudo HTML:
 ```
-<main>
-  <h1>Pivot Table Explorer</h1>
-  
-  <section class="source-files">
-    <h2>Source Files</h2>
-    <forEach sourceFile in sourceFiles>
-      <div class="source-file-item">
-        <span>{sourceFile.name} ({sourceFile.columns.length} columns)</span>
-        <button>Delete</button>
-      </div>
-    </forEach>
-    <button>Import a new CSV</button>
+<main class="main-screen">
+  {/* ===== PROJECT HEADER BAR ===== */}
+  <header class="project-header">
+    <div class="project-name-container">
+      <label>Project Name:</label>
+      <input 
+        type="text" 
+        placeholder="Enter project name or import a CSV to auto-generate"
+        value={projectName}
+        onChange={handleProjectNameChange}
+      />
+    </div>
+    <div class="project-actions">
+      <button onClick={handleNewProject}>New Project</button>
+      <button onClick={handleExportProject}>Export</button>
+      <button onClick={handleImportProject}>Import</button>
+      <button onClick={handleSaveAsProject}>Save As</button>
+      <button onClick={handleLoadProject}>Load</button>
+    </div>
+  </header>
+
+  {/* ===== DATA SOURCES SECTION ===== */}
+  <section class="section data-sources">
+    <h2>Data Sources</h2>
+    <div class="file-list">
+      <forEach sourceFile in dataSources>
+        <div class="file-item">
+          <span>{sourceFile.name} ({sourceFile.columns.length} columns)</span>
+          <button onClick={handleDeleteDataSource}>Delete</button>
+        </div>
+      </forEach>
+    </div>
+    <p class="empty-state">No data sources loaded. Import a CSV to get started.</p>
+    <label class="upload-button">
+      <input 
+        type="file" 
+        accept=".csv" 
+        onChange={handleFileUpload}
+        style={{ display: 'none' }}
+      />
+      Import CSV
+    </label>
   </section>
 
-  <section class="dimensions">
+  {/* ===== DIMENSIONS SECTION ===== */}
+  <section class="section dimensions">
     <h2>Dimensions</h2>
-    <forEach dimension in dimensions>
-      <div class="dimension-item">
-        <span>{dimension.name}</span>
-        <span>from {dimension.sourceFile.name}</span>
-        <button>Edit</button>
-        <button>Delete</button>
-      </div>
-    </forEach>
-    <button>Add new dimension</button>
+    <div class="dimension-list">
+      <forEach dimension in dimensions>
+        <div class="dimension-item">
+          <span>{dimension.name} ({dimension.dataType})</span>
+          <span class="source-hint">from {dimension.sourceFile?.name || 'Unknown'}</span>
+          <button onClick={handleEditDimension}>Edit</button>
+          <button onClick={handleDeleteDimension}>Delete</button>
+        </div>
+      </forEach>
+    </div>
+    <p class="empty-state">No dimensions configured. Import a CSV to auto-create dimensions.</p>
+    <button onClick={navigateToAxeScreen}>Create Dimension</button>
   </section>
 
-  <section class="views">
+  {/* ===== VIEWS SECTION ===== */}
+  <section class="section views">
     <h2>Views</h2>
-    <forEach view in views>
-      <div class="view-item">
-        <span>{view.name}</span>
-        <button>Show</button>
-        <button>Delete</button>
-      </div>
-    </forEach>
-    <input type="text" placeholder="View name">
-    <button>Add new view</button>
+    <div class="view-list">
+      <forEach view in views>
+        <div class="view-item">
+          <span>{view.name}</span>
+          <button onClick={handleShowView}>Show</button>
+          <button onClick={handleDeleteView}>Delete</button>
+        </div>
+      </forEach>
+    </div>
+    <p class="empty-state">No views created.</p>
+    <div class="create-view">
+      <input 
+        type="text" 
+        placeholder="View name"
+        value={newViewName}
+        onChange={handleViewNameChange}
+      />
+      <button onClick={handleCreateView}>Add View</button>
+    </div>
   </section>
 
+  {/* ===== NAVIGATION SECTION ===== */}
   <section class="navigation">
-    <button>Configure Axes</button>
-    <button>Configure View Grid</button>
+    <button onClick={navigateToViewGridScreen}>Configure View Grid</button>
   </section>
 </main>
 ```
 
 ## Initial State
 
-When the page is opened, the application starts with an empty configuration:
-- No source files loaded
+When the page is opened, the application starts with:
+- Empty project name
+- No data sources loaded
 - No dimensions configured
 - No views created
-
-This provides a clean starting point for users to begin importing their data and setting up their pivot table configurations.
+- "New Project" button creates a fresh empty project
 
 ## Components
 
-- **Header**: Displays the application title "Pivot Table Explorer"
-- **Source Files Section**: Displays all imported CSV files with their column counts and delete buttons
-- **Import Button**: Opens a file picker dialog to import new CSV files
-- **Dimensions Section**: Displays all configured dimensions with their source file origin, edit button, and delete button
-- **Add Dimension Button**: Opens the dimension configuration interface
-- **Views Section**: Displays all saved views with Show and Delete buttons
-- **View Creation Form**: Input field and button to create new views
-- **Navigation Buttons**: Buttons to navigate to the Axe Screen and View Grid Screen
+### Project Header Bar (NEW)
+- **Project Name Input**: Editable text field for the project name
+  - Placeholder: "Enter project name or import a CSV to auto-generate"
+  - Auto-populated when first CSV is imported if project name is empty (uses CSV filename)
+- **New Project Button**: Creates a new empty project, clearing all current data
+- **Export Button**: Exports the current project as a JSON file
+- **Import Button**: Imports a project from a JSON file (file picker dialog)
+- **Save As Button**: Saves the current project to IndexedDB with a user-provided name
+- **Load Button**: Opens a dialog to select and load a project from IndexedDB
+
+### Data Sources Section
+- **File List**: Displays all imported CSV files with their column counts
+- **Delete Button**: Removes a data source and all its associated dimensions/nodes
+- **Import CSV Button**: Opens a file picker dialog to import new CSV files
+  - On import: If project name is empty, automatically sets project name to the CSV filename (without extension)
+
+### Dimensions Section
+- **Dimension List**: Displays all configured dimensions with their data type and source file
+- **Source Hint**: Shows which data source each dimension originates from
+- **Edit Button**: Navigates to the Axe Screen to edit the dimension
+- **Delete Button**: Removes the dimension and all its associated nodes
+- **Create Dimension Button**: Navigates to the Axe Screen to create a new dimension
+
+### Views Section
+- **View List**: Displays all saved views with Show and Delete buttons
+- **Show Button**: Loads the view configuration and navigates to the View Grid Screen
+- **Delete Button**: Removes the view
+- **View Creation Form**: Input field and button to create a new view from the current configuration
+
+### Navigation Section
+- **Configure View Grid Button**: Navigates to the View Grid Screen
 
 ## Actions
 
 ```gherkin
-# Source File Management
-Given there are no source files
-When I click on "Import a new CSV"
-And I select a valid CSV file
-Then a new source file entry is added to sourceFiles
+# Project Management (NEW)
+Given I am on the Main screen
+When I click "New Project"
+Then a new empty project is created
+And the project name is cleared
+And all data sources, dimensions, and views are removed
 
-Given there are source files
-When I click Delete on a source file
-Then that source file is removed from sourceFiles
+Given I am on the Main screen
+And I have entered a project name
+When I click "Save As"
+Then a dialog prompts me for a project name
+When I enter a name and confirm
+Then the current project is saved to IndexedDB with that name
+
+Given I am on the Main screen
+When I click "Load"
+Then a dialog shows all projects saved in IndexedDB
+When I select a project and click Load
+Then that project is loaded and replaces the current project
+
+Given I am on the Main screen
+When I click "Export"
+Then the current project is downloaded as a JSON file
+
+Given I am on the Main screen
+When I click "Import"
+And I select a valid JSON project file
+Then that project is loaded and replaces the current project
+
+# Project Name Auto-Generation
+Given I am on the Main screen
+And the project name is empty
+When I import a CSV file named "sales_data.csv"
+Then the project name is automatically set to "sales_data"
+
+# Source File Management
+Given there are no data sources
+When I click on "Import CSV"
+And I select a valid CSV file
+Then a new data source entry is added to dataSources
+And dimensions are auto-created for each column in the CSV
+
+Given there are data sources
+When I click Delete on a data source
+Then that data source is removed from dataSources
+And all dimensions using that data source have their column mappings removed
+And all nodes exclusively from that source are removed
 
 # Dimension Management
 Given there are no dimensions
-When I click on "Add new dimension"
-Then the dimension configuration interface opens
+When I click on "Create Dimension"
+Then I navigate to the Axe Screen to create a new dimension
 
 Given there are dimensions
 When I click Delete on a dimension
 Then that dimension is removed from dimensions
+And all nodes belonging to that dimension are removed
+And all view references to that dimension are removed
 
 Given there are dimensions
 When I click Edit on a dimension
-Then the dimension edit interface opens
+Then I navigate to the Axe Screen with that dimension pre-loaded for editing
 
 # View Management
 Given there are no views
-When I enter a view name and click "Add new view"
+When I enter a view name and click "Add View"
 Then a new view is created with the specified name
 
 Given there are views
 When I click Show on a view
-Then that view is loaded and displayed
+Then that view is loaded as the active view
+And I navigate to the View Grid Screen
 
 Given there are views
 When I click Delete on a view
@@ -114,7 +225,7 @@ Then that view is removed from views
 
 # Navigation
 Given I am on the Main screen
-When I click "Configure Axes"
+When I click "Create Dimension"
 Then I navigate to the Axe screen
 
 Given I am on the Main screen
@@ -122,9 +233,30 @@ When I click "Configure View Grid"
 Then I navigate to the View Grid screen
 ```
 
+## Data Flow
+
+### IndexedDB Storage
+- Projects are stored as JSON in IndexedDB
+- Multiple projects can be saved with unique names
+- Projects include: name, data sources, dimensions, views, nodes, and all configuration
+- The `saveAs` operation allows the user to provide a name for the project in IndexedDB
+- The `load` operation presents a list of saved projects for the user to select from
+
+### File Export/Import
+- Export: Current project serialized to JSON and downloaded as a file
+- Import: JSON file parsed and loaded as the current project
+- File format: Standard JSON with project structure
+
+### Project Name Auto-Generation
+- Trigger: When project name is empty AND a CSV is imported
+- Action: Set project name to the CSV filename without extension
+- Example: "data/sales_2024.csv" → "sales_2024"
+
 ## Notes
 
 - The Main screen is the landing page and central hub of the application
-- All data source management happens on this screen
-- Users can navigate to specialized configuration screens from here
-- The screen displays a summary of all loaded data sources, configured dimensions, and saved views 
+- All project management (create, load, save, export, import) happens in the header bar
+- All data source management happens in the Data Sources section
+- Users can navigate to specialized configuration screens (Axe, View Grid) from this screen
+- The screen displays a comprehensive overview of the current project: data sources, dimensions, and views
+- Empty states are shown when sections have no content to guide the user

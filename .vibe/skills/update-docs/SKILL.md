@@ -22,4 +22,4 @@ Analyse React components and update docs/screens/, with one screen per folder
 
 # Example of documentation structure
 
-[Template](/docs/template/screen.md)
+[Template](../../../docs/template/screen.md)
