@@ -5,11 +5,8 @@ import { useStore } from "../../../stores/contexts/StoreContext";
 
 
 export const SourceList = observer(() => {
-    const store = useStore();    
-    
+    const store = useStore();        
     const dataSources = store.pivotProject.dataSources;
-
-    console.log('SourceList: store.pivotProject.dataSources', store.pivotProject, store.pivotProject.dataSources);
 
     /**
      * Handle file upload

@@ -348,12 +348,10 @@ export class Store {
    */
   removeDimension(id: string): void {
     
-    var newProject = { ...this.pivotProject };
-    console.log('Before dimension:', id, 'Updated project:', JSON.stringify(newProject.dimensions));
+    var newProject = { ...this.pivotProject };    
     // Remove the dimension
     newProject.dimensions = newProject.dimensions.filter(d => d.id != id);
-
-    console.log('Removing dimension:', id, 'Updated project:', JSON.stringify(newProject.dimensions));
+    
     // Remove all Nodes that belong to this dimension
     const newNodes: Record<string, Node> = {};
     Object.entries(this.pivotProject.nodes).forEach(([nodeId, node]) => {
@@ -740,8 +738,7 @@ export class Store {
     this.activeViewId = undefined;
   }
 
-  updateProject(update: PivotProject) {
-      console.log('Updating project:', update);
+  updateProject(update: PivotProject) {    
       this.pivotProject = update;
   } 
 

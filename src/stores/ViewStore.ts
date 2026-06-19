@@ -11,7 +11,7 @@
  * - View: Les composants React qui observent ce store
  */
 
-import { makeAutoObservable } from 'mobx';
+import { action, makeAutoObservable, makeObservable, observable } from 'mobx';
 import type {
   View,
   Measure,
@@ -20,36 +20,10 @@ import type {
   Dimension,
   Node,
   PivotProject,
-  DataSource,
   LocalDataSource,
 } from '../models/pivot-project/types';
+import type { Store } from '.';
 
-// Type minimal pour le rootStore afin d'éviter les dépendances circulaires
-type MinimalStore = {
-  pivotProject: PivotProject;
-  activeViewId?: string;
-  rowFields: string[];
-  columnFields: string[];
-  valueFields: string[];
-  aggregation: 'sum' | 'avg' | 'count' | 'min' | 'max';
-  filters: { dimensionId: string; selectedValues: string[] }[];
-  getDimension: (id: string) => Dimension | undefined;
-  getDimensions: () => Dimension[];
-  getNodesByDimension: (dimensionId: string) => Node[];
-  getView: (id: string) => View | undefined;
-  addView: (
-    name: string,
-    rowDimensions?: string[],
-    columnDimensions?: string[],
-    measures?: Measure[],
-    description?: string,
-    filterDimensions?: FilterDimension[],
-    showTotals?: boolean,
-    showGrandTotal?: boolean
-  ) => string;
-  updateView: (id: string, updates: Partial<View>) => void;
-  removeView: (id: string) => void;
-};
 
 // ============================================================================
 // PIVOT DATA TYPE (à définir plus précisément si nécessaire)
@@ -85,37 +59,99 @@ export interface PivotCell {
   isTotal?: boolean;
 }
 
+export type ModalType = 'row' | 'column' | 'value' ;
+
 // ============================================================================
 // VIEW STORE CLASS
 // ============================================================================
 
 export class ViewStore {
-  // Référence au store principal (pour accéder aux dimensions, nodes, dataSources, etc.)
-  // Utilise MinimalStore pour éviter les dépendances circulaires avec Store
-  private rootStore: MinimalStore;
+  // Référence au store principal (pour accéder aux dimensions, nodes, dataSources, etc.)  
+  public rootStore: Store;
+
+
+
+  // 
+  public allDimensions : Dimension[] = [];
+
+  // Current view
+  public activeViewId : string = "";
+  public pivotData ?: PivotData;
+  public rowDimensions : Dimension[] = [];
+  public colDimensions : Dimension[] = [];
+  public measures : Measure[] =  [];
+  public filters: FilterDimension[] = [];
+
+  // 
+  public showAddModal: boolean = false;
+  public addModalTarget: ModalType = 'row';
+
+  public currentMeasureId: string = "";
+  public showAggregationModal: boolean = false;
   
   // ==========================================================================
   // CONSTRUCTOR
   // ==========================================================================
   
-  constructor(rootStore: MinimalStore) {
-    makeAutoObservable(this, {
-      loadView: true,
-      addDimensionToView: true,
-      removeDimensionFromView: true,
-      updateMeasureAggregation: true,
-      addMeasureToView: true,
-      removeMeasureFromView: true,
-      setFilterForDimension: true,
-      removeFilterForDimension: true,
-      updateView: true,
-      toggleDimensionInView: true,
-      toggleFilterNode: true,
-      updateActiveViewName: true,
+  constructor(rootStore: Store) {
+    makeObservable(this, {      
+      allDimensions: observable.ref,
+      activeViewId: observable.ref,
+      pivotData: observable.ref,
+      rowDimensions: observable.ref,
+      colDimensions: observable.ref,
+      filters: observable.ref,
+      measures: observable.ref,
+      showAddModal: observable.ref,      
+      showAggregationModal: observable.ref,
+      openModal: action,
+      addDimensionToView: action,
+      openAggregationModal: action,      
+      closeAggregationModal: action,
+      setFilterForDimension: action,
+      clearFilter: action,
+      loadView: action,
+      refresh: action,
+      updateName: action
     });
     this.rootStore = rootStore;
   }
-  
+
+  // ==========================================================================
+  // COMPUTED PROPERTIES
+  // ==========================================================================
+
+  get activeView(): View | undefined {
+    if (!this.rootStore.activeViewId) return undefined;
+    return this.rootStore.pivotProject.views.find(v => v.id === this.rootStore.activeViewId);
+  }
+ 
+  get usedDimensionIds(): Set<string> {
+    const view = this.activeView;
+    if (!view) return new Set();
+    return new Set<string>([
+      ...(this.rowDimensions || []).map(d => d.id),
+      ...(this.colDimensions || []).map(d => d.id),
+      ...view.measures.map(m => m.id)      
+    ]);
+  }
+
+  get usedDimensions(): Dimension[] {
+    const dimensionIds = this.usedDimensionIds;
+    return this.rootStore.getDimensions().filter(d => dimensionIds.has(d.id));
+  }
+
+  get availableDimensions(): Dimension[] {
+    return this.rootStore.getDimensions().filter(d => !this.usedDimensionIds.has(d.id));
+  }
+
+  updateName(name: string) {
+    if(this.activeView) {
+      this.activeView.name = name;  
+    }
+    
+  }
+
   // ==========================================================================
   // VIEW SELECTION
   // ==========================================================================
@@ -126,7 +162,28 @@ export class ViewStore {
    */
   loadView(viewId: string): void {
     this.rootStore.activeViewId = viewId;
+    
     this.syncLegacyProperties();
+    this.refresh();
+  }
+
+  refresh() {    
+    let view = this.getActiveView();
+    if(! view) {
+      this.colDimensions = [];
+      this.rowDimensions = [];
+      this.measures = [];
+      this.pivotData = undefined;
+      this.allDimensions = [];
+      this.filters = [];
+    } else {
+      this.allDimensions = this.rootStore.getDimensions();
+      this.colDimensions =  view.columnDimensions.map(i => this.rootStore.getDimension(i)).filter(d => d) as Dimension[];
+      this.rowDimensions =  view.rowDimensions.map(i => this.rootStore.getDimension(i)).filter(d => d) as Dimension[];
+      this.measures = view.measures;
+      this.filters = view.filterDimensions || [];
+      this.pivotData = this.buildPivotFromView();
+    }    
   }
   
   /**
@@ -162,32 +219,7 @@ export class ViewStore {
   // ==========================================================================
   // VIEW MANAGEMENT
   // ==========================================================================
-  
-  /**
-   * Crée une nouvelle vue
-   */
-  addView(
-    name: string,
-    rowDimensions?: string[],
-    columnDimensions?: string[],
-    measures?: Measure[],
-    description?: string,
-    filterDimensions?: FilterDimension[],
-    showTotals?: boolean,
-    showGrandTotal?: boolean
-  ): string {
-    return this.rootStore.addView(
-      name,
-      rowDimensions,
-      columnDimensions,
-      measures,
-      description,
-      filterDimensions,
-      showTotals,
-      showGrandTotal
-    );
-  }
-  
+    
   /**
    * Met à jour une vue existante
    */
@@ -215,6 +247,11 @@ export class ViewStore {
   // DIMENSION MANAGEMENT IN VIEW
   // ==========================================================================
   
+  openModal(type: ModalType) {
+    this.showAddModal = true;
+    this.addModalTarget = type;
+  }
+
   /**
    * Vérifie si une dimension est utilisée dans la vue active
    */
@@ -244,8 +281,9 @@ export class ViewStore {
    * Ajoute une dimension à la vue active dans une catégorie
    */
   addDimensionToView(dimensionId: string, category: 'row' | 'column' | 'value'): void {
-    const view = this.getActiveView();
+    const view = this.getActiveView();    
     if (!view) return;
+    
     
     const dim = this.rootStore.getDimension(dimensionId);
     if (!dim) return;
@@ -257,9 +295,6 @@ export class ViewStore {
       // Note: 'filter' est géré séparément et n'est pas dans row/column/value
       if (currentCategory === 'row' || currentCategory === 'column' || currentCategory === 'value') {
         this.removeDimensionFromView(dimensionId, currentCategory);
-      } else if (currentCategory === 'filter') {
-        // Retirer du filtre
-        this.removeFilterForDimension(dimensionId);
       }
     }
     
@@ -288,6 +323,8 @@ export class ViewStore {
     }
     this.updateViewTimestamp(view);
     this.syncLegacyProperties();
+    this.refresh();
+
   }
   
   /**
@@ -310,38 +347,9 @@ export class ViewStore {
     
     this.updateViewTimestamp(view);
     this.syncLegacyProperties();
+    this.refresh();
   }
-  
-  /**
-   * Toggle une dimension entre catégories ou la retire
-   */
-  toggleDimensionInView(dimensionId: string, category: 'row' | 'column' | 'value' | null): void {
-    const view = this.getActiveView();
-    if (!view) return;
     
-    const currentCategory = this.getDimensionCategoryInView(dimensionId);
-    
-    // Si on toggle vers null ou la même catégorie, retirer
-    if (category === null || category === currentCategory) {
-      if (currentCategory === 'row' || currentCategory === 'column' || currentCategory === 'value') {
-        this.removeDimensionFromView(dimensionId, currentCategory);
-      } else if (currentCategory === 'filter') {
-        this.removeFilterForDimension(dimensionId);
-      }
-    } else if (currentCategory) {
-      // Changer de catégorie
-      if (currentCategory === 'row' || currentCategory === 'column' || currentCategory === 'value') {
-        this.removeDimensionFromView(dimensionId, currentCategory);
-      } else if (currentCategory === 'filter') {
-        this.removeFilterForDimension(dimensionId);
-      }
-      this.addDimensionToView(dimensionId, category);
-    } else {
-      // Ajouter à la nouvelle catégorie
-      this.addDimensionToView(dimensionId, category);
-    }
-  }
-  
   // ==========================================================================
   // MEASURE MANAGEMENT
   // ==========================================================================
@@ -349,16 +357,19 @@ export class ViewStore {
   /**
    * Met à jour l'agrégation d'une mesure
    */
-  updateMeasureAggregation(measureId: string, aggregation: AggregationType): void {
+  updateMeasureAggregation(aggregation: AggregationType): void {
     const view = this.getActiveView();
     if (!view) return;
     
-    const measure = view.measures.find(m => m.id === measureId);
+    
+    const measure = view.measures.find(m => m.id === this.currentMeasureId);
     if (measure) {
       measure.aggregation = aggregation;
       this.updateViewTimestamp(view);
       this.syncLegacyProperties();
+      this.refresh();
     }
+    this.closeAggregationModal();
   }
   
   /**
@@ -373,6 +384,7 @@ export class ViewStore {
       view.measures = [...view.measures, measure];
       this.updateViewTimestamp(view);
       this.syncLegacyProperties();
+      this.refresh();
     }
   }
   
@@ -386,6 +398,7 @@ export class ViewStore {
     view.measures = view.measures.filter(m => m.id !== measureId);
     this.updateViewTimestamp(view);
     this.syncLegacyProperties();
+    this.refresh();
   }
   
   /**
@@ -404,6 +417,15 @@ export class ViewStore {
     const view = this.getActiveView();
     if (!view) return [];
     return view.measures;
+  }
+
+  openAggregationModal(measureId : string) {
+    this.currentMeasureId = measureId;
+    this.showAggregationModal = true;
+  }
+
+  closeAggregationModal() {
+    this.showAggregationModal = false;
   }
   
   // ==========================================================================
@@ -457,9 +479,9 @@ export class ViewStore {
    */
   setFilterForDimension(dimensionId: string, selectedNodeIds: string[], operator: 'include' | 'exclude' = 'include'): void {
     const view = this.getActiveView();
-    if (!view) return;
-    
+    if (!view) return;    
     let filterDim = view.filterDimensions?.find(fd => fd.dimensionId === dimensionId);
+    
     
     if (!filterDim) {
       // Créer un nouveau filtre
@@ -474,25 +496,32 @@ export class ViewStore {
       view.filterDimensions.push(filterDim);
     } else {
       // Mettre à jour existant
-      filterDim.selectedNodes = selectedNodeIds;
+      filterDim.selectedNodes = [...selectedNodeIds];
       filterDim.operator = operator;
     }
-    
+
+    view.filterDimensions = [...view.filterDimensions || []];    
+    this.filters = view.filterDimensions;
+      
     this.updateViewTimestamp(view);
     this.syncLegacyProperties();
+    this.refresh();
   }
-  
-  /**
-   * Supprime le filtre pour une dimension
-   */
-  removeFilterForDimension(dimensionId: string): void {
+
+  clearFilter(dimensionId: string) {
     const view = this.getActiveView();
     if (!view) return;
-    
-    view.filterDimensions = view.filterDimensions?.filter(fd => fd.dimensionId !== dimensionId);
-    this.updateViewTimestamp(view);
-    this.syncLegacyProperties();
+        
+    let filterDim = view.filterDimensions?.find(fd => fd.dimensionId === dimensionId);
+    if(filterDim)  {
+      view.filterDimensions = view.filterDimensions?.filter(f => f != filterDim);          
+      this.filters = view.filterDimensions || [];
+      this.updateViewTimestamp(view);
+      this.syncLegacyProperties();
+      this.refresh();
+    }
   }
+  
   
   /**
    * Active/Désactive un node dans le filtre d'une dimension
@@ -592,18 +621,15 @@ export class ViewStore {
    * Génère les données du pivot à partir de la vue active
    * **FONCTION CLÉ** pour ViewGridScreen
    */
-  buildPivotFromView(): PivotData {
-    console.log('buildPivotFromView called with viewId:', this.rootStore.activeViewId);
+  buildPivotFromView(): PivotData {    
     const view =  this.getActiveView();
-    if (!view) {
-      console.log('Exit buildPivotFromView: No view found');
+    if (!view) {      
       return { rows: [], columns: [], data: [] };
     }
     
 
     // Si pas de dimensions ou pas de mesures, retourner vide
-    if (view.rowDimensions.length === 0 || view.measures.length === 0) {
-      console.log('Exit buildPivotFromView: No row dimensions or no measures');
+    if (view.rowDimensions.length === 0 || view.measures.length === 0) {      
       return { rows: [], columns: [], data: [] };
     }
     
@@ -613,7 +639,6 @@ export class ViewStore {
     );
     
     if (localDataSources.length === 0) {
-      console.log('Exit buildPivotFromView: No local data sources found');
       return { rows: [], columns: [], data: [] };
     }
     
@@ -653,18 +678,14 @@ export class ViewStore {
           }
         }
       }
-    }
-    console.log("hasFilters:", hasFilters, "allowedNodeIds:", Array.from(allowedNodeIds));
-    console.log(view.rowDimensions, view.columnDimensions, view.filterDimensions?.map(fd => fd.dimensionId));
+    }    
     
     // Construire la liste des nodes pour les rows (en appliquant les filtres)
     const rowNodes: PivotRow[] = [];
     for (const dimId of view.rowDimensions) {
       const dimension = this.rootStore.getDimension(dimId);
-      console.log("Processing row dimension:", dimId, "dimension:", dimension);
       if (dimension) {
         const nodes = this.rootStore.getNodesByDimension(dimId);
-        console.log("Nodes for row dimension:", dimId, nodes);
         for (const node of dimension.nodes) {
           // Vérifier si ce node est filtré
           if (hasFilters) {
@@ -694,8 +715,7 @@ export class ViewStore {
     for (const dimId of view.columnDimensions) {
       const dimension = this.rootStore.getDimension(dimId);
       if (dimension) {
-        const nodes = this.rootStore.getNodesByDimension(dimId);
-        console.log("Nodes for column dimension:", dimension, nodes);
+        const nodes = this.rootStore.getNodesByDimension(dimId);        
         for (const node of nodes) {
           // Vérifier si ce node est filtré
           if (hasFilters) {
@@ -721,23 +741,20 @@ export class ViewStore {
     }
     
     // Si pas de rows ou pas de columns, retourner vide
-    if (rowNodes.length === 0 || columnNodes.length === 0) {
-      console.log('Exit buildPivotFromView: No row nodes or no column nodes after filtering');
+    if (rowNodes.length === 0 || columnNodes.length === 0) {      
       return { rows: rowNodes, columns: columnNodes, data: [] };
     }
     
     // Pour l'instant, si une seule mesure, on l'utilise
     // Sinon, on utilise la première
     const measure = view.measures[0];
-    if (!measure) {
-      console.log('Exit buildPivotFromView: No measures found');
+    if (!measure) {      
       return { rows: rowNodes, columns: columnNodes, data: [] };
     }
     
     // Récupérer la data source et la colonne de la mesure
     const dataSource = localDataSources.find(ds => ds.id === measure.source.dataSourceId);
-    if (!dataSource) {
-      console.log('Exit buildPivotFromView: No local data source found');
+    if (!dataSource) {      
       return { rows: rowNodes, columns: columnNodes, data: [] };
     }
     
@@ -808,7 +825,6 @@ export class ViewStore {
               }
             }
           }
-          console.log("Row match:", rowMatch, "Col match:", colMatch, "Row data:", rowDataArray, "Value:", rowDataArray[measureColumnIndex]);
 
           if (rowMatch && colMatch) {
             // Récupérer la valeur de la mesure
@@ -851,9 +867,7 @@ export class ViewStore {
               finalValue = values.reduce((a, b) => a + b, 0);
           }
         }
-        
-        console.log("Final value for row:", row.key, "col:", col.key," values", values, "is:", finalValue);
-
+      
         rowData.push({
           value: finalValue,
           formattedValue: finalValue !== null && finalValue !== undefined ? finalValue.toString() : '',
@@ -865,8 +879,6 @@ export class ViewStore {
       
       data.push(rowData);
     }
-
-    console.log(rowNodes, columnNodes, data);
     
     return {
       rows: rowNodes,
