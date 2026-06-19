@@ -1,55 +1,27 @@
 # Pivot Table Explorer
 
-A React + TypeScript component for creating Excel-like pivot tables for data exploration. This project provides a powerful and flexible way to aggregate and visualize data along custom row and column axes.
+A React + TypeScript component for creating Excel-like pivot tables for data exploration. 
+This project provides a powerful and flexible way to aggregate and visualize data along custom row and column axes.
 
-## Features
+This is a work in progress. I'm using Mistral Vibe extensively to build it.
 
-- **Dynamic Pivot Tables**: Create pivot tables from any array of objects
-- **Multiple Aggregations**: Support for SUM, AVG, COUNT, MIN, MAX aggregation functions
-- **Flexible Configuration**: Choose row fields, column fields, and value fields dynamically
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
-- **TypeScript Support**: Fully typed with comprehensive type definitions
-- **Test Coverage**: 67 tests covering all aggregation functions and component functionality
+## Data-management
 
-## Project Structure
+This project keep data in your browser in IndexDB. 
+It don't need a server to work, you could load it in any static HTTP server (Apache HTTP , Nginx, ...)
+or why like bellow in github.io
 
-```
-pivot-table-explorer/
-├── src/
-│   ├── models/               # Type definitions and data models
-│   │   ├── index.ts          # Exports all types
-│   │   └── types.ts          # All TypeScript interfaces and types
-│   │
-│   ├── utils/               # Utility functions
-│   │   ├── index.ts          # Exports all utilities
-│   │   ├── aggregations.ts   # Aggregation functions (sum, avg, count, min, max)
-│   │   └── aggregations.test.ts # Tests for aggregation functions
-│   │
-│   ├── components/          # React components
-│   │   ├── PivotGrid.tsx     # Main pivot table component
-│   │   ├── PivotGrid.css     # Component styles
-│   │   └── PivotGrid.test.tsx # Component tests
-│   │
-│   ├── test/                # Test configuration
-│   │   ├── index.ts          # Test entry point
-│   │   └── setup.ts          # Test setup file
-│   │
-│   ├── App.tsx              # Demo application with examples
-│   ├── App.css              # Application styles
-│   ├── main.tsx             # React entry point
-│   └── index.css            # Global styles
-│
-├── docs/                   # Documentation
-│   └── README.md           # Documentation entry point
-│
-├── AGENTS.md               # Development guidelines for AI agents
-├── package.json
-├── tsconfig.json
-├── tsconfig.app.json
-├── tsconfig.node.json
-├── vite.config.ts           # Vite configuration
-└── vitest.config.ts         # Vitest configuration
-```
+## Try it 
+
+Follow [https://jsaintyv.github.io/jsaintyv/](https://jsaintyv.github.io/jsaintyv/) 
+
+## TODO
+
+- Allow configure multiple support hierarchical dimensions (parent column, or generation column)
+- Enhance grid speed
+- Add support of Excel files
+- Add charts restitution 
+- Add mathematical transformation
 
 ## Installation
 
@@ -105,93 +77,7 @@ npm run test:coverage
 npm run test:watch
 ```
 
-## Usage
-
-### Basic Usage
-
-```tsx
-import PivotGrid from './components/PivotGrid';
-
-const data = [
-  { region: 'North', product: 'Laptop', sales: 10000, profit: 2000 },
-  { region: 'North', product: 'Phone', sales: 8000, profit: 1500 },
-  { region: 'South', product: 'Laptop', sales: 12000, profit: 2500 },
-  // ... more data
-];
-
-<PivotGrid
-  data={data}
-  defaultRowFields={['region']}
-  defaultColumnFields={['product']}
-  defaultValueFields={['sales']}
-  defaultAggregation="sum"
-/>
-```
-
-### Props
-
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `data` | `DataItem[]` | Yes | - | Array of objects to pivot |
-| `defaultRowFields` | `string[]` | No | `[]` | Initial fields for rows (Y-axis) |
-| `defaultColumnFields` | `string[]` | No | `[]` | Initial fields for columns (X-axis) |
-| `defaultValueFields` | `string[]` | No | `[]` | Initial fields to aggregate |
-| `defaultAggregation` | `AggregationFunction` | No | `'sum'` | Initial aggregation function |
-
-### Available Aggregation Functions
-
-- **sum** - Sum of all values
-- **avg** - Average of all values
-- **count** - Count of records
-- **min** - Minimum value
-- **max** - Maximum value
-
-## Sample Data
-
-The project includes two sample datasets for demonstration:
-
-1. **Sales Data**: 22 records of product sales across regions, products, and quarters
-2. **Personnel Data**: 12 records of employee information
-
-## Architecture
-
-### Models (`src/models/`)
-
-- **DataItem**: Generic data item type with string keys
-- **Cell**: Pivot table cell with value and metadata
-- **PivotData**: Complete pivot data structure (rows, columns, grid)
-- **AggregationFunction**: Type for aggregation function names
-- **PivotGridProps**: Props interface for the PivotGrid component
-
-### Utilities (`src/utils/`)
-
-- **aggregationFunctions**: Registry of all aggregation implementations
-- **sumAggregation, avgAggregation, countAggregation, minAggregation, maxAggregation**: Individual aggregation functions
-- **getAggregationFunction**: Get aggregation function by name
-- **getAggregationFunctionNames**: Get list of all aggregation function names
-- **isValidAggregationFunction**: Type guard for aggregation function names
-
-### Components (`src/components/`)
-
-- **PivotGrid**: Main component with state management and pivot logic
-- **PivotGrid.css**: Component-specific styles
-
-## Development
-
-### Adding New Aggregation Functions
-
-1. Add the function to `src/utils/aggregations.ts`
-2. Add it to the `aggregationFunctions` registry
-3. Add tests in `src/utils/aggregations.test.ts`
-
 ### Adding New Features
-
-- Sorting (row and column)
-- Filtering (pre-filter data before pivoting)
-- Multiple value fields with separate columns
-- Hierarchical row/column headers
-- Grand totals (row and column)
-- Conditional formatting
 
 See [AGENTS.md](AGENTS.md) for detailed development guidelines.
 
@@ -203,6 +89,7 @@ See [AGENTS.md](AGENTS.md) for detailed development guidelines.
 - **Vitest** - Test framework
 - **Testing Library** - React component testing
 - **CSS** - Styling
+- Realize with Mistral Vibe
 
 ## Contributing
 
@@ -214,9 +101,15 @@ See [AGENTS.md](AGENTS.md) for detailed development guidelines.
 6. Run `npm run build` to verify production build
 7. Submit a pull request
 
+**Important Guidelines**
+To avoid frustration, I will systematically reject any changes that:
+- Require adding external dependencies
+- Introduce the ability to evaluate dynamically injected code
+
+
 ## License
 
-MIT
+The GNU General Public License (GPL) V2
 
 ## Version
 

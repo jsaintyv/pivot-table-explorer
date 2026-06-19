@@ -79,6 +79,13 @@ The `/docs/screens/screenflow.md` file describes navigation between screens.
 - Use react-router-dom to navigate between screens.
 - Each screen and each component should have its own subfolder.
 - **Context files** are located in `src/stores/contexts/` for explicit store propagation.
+- Follow [react/mobx pattern](../../../docs/typescript/pattern.md)
+
+
+### Best Practices
+- **Verify changes**: Always run `npm run build` and `npm run test` after Vibe’s edits.
+- **Human oversight**: Review critical changes (e.g., state management, data models) before committing.
+- **Context**: Reference existing code (e.g., "Like in `ViewStore.ts`, but for rows").
 
 
 ## **Restrictions**
