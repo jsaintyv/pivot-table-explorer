@@ -14,6 +14,7 @@ What to Review:
 * Spelling
 * Logic correctness and edge cases
 * Security vulnerabilities
+* Check for orphan functions or unused variables
 * Performance implications
 * Test coverage and quality
 * Error handling    

@@ -38,7 +38,7 @@
   position: sticky;
   top: 0;
   left: 0;
-  z-index: 10;
+  z-index: 11;
   width: 120px;
   min-width: 120px;
   height: 48px;
@@ -89,6 +89,17 @@
   overflow: hidden;
 }
 
+.header {
+  z-index: 10;
+}
+.row-header {
+  z-index: 9;
+}
+
+.corner-cell {
+  z-index: 11;
+}
+
 /* Row Header Cells */
 .pivot-grid-table .grid-cell.header.row-header {
   position: sticky;
@@ -132,6 +143,8 @@
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
+
 
 /* Data Cells */
 .pivot-grid-table .grid-cell {

@@ -139,6 +139,9 @@ export const PivotGridTable = observer(({
     rows.length + totalRowCount,
     Math.ceil((scrollTop + viewportHeight) / CELL_HEIGHT) + SCROLL_BUFFER
   );
+  
+  const headerTop = scrollTop;
+  const headerLeft = scrollLeft;
 
   // Écouter les événements de scroll et de resize
   React.useEffect(() => {
@@ -183,8 +186,9 @@ export const PivotGridTable = observer(({
   }, [columns, measures.length, dataColCount, hasColTotals]);
 
   // Rendre une cellule individuelle
-  const renderCell = React.useCallback((rowIdx: number, colIdx: number): React.ReactNode => {
-    const isHeaderRow = rowIdx === 0;
+  const renderCell = React.useCallback((rowIdx: number, colIdx: number, headerTop: number, headerLeft: number): React.ReactNode => {
+    const isColumnHeader = rowIdx === 0;
+    const isRowHeader = colIdx === 0;
     const isTotalRow = rowIdx > rows.length && hasRowTotals;
     const isTotalCol = colIdx > dataColCount && hasColTotals;
 
@@ -201,7 +205,9 @@ export const PivotGridTable = observer(({
     };
 
     // Cellule coin (0, 0)
-    if (isHeaderRow && colIdx === 0) {
+    if (isColumnHeader && isRowHeader) {
+      baseStyle.top = headerTop;
+      baseStyle.left = headerLeft;      
       return (
         <div
           key={`corner-${rowIdx}-${colIdx}`}
@@ -212,12 +218,13 @@ export const PivotGridTable = observer(({
     }
 
     // En-tête de colonne (ligne 0, colonnes de données)
-    if (isHeaderRow && colIdx > 0 && colIdx <= dataColCount) {
+    if (isColumnHeader && colIdx > 0 && colIdx <= dataColCount) {
       const colLabel = getColumnLabel(colIdx);
+      baseStyle.top = headerTop;
       return (
         <div
           key={`col-header-${rowIdx}-${colIdx}`}
-          className="grid-cell header"
+          className="grid-cell header column-header"
           style={{ ...baseStyle, ...headerCellStyles }}
         >
           <div className="header-content">
@@ -228,11 +235,12 @@ export const PivotGridTable = observer(({
     }
 
     // En-tête de la colonne Total (ligne 0)
-    if (isHeaderRow && hasColTotals && colIdx === dataColCount + 1) {
+    if (isRowHeader && hasColTotals && colIdx === dataColCount + 1) {
+      baseStyle.left = headerLeft;
       return (
         <div
           key={`total-col-header-${rowIdx}-${colIdx}`}
-          className="grid-cell header total"
+          className="grid-cell header row-header total"
           style={{ ...baseStyle, ...headerTotalCellStyles }}
         >
           <div className="header-content">
@@ -249,6 +257,8 @@ export const PivotGridTable = observer(({
         : hasRowTotals ? 'Total' : '';
       
       const cellStyle = isTotalRow ? rowHeaderTotalCellStyles : rowHeaderCellStyles;
+
+      baseStyle.left = headerLeft;
       
       return (
         <div
@@ -377,10 +387,34 @@ export const PivotGridTable = observer(({
   // Générer les cellules visibles
   const visibleCells = React.useMemo(() => {
     const cells: React.ReactNode[] = [];
+
+
+    const cell = renderCell(0, 0, headerTop, headerLeft);
+    if (cell) {
+      cells.push(cell);
+    }
+
+    const startRowForLoop = Math.max(1, startRow);
+    const startColForLoop = Math.max(1, startCol);
+
+
+    for (let rowIdx = startRowForLoop; rowIdx <= endRow; rowIdx++) {
+      const cell = renderCell(rowIdx, 0, headerTop, headerLeft);
+        if (cell) {
+          cells.push(cell);
+        }
+    }
+
+    for (let colIdx = startColForLoop; colIdx <= endCol; colIdx++) {
+       const cell = renderCell(0, colIdx, headerTop, headerLeft);
+        if (cell) {
+          cells.push(cell);
+        }
+    }
     
-    for (let rowIdx = startRow; rowIdx <= endRow; rowIdx++) {
-      for (let colIdx = startCol; colIdx <= endCol; colIdx++) {
-        const cell = renderCell(rowIdx, colIdx);
+    for (let rowIdx = startRowForLoop; rowIdx <= endRow; rowIdx++) {
+      for (let colIdx = startColForLoop; colIdx <= endCol; colIdx++) {
+        const cell = renderCell(rowIdx, colIdx, headerTop, headerLeft);
         if (cell) {
           cells.push(cell);
         }
@@ -388,7 +422,7 @@ export const PivotGridTable = observer(({
     }
     
     return cells;
-  }, [startRow, endRow, startCol, endCol, renderCell]);
+  }, [startRow, endRow, startCol, endCol, headerTop, headerLeft , renderCell]);
 
   return (
     <div
