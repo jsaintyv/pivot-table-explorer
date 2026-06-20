@@ -23,9 +23,7 @@ export const GridMain =  observer(({ }: GridMainProps) =>{
     <main className="grid-main">
       <div className="pivot-grid-container">
         <PivotGridTable
-          rows={pivotData.rows}
-          columns={pivotData.columns}
-          data={pivotData.data}
+          pivotData={pivotData}                    
           showTotals={true}
           showGrandTotal={true}
         />

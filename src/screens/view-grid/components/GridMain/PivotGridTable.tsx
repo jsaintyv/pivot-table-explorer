@@ -1,5 +1,9 @@
 import { observer } from 'mobx-react-lite';
-import type { PivotRow, PivotColumn, PivotCell } from '../../../../stores';
+import { TOTAL } from '../../../../services/PivotDataService';
+import type { PivotCell } from '../../../../stores';
+import type { PivotData } from '../../../../stores/ViewStore';
+import React from 'react';
+
 
 /**
  * PivotGridTable component
@@ -8,20 +12,18 @@ import type { PivotRow, PivotColumn, PivotCell } from '../../../../stores';
  */
 
 interface PivotGridTableProps {
-  rows: PivotRow[];
-  columns: PivotColumn[];
-  data: PivotCell[][];
+  pivotData: PivotData;  
   showTotals?: boolean;
   showGrandTotal?: boolean;
 }
 
 export const PivotGridTable = observer(({
-  rows,
-  columns,
-  data,
+  pivotData,  
   showTotals = false,
   showGrandTotal = false,
 }: PivotGridTableProps) => {
+  const {rows, columns, measures, pivotCellByColKeyByRowKeyByMeasureId} = pivotData;
+  
   // Si aucune donnée, afficher un message
   if (rows.length === 0 || columns.length === 0) {
     return (
@@ -37,54 +39,9 @@ export const PivotGridTable = observer(({
     );
   }
 
-  // Calculer les totaux par ligne (dernière colonne)
-  const rowTotals: (PivotCell | null)[] = rows.map((_, rowIndex) => {
-    const rowData = data[rowIndex];
-    if (!rowData || rowData.length === 0) return null;
-    
-    // Pour l'instant, on fait une somme simple des valeurs numériques
-    const sum = rowData.reduce((acc, cell) => {
-      const numericValue = typeof cell.value === 'number' ? cell.value : 0;
-      return acc + numericValue;
-    }, 0);
-    
-    return {
-      value: sum,
-      formattedValue: sum.toString(),
-      rowKey: rows[rowIndex].key,
-      colKey: 'total',
-      isTotal: true,
-    };
-  });
-
-  // Calculer les totaux par colonne (dernière ligne)
-  const columnTotals: PivotCell[] = columns.map((col, colIndex) => {
-    let sum = 0;
-    for (let rowIndex = 0; rowIndex < data.length; rowIndex++) {
-      const cell = data[rowIndex]?.[colIndex];
-      const numericValue = typeof cell?.value === 'number' ? cell.value : 0;
-      sum += numericValue;
-    }
-    
-    return {
-      value: sum,
-      formattedValue: sum.toString(),
-      rowKey: 'total',
-      colKey: col.key,
-      isTotal: true,
-    };
-  });
-
-  // Calculer le grand total (si les deux options sont activées)
-  const grandTotal: PivotCell | null = showGrandTotal && showTotals
-    ? {
-        value: columnTotals.reduce((acc, cell) => acc + (typeof cell.value === 'number' ? cell.value : 0), 0),
-        formattedValue: columnTotals.reduce((acc, cell) => acc + (typeof cell.value === 'number' ? cell.value : 0), 0).toString(),
-        rowKey: 'total',
-        colKey: 'total',
-        isTotal: true,
-      }
-    : null;
+  // Vérifier si on doit afficher les totaux
+  const hasRowTotals = showTotals && rows.some(r => r.axeKey === TOTAL);
+  const hasColTotals = showTotals && columns.some(c => c.axeKey === TOTAL);
 
   return (
     <div className="pivot-grid-wrapper">
@@ -93,19 +50,19 @@ export const PivotGridTable = observer(({
         <thead>
           <tr>
             {/* Cellule coin supérieure gauche vide */}
-            <th className="corner-cell" rowSpan={1} />
+            <th className="corner-cell" />
             
             {/* En-têtes de colonnes */}
             {columns.map((col) => (
-              <th key={col.key} className="grid-cell header">
+              <th key={col.axeKey} className="grid-cell header" colSpan={measures.length}>
                 <div className="header-content">
-                  <span className="header-label">{col.label}</span>
+                  <span className="header-label">{col.axeKey}</span>
                 </div>
               </th>
             ))}
             
             {/* Colonne des totaux par ligne */}
-            {showTotals && (
+            {showTotals && hasColTotals && (
               <th className="grid-cell header total" rowSpan={1}>
                 <div className="header-content">
                   <span className="header-label">Total</span>
@@ -117,87 +74,82 @@ export const PivotGridTable = observer(({
         
         {/* Corps du tableau */}
         <tbody>
-          {data.map((row, rowIndex) => (
-            <tr key={rows[rowIndex].key} className="grid-row">
-              {/* En-tête de ligne */}
-              <th className="grid-cell header row-header">
-                <div className="row-header-content">
-                  <span className="row-header-label">{rows[rowIndex].label}</span>
-                </div>
-              </th>
-              
-              {/* Cellules de données */}
-              {row.map((cell, colIndex) => (
-                <td key={`${rows[rowIndex].key}-${columns[colIndex].key}`} className="grid-cell">
-                  <div className="cell-content">
-                    {cell.formattedValue || cell.value}
+          {rows.map((row) => {
+            const isTotalRow = row.axeKey === TOTAL;
+            
+            return (
+              <tr key={row.axeKey} className={`grid-row ${isTotalRow ? 'total' : ''}`}>
+                {/* En-tête de ligne */}
+                <th className={`grid-cell header row-header ${isTotalRow ? 'total' : ''}`}>
+                  <div className="row-header-content">
+                    <span className="row-header-label">{row.axeKey}</span>
                   </div>
-                </td>
-              ))}
-              
-              {/* Total par ligne */}
-              {showTotals && rowTotals[rowIndex] && (
-                <td className="grid-cell total">
-                  <div className="cell-content">
-                    {rowTotals[rowIndex]?.formattedValue || rowTotals[rowIndex]?.value}
-                  </div>
-                </td>
-              )}
-            </tr>
-          ))}
-          
-          {/* Ligne des totaux par colonne */}
-          {showTotals && (
-            <tr className="grid-row total">
-              <th className="grid-cell header row-header total">
-                <div className="row-header-content">
-                  <span className="row-header-label">Total</span>
-                </div>
-              </th>
-              
-              {columnTotals.map((cell, colIndex) => (
-                <td key={`total-${columns[colIndex].key}`} className="grid-cell total">
-                  <div className="cell-content">
-                    {cell.formattedValue || cell.value}
-                  </div>
-                </td>
-              ))}
-              
-              {/* Grand total */}
-              {showGrandTotal && grandTotal && (
-                <td className="grid-cell total grand-total">
-                  <div className="cell-content">
-                    {grandTotal.formattedValue || grandTotal.value}
-                  </div>
-                </td>
-              )}
-            </tr>
-          )}
-          
-          {/* Ligne du grand total seul (si pas de showTotals mais showGrandTotal) */}
-          {showGrandTotal && !showTotals && (
-            <tr className="grid-row grand-total">
-              <th className="grid-cell header row-header grand-total">
-                <div className="row-header-content">
-                  <span className="row-header-label">Grand Total</span>
-                </div>
-              </th>
-              
-              {columnTotals.map((cell, colIndex) => (
-                <td key={`grand-total-${columns[colIndex].key}`} className="grid-cell grand-total">
-                  <div className="cell-content">
-                    {cell.formattedValue || cell.value}
-                  </div>
-                </td>
-              ))}
-              
-              <td className="grid-cell grand-total">
-                <div className="cell-content">
-                  {columnTotals.reduce((acc, cell) => acc + (typeof cell.value === 'number' ? cell.value : 0), 0)}
-                </div>
-              </td>
-            </tr>
-          )}
+                </th>
+                
+                {/* Cellules de données pour chaque mesure et chaque colonne */}
+                {columns.map((col) => {
+                  const isTotalCol = col.axeKey === TOTAL;
+                  
+                  return (
+                    <React.Fragment key={`${row.axeKey}-${col.axeKey}`}>
+                      {measures.map((measureId) => {
+                        const cellMap = pivotCellByColKeyByRowKeyByMeasureId.get(measureId);
+                        const rowCells = cellMap?.get(row.axeKey);
+                        const cell = rowCells?.get(col.axeKey);
+                        
+                        return (
+                          <td 
+                            key={`${row.axeKey}-${col.axeKey}-${measureId}`} 
+                            className={`grid-cell ${isTotalRow || isTotalCol ? 'total' : ''}`}
+                          >
+                            <div className="cell-content">
+                              {cell?.formattedValue || (cell?.value !== undefined ? String(cell.value) : '')}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })}
+                
+                {/* Total par ligne (si ce n'est pas la ligne TOTAL elle-même) */}
+                {showTotals && hasColTotals && !isTotalRow && (
+                  <td className="grid-cell total">
+                    <div className="cell-content">
+                      {measures.map((measureId) => {
+                        const cellMap = pivotCellByColKeyByRowKeyByMeasureId.get(measureId);
+                        const rowCells = cellMap?.get(row.axeKey);
+                        const totalCell = rowCells?.get(TOTAL);
+                        return (
+                          <span key={`${row.axeKey}-${TOTAL}-${measureId}`}>
+                            {totalCell?.formattedValue || (totalCell?.value !== undefined ? String(totalCell.value) : '')}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </td>
+                )}
+                
+                {/* Grand total pour la ligne TOTAL */}
+                {showTotals && hasColTotals && isTotalRow && showGrandTotal && (
+                  <td className="grid-cell total grand-total">
+                    <div className="cell-content">
+                      {measures.map((measureId) => {
+                        const cellMap = pivotCellByColKeyByRowKeyByMeasureId.get(measureId);
+                        const rowCells = cellMap?.get(TOTAL);
+                        const grandTotalCell = rowCells?.get(TOTAL);
+                        return (
+                          <span key={`${TOTAL}-${TOTAL}-${measureId}`}>
+                            {grandTotalCell?.formattedValue || (grandTotalCell?.value !== undefined ? String(grandTotalCell.value) : '')}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </td>
+                )}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
