@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { MainScreen, AxeScreen, ViewGridScreen } from './screens';
 import { StoreContext } from './stores/contexts/StoreContext';
@@ -15,12 +16,20 @@ import './components/toast/Toast.css';
  */
 function App() {
   const store = Store.getInstance();
-  
+  const [baseUrl, setBaseUrl] = useState<string>('/');
+
+  // Detect base URL on app mount and store it
+  useEffect(() => {
+    const detectedBaseUrl = Store.detectBaseUrl();
+    store.setBaseUrl(detectedBaseUrl);
+    setBaseUrl(detectedBaseUrl);
+  }, []);
+
   return (
     <StoreContext.Provider value={store}>
       <ViewStoreContext.Provider value={store.viewStore}>
         <ToastStoreContext.Provider value={store.toastStore}>
-          <Router>
+          <Router basename={baseUrl}>
             <div className="app">        
               <main className="app-main">
                 <Routes>

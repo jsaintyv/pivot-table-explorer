@@ -46,6 +46,9 @@ export class Store {
   activeViewId?: string;
   projectName: string = '';
   
+  // BASE URL: The base path where the app is deployed (e.g., '/jsaintyv/')
+  baseUrl: string = '/';
+  
   // EDITING STATE: Dimension being edited
   editingDimension: Dimension | null = null;
   
@@ -63,7 +66,9 @@ export class Store {
       pivotProject: observable.ref,
       activeViewId: observable,
       projectName: observable,
+      baseUrl: observable,
       editingDimension: observable.ref,
+      setBaseUrl: action,
       updateProject: action,
       startEditingDimension: action,
       updateEditingDimension: action,
@@ -92,6 +97,65 @@ export class Store {
       Store.instance = new Store();
     }
     return Store.instance;
+  }
+
+  /**
+   * Set the base URL for the application
+   * Used to detect where the app is deployed (e.g., '/jsaintyv/')
+   */
+  setBaseUrl(url: string): void {
+    this.baseUrl = url;
+  }
+
+  /**
+   * Detect the base URL from the current location
+   * Returns the base path where the app is deployed
+   */
+  static detectBaseUrl(): string {
+    // If Vite's BASE_URL is configured and not root, use it
+    if (import.meta.env.BASE_URL && import.meta.env.BASE_URL !== '/') {
+      return import.meta.env.BASE_URL;
+    }
+    
+    // Otherwise, detect from window.location
+    if (typeof window === 'undefined') {
+      return '/';
+    }
+    
+    const pathname = window.location.pathname;
+    
+    // For GitHub Pages, the app is typically deployed at /repo-name/
+    // The base URL is the path up to and including the repository name
+    // Example: https://username.github.io/repo-name/ -> base is /repo-name/
+    // Example: https://username.github.io/repo-name/page -> base is /repo-name/
+    
+    // Split the pathname into segments
+    const segments = pathname.split('/').filter(Boolean);
+    
+    // If we're at the root, return /
+    if (segments.length === 0) {
+      return '/';
+    }
+    
+    // Check if we're on GitHub Pages by looking at the hostname
+    const hostname = window.location.hostname;
+    if (hostname.endsWith('.github.io')) {
+      // On GitHub Pages, the first path segment is the repository name
+      // Return /repo-name/
+      return `/${segments[0]}/`;
+    }
+    
+    // For other deployments, check if the first segment looks like a base path
+    // by seeing if there's a trailing slash or if we're at the root of that segment
+    if (pathname.startsWith(`/${segments[0]}/`) || pathname === `/${segments[0]}`) {
+      // Check if this segment doesn't contain a file extension
+      if (!segments[0].includes('.')) {
+        return `/${segments[0]}/`;
+      }
+    }
+    
+    // Default to root
+    return '/';
   }
   
   /**
