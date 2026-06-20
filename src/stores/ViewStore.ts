@@ -507,13 +507,13 @@ export class ViewStore {
       }
       filterDim = {
         dimensionId,
-        selectedNodes: selectedNodeIds,// dimension?.nodes.filter(n => selectedNodeIds.indexOf(n.id) >= 0).map(n => n.code) || [],
+        selectedNodes: selectedNodeIds,
         operator
       };
       view.filterDimensions.push(filterDim);
     } else {
       // Mettre à jour existant
-      filterDim.selectedNodes = [...selectedNodeIds]; // dimension?.nodes.filter(n => selectedNodeIds.indexOf(n.id) >= 0).map(n => n.code) || [];
+      filterDim.selectedNodes = [...selectedNodeIds]; 
       filterDim.operator = operator;
     }
 
@@ -641,7 +641,7 @@ export class ViewStore {
    * Délègue à PivotDataService pour la construction des données
    */
   buildPivotFromView(): PivotData {    
-    var start=  new Date().valueOf();
+    const start=  new Date().valueOf();
     // Créer les suppliers pour PivotDataService
     const suppliers: PivotDataServiceSuppliers = {
       getView: () => this.getActiveView(),

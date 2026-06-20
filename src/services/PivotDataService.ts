@@ -141,8 +141,8 @@ export class PivotDataService {
       .map(id => suppliers.getDimension(id))
       .filter(Boolean) as Dimension[];
 
-    const allRowsKey : Set<string>= new Set();
-    const allColumnsKey : Set<string>= new Set();
+    const allRowsKey : Set<string> = new Set();
+    const allColumnsKey : Set<string> = new Set();
     const allRows: PivotAxe[] = [];
     const allColumns: PivotAxe[] = [];
     const pivotCellByColKeyByRowKeyByMeasureId: PivotCellMap = new Map();
@@ -352,7 +352,7 @@ export class PivotDataService {
       pivotCellByColKeyByRowKeyByMeasureId,
     };
 
-    console.log(result);
+    
     return result;
   }
 }

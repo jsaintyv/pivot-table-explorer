@@ -127,8 +127,6 @@ export class PivotProjectService {
                 dimension?.nodes.filter(n => filter.selectedNodes.indexOf(n.id) >=0).map(n => n.code) || []
             )
         }
-
-        // dimension?.nodes.filter(n => selectedNodeIds.indexOf(n.id) >= 0).map(n => n.code) || []        
         
         for (const row of dataSource.data) {
             let matchesAllFilters = true;
