@@ -30,7 +30,8 @@ export const ConfigSidebar = observer(({}: ConfigSidebarProps) => {
                   multiple
                   value={filterDim?.selectedNodes}
                   onChange={(e) => {
-                    const selected = Array.from(e.target.selectedOptions)
+                    const selected = Array
+                      .from(e.target.selectedOptions)
                       .map(opt => opt.value);
                     viewStore.setFilterForDimension(dim.id, selected, "include");                    
                   }}

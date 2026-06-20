@@ -118,11 +118,23 @@ export class PivotProjectService {
     ): any[][] {
         const filteredRows: any[][] = [];
 
+        const codesByFilterId : Map<string, any> = new Map();
+        for (const filter of filters) {                
+            let dimension = dimensionByIndex(filter.dimensionId);
+            
+            codesByFilterId.set(
+                filter.dimensionId, 
+                dimension?.nodes.filter(n => filter.selectedNodes.indexOf(n.id) >=0).map(n => n.code) || []
+            )
+        }
+
+        // dimension?.nodes.filter(n => selectedNodeIds.indexOf(n.id) >= 0).map(n => n.code) || []        
         
         for (const row of dataSource.data) {
             let matchesAllFilters = true;
             
             for (const filter of filters) {                
+                
                 const colIndex = dimensionToColumnIndex.get(filter.dimensionId);
                 if (colIndex === undefined) continue;
                 
@@ -136,12 +148,12 @@ export class PivotProjectService {
                 
                 // Appliquer le filtre
                 if (filter.operator === 'include') {
-                    if (!filter.selectedNodes.includes(rowValue)) {
+                    if (!codesByFilterId.get(filter.dimensionId).includes(rowValue)) {
                         matchesAllFilters = false;
                         break;
                     }
                 } else { // exclude
-                    if (filter.selectedNodes.includes(rowValue)) {
+                    if (codesByFilterId.get(filter.dimensionId).includes(rowValue)) {
                         matchesAllFilters = false;
                         break;
                     }

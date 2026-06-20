@@ -34,6 +34,23 @@ export const ViewHeader = observer(({}: ViewHeaderProps) =>  {
   return (
     <div className="view-header">
       <div className="dimension-header">
+        {/* View name input */}
+        <div className="view-hader-row">
+          <span className="view-name">
+            <span className='label'>Name:</span>
+            <input
+              type="text"
+              value={viewStore.activeView?.name || ""}
+              onChange={(e) => { setViewName(e.target.value); viewStore.updateName(e.target.value) }}
+              placeholder="View name"
+              className="view-name-input"
+            />
+          </span>
+          <span className="view-cells">
+            <span className='label'>Cells: {(viewStore.pivotData?.columns.length || 1) * (viewStore.pivotData?.rows.length || 1)}</span>
+          </span>
+        </div>
+
         {/* Row dimensions */}
         <div className="dimension-config-line">
           <span className="config-label">Row dimensions:</span>
@@ -130,16 +147,7 @@ export const ViewHeader = observer(({}: ViewHeaderProps) =>  {
         </div>
       </div>
       
-      {/* View name input */}
-      <div className="view-name">
-        <input
-          type="text"
-          value={viewStore.activeView?.name || ""}
-          onChange={(e) => {setViewName(e.target.value); viewStore.updateName(e.target.value)}}
-          placeholder="View name"
-          className="view-name-input"
-        />        
-      </div>
+
 
       {/* Modal pour ajouter des dimensions */}
       {viewStore.showAddModal && (

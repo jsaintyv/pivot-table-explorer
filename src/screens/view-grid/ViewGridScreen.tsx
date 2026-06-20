@@ -61,8 +61,7 @@ function ViewGridScreenComponent() {
       
       {/* Barre d'actions */}
       <ActionBar
-        onBack={handleBackToMain}
-        onApply={() => {}} // Apply est géré automatiquement via observer
+        onBack={handleBackToMain}        
       />
       
       

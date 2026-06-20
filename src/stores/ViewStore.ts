@@ -498,8 +498,8 @@ export class ViewStore {
     const view = this.getActiveView();
     if (!view) return;    
     let filterDim = view.filterDimensions?.find(fd => fd.dimensionId === dimensionId);
-    
-    
+    let dimension = this.rootStore.getDimension(dimensionId);
+
     if (!filterDim) {
       // Créer un nouveau filtre
       if (!view.filterDimensions) {
@@ -507,13 +507,13 @@ export class ViewStore {
       }
       filterDim = {
         dimensionId,
-        selectedNodes: selectedNodeIds,
+        selectedNodes: selectedNodeIds,// dimension?.nodes.filter(n => selectedNodeIds.indexOf(n.id) >= 0).map(n => n.code) || [],
         operator
       };
       view.filterDimensions.push(filterDim);
     } else {
       // Mettre à jour existant
-      filterDim.selectedNodes = [...selectedNodeIds];
+      filterDim.selectedNodes = [...selectedNodeIds]; // dimension?.nodes.filter(n => selectedNodeIds.indexOf(n.id) >= 0).map(n => n.code) || [];
       filterDim.operator = operator;
     }
 
@@ -641,6 +641,7 @@ export class ViewStore {
    * Délègue à PivotDataService pour la construction des données
    */
   buildPivotFromView(): PivotData {    
+    var start=  new Date().valueOf();
     // Créer les suppliers pour PivotDataService
     const suppliers: PivotDataServiceSuppliers = {
       getView: () => this.getActiveView(),
@@ -652,7 +653,9 @@ export class ViewStore {
     };
     
     // Construire les données pivot (les totaux sont gérés par view.showTotals et view.showGrandTotal)
-    return PivotDataService.buildPivotData(suppliers);
+    var result = PivotDataService.buildPivotData(suppliers);
+    console.log("Generate pivotData", (new Date().valueOf() - start), "ms");
+    return result;
   }
 
   // ==========================================================================
