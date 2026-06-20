@@ -150,11 +150,23 @@
   margin-left: 4px;
 }
 
-.view-name {
+.view-hader-row {
   display: flex;
   gap: 10px;
-  align-items: center;
-  margin-left: auto;
+  align-items: center;    
+}
+
+.view-hader-row > span {
+  line-height: 45px;
+}
+
+.view-name {
+  flex: auto;
+  display: flex;
+}
+
+.view-cells {
+  flex: auto;
 }
 
 .view-name-input {

@@ -5,18 +5,14 @@
 
 interface ActionBarProps {
   onBack: () => void;
-  onApply: () => void;
 }
 
-export function ActionBar({ onBack, onApply }: ActionBarProps) {
+export function ActionBar({ onBack }: ActionBarProps) {
   return (
     <div className="view-actions">
       <button className="btn-secondary" onClick={onBack}>
         Back to Main screen
-      </button>
-      <button className="btn-primary" onClick={onApply}>
-        Apply Configuration
-      </button>
+      </button>      
     </div>
   );
 }

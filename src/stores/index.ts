@@ -13,7 +13,7 @@
 export { Store } from './Store';
 export { ViewStore } from './ViewStore';
 export { ToastStore } from './ToastStore';
-export type { PivotData, PivotRow, PivotColumn, PivotCell } from './ViewStore';
+export type { PivotData, PivotCell, RowData, Tuple, PivotAxe, PivotCellMap } from './ViewStore';
 export type { ToastMessage } from './ToastStore';
 export type {
   PivotProject,
@@ -27,9 +27,9 @@ export type {
   NodeSchema,
   View,
   Measure,
-  PivotFilterDimension,
   AggregationType,
   DataColumn,
   ValidationError,
+  FilterDimension,
 } from './Store';
 

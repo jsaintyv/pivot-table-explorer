@@ -35,8 +35,7 @@ afterEach(() => {
 
 describe('Dimensions Component - Rendering', () => {
   it('should render without crashing', () => {
-    render(<Dimensions />);
-    screen.debug(); // Optional: outputs the rendered DOM for debugging
+    render(<Dimensions />);    
     expect(screen.getByText('Dimensions')).toBeInTheDocument();
   });
 

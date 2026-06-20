@@ -23,40 +23,57 @@ import type {
   LocalDataSource,
 } from '../models/pivot-project/types';
 import type { Store } from '.';
+import { PivotProjectService } from '../services/PivotProjectService';
+import { PivotDataService, type PivotDataServiceSuppliers, TOTAL } from '../services/PivotDataService';
 
 
 // ============================================================================
 // PIVOT DATA TYPE (à définir plus précisément si nécessaire)
 // ============================================================================
 
+export type PivotCellMap = Map<string, Map<string, Map<string, PivotCell>>>;
+
 export interface PivotData {
-  rows: PivotRow[];
-  columns: PivotColumn[];
-  data: PivotCell[][];
+  rows: PivotAxe[];
+  columns: PivotAxe[];
+  measures: string[];
+  pivotCellByColKeyByRowKeyByMeasureId: PivotCellMap;
 }
 
-export interface PivotRow {
-  key: string;
-  label: string;
-  level: number;
-  dimensionId?: string;
-  nodeId?: string;
+export const EMPTY_PIVOTDATA: PivotData = {
+  rows: [], columns:[], measures:[], pivotCellByColKeyByRowKeyByMeasureId: new Map()
 }
 
-export interface PivotColumn {
-  key: string;
-  label: string;
-  level: number;
-  dimensionId?: string;
-  nodeId?: string;
+export interface PivotAxe {  
+  axeKey: string;
 }
 
 export interface PivotCell {
   value: any;
   formattedValue?: string;
-  rowKey: string;
-  colKey: string;
+  rowAxeKey: string;
+  colAxeKey: string;
   isTotal?: boolean;
+}
+
+// ============================================================================
+// ROW DATA AND TUPLE TYPES
+// ============================================================================
+
+/**
+ * Représente un tuple de dimensions pour les colonnes ou les lignes
+ * Ex: ["Paris", "2024"] pour une colonne avec dimension Ville=Paris et Année=2024
+ */
+export type Tuple = string[];
+
+/**
+ * Représente une donnée de ligne pour la construction du pivot
+ */
+export interface RowData {
+  measureId: string;
+  tupleColumns: Tuple;
+  tupleRows: Tuple;
+  value: number;
 }
 
 export type ModalType = 'row' | 'column' | 'value' ;
@@ -481,8 +498,8 @@ export class ViewStore {
     const view = this.getActiveView();
     if (!view) return;    
     let filterDim = view.filterDimensions?.find(fd => fd.dimensionId === dimensionId);
-    
-    
+    let dimension = this.rootStore.getDimension(dimensionId);
+
     if (!filterDim) {
       // Créer un nouveau filtre
       if (!view.filterDimensions) {
@@ -496,7 +513,7 @@ export class ViewStore {
       view.filterDimensions.push(filterDim);
     } else {
       // Mettre à jour existant
-      filterDim.selectedNodes = [...selectedNodeIds];
+      filterDim.selectedNodes = [...selectedNodeIds]; 
       filterDim.operator = operator;
     }
 
@@ -620,273 +637,27 @@ export class ViewStore {
   /**
    * Génère les données du pivot à partir de la vue active
    * **FONCTION CLÉ** pour ViewGridScreen
+   * 
+   * Délègue à PivotDataService pour la construction des données
    */
   buildPivotFromView(): PivotData {    
-    const view =  this.getActiveView();
-    if (!view) {      
-      return { rows: [], columns: [], data: [] };
-    }
-    
-
-    // Si pas de dimensions ou pas de mesures, retourner vide
-    if (view.rowDimensions.length === 0 || view.measures.length === 0) {      
-      return { rows: [], columns: [], data: [] };
-    }
-    
-    // Récupérer toutes les données des DataSources locales
-    const localDataSources: LocalDataSource[] = this.rootStore.pivotProject.dataSources.filter(
-      (ds): ds is LocalDataSource => ds.type === 'local'
-    );
-    
-    if (localDataSources.length === 0) {
-      return { rows: [], columns: [], data: [] };
-    }
-    
-    // Récupérer tous les nodes pour chaque dimension
-    const rowDimensionNodes: Map<string, Node[]> = new Map();
-    for (const dimId of view.rowDimensions) {
-      const nodes = this.rootStore.getNodesByDimension(dimId);
-      rowDimensionNodes.set(dimId, nodes);
-    }
-    
-    const columnDimensionNodes: Map<string, Node[]> = new Map();
-    for (const dimId of view.columnDimensions) {
-      const nodes = this.rootStore.getNodesByDimension(dimId);
-      columnDimensionNodes.set(dimId, nodes);
-    }
-    
-    // Appliquer les filtres pour obtenir la liste des node IDs autorisés
-    const allowedNodeIds: Set<string> = new Set();
-    let hasFilters = false;
-    
-    for (const filterDim of view.filterDimensions || []) {
-      hasFilters = true;
-      const dimension = this.rootStore.getDimension(filterDim.dimensionId);
-      if (dimension) {
-        // Ajouter tous les nodes de cette dimension au set autorisé (on filtrera ensuite)
-        const dimNodes = this.rootStore.getNodesByDimension(filterDim.dimensionId);
-        for (const node of dimNodes) {
-          if (filterDim.operator === 'include') {
-            if (filterDim.selectedNodes.includes(node.id)) {
-              allowedNodeIds.add(node.id);
-            }
-          } else {
-            // exclude: tous sont autorisés sauf ceux sélectionnés
-            if (!filterDim.selectedNodes.includes(node.id)) {
-              allowedNodeIds.add(node.id);
-            }
-          }
-        }
-      }
-    }    
-    
-    // Construire la liste des nodes pour les rows (en appliquant les filtres)
-    const rowNodes: PivotRow[] = [];
-    for (const dimId of view.rowDimensions) {
-      const dimension = this.rootStore.getDimension(dimId);
-      if (dimension) {
-        const nodes = this.rootStore.getNodesByDimension(dimId);
-        for (const node of dimension.nodes) {
-          // Vérifier si ce node est filtré
-          if (hasFilters) {
-            const filterDim = view.filterDimensions?.find(fd => fd.dimensionId === dimId);
-            if (filterDim) {
-              if (filterDim.operator === 'include' && !filterDim.selectedNodes.includes(node.id)) {
-                continue; // Exclure ce node
-              }
-              if (filterDim.operator === 'exclude' && filterDim.selectedNodes.includes(node.id)) {
-                continue; // Exclure ce node
-              }
-            }
-          }
-          rowNodes.push({
-            key: node.id,
-            label: String(node.value),
-            level: 0,
-            dimensionId: dimId,
-            nodeId: node.id,
-          });
-        }
-      }
-    }
-    
-    // Construire la liste des nodes pour les columns (en appliquant les filtres)
-    const columnNodes: PivotColumn[] = [];
-    for (const dimId of view.columnDimensions) {
-      const dimension = this.rootStore.getDimension(dimId);
-      if (dimension) {
-        const nodes = this.rootStore.getNodesByDimension(dimId);        
-        for (const node of nodes) {
-          // Vérifier si ce node est filtré
-          if (hasFilters) {
-            const filterDim = view.filterDimensions?.find(fd => fd.dimensionId === dimId);
-            if (filterDim) {
-              if (filterDim.operator === 'include' && !filterDim.selectedNodes.includes(node.id)) {
-                continue; // Exclure ce node
-              }
-              if (filterDim.operator === 'exclude' && filterDim.selectedNodes.includes(node.id)) {
-                continue; // Exclure ce node
-              }
-            }
-          }
-          columnNodes.push({
-            key: node.id,
-            label: String(node.value),
-            level: 0,
-            dimensionId: dimId,
-            nodeId: node.id,
-          });
-        }
-      }
-    }
-    
-    // Si pas de rows ou pas de columns, retourner vide
-    if (rowNodes.length === 0 || columnNodes.length === 0) {      
-      return { rows: rowNodes, columns: columnNodes, data: [] };
-    }
-    
-    // Pour l'instant, si une seule mesure, on l'utilise
-    // Sinon, on utilise la première
-    const measure = view.measures[0];
-    if (!measure) {      
-      return { rows: rowNodes, columns: columnNodes, data: [] };
-    }
-    
-    // Récupérer la data source et la colonne de la mesure
-    const dataSource = localDataSources.find(ds => ds.id === measure.source.dataSourceId);
-    if (!dataSource) {      
-      return { rows: rowNodes, columns: columnNodes, data: [] };
-    }
-    
-    // Construire une map pour accéder rapidement aux values des nodes
-    const nodeValueMap: Map<string, Map<string, any>> = new Map();
-    // nodeValueMap: dimensionId -> (nodeId -> value)
-    for (const dimId of [...view.rowDimensions, ...view.columnDimensions]) {
-      const nodes = this.rootStore.getNodesByDimension(dimId);
-      const valueMap = new Map<string, any>();
-      for (const node of nodes) {
-        valueMap.set(node.id, node.value);
-      }
-      nodeValueMap.set(dimId, valueMap);
-    }
-    
-    // Créer une map pour trouver la colonne d'une dimension dans la data source
-    const dimensionToColumnIndex: Map<string, number> = new Map();
-    for (const dimId of [...view.rowDimensions, ...view.columnDimensions]) {
-      const dimension = this.rootStore.getDimension(dimId);
-      if (dimension) {
-        // Prendre le premier column mapping
-        const mapping = dimension.columnMappings[0];
-        if (mapping) {
-          dimensionToColumnIndex.set(dimId, mapping.columnIndex);
-        }
-      }
-    }
-    
-    // Trouver la colonne de la mesure
-    const measureColumnIndex = measure.source.columnIndex;
-    
-    // Générer les données du tableau
-    const data: PivotCell[][] = [];
-    
-    for (const row of rowNodes) {
-      const rowData: PivotCell[] = [];
-      
-      for (const col of columnNodes) {
-        // Collecter toutes les valeurs qui correspondent aux critères
-        const values: number[] = [];
-        
-        // Parcourir toutes les lignes de données
-        for (const rowDataArray of dataSource.data) {
-          // Vérifier si cette ligne correspond aux critères de row et column
-          let rowMatch = true;
-          let colMatch = true;
-          
-          // Vérifier les critères de row
-          for (const rowDimId of view.rowDimensions) {
-            const rowDimColIndex = dimensionToColumnIndex.get(rowDimId);
-            if (rowDimColIndex !== undefined && rowDataArray[rowDimColIndex] !== undefined && row.nodeId) {
-              const expectedValue = nodeValueMap.get(rowDimId)?.get(row.nodeId);
-              if (expectedValue !== undefined && rowDataArray[rowDimColIndex] != expectedValue) {
-                rowMatch = false;
-                break;
-              }
-            }
-          }
-          
-          // Vérifier les critères de column
-          for (const colDimId of view.columnDimensions) {
-            const colDimColIndex = dimensionToColumnIndex.get(colDimId);
-            if (colDimColIndex !== undefined && rowDataArray[colDimColIndex] !== undefined && col.nodeId) {
-              const expectedValue = nodeValueMap.get(colDimId)?.get(col.nodeId);
-              if (expectedValue !== undefined && rowDataArray[colDimColIndex] != expectedValue) {
-                colMatch = false;
-                break;
-              }
-            }
-          }
-
-          if (rowMatch && colMatch) {
-            // Récupérer la valeur de la mesure
-            const value = rowDataArray[measureColumnIndex] * 1;
-          
-            if (! Number.isNaN(value)) {
-              values.push(value);
-            }
-          }
-        }
-        
-        // Appliquer l'agrégation sur les valeurs collectées
-        let finalValue: any = null;
-        const count = values.length;
-        
-        if (count > 0) {
-          switch (measure.aggregation) {
-            case 'sum':
-              finalValue = values.reduce((a, b) => a + b, 0);
-              break;
-            case 'average':
-              finalValue = values.reduce((a, b) => a + b, 0) / count;
-              break;
-            case 'count':
-              finalValue = count;
-              break;
-            case 'min':
-              finalValue = Math.min(...values);
-              break;
-            case 'max':
-              finalValue = Math.max(...values);
-              break;
-            case 'first':
-              finalValue = values[0];
-              break;
-            case 'last':
-              finalValue = values[count - 1];
-              break;
-            default:
-              finalValue = values.reduce((a, b) => a + b, 0);
-          }
-        }
-      
-        rowData.push({
-          value: finalValue,
-          formattedValue: finalValue !== null && finalValue !== undefined ? finalValue.toString() : '',
-          rowKey: row.key,
-          colKey: col.key,
-          isTotal: false,
-        });
-      }
-      
-      data.push(rowData);
-    }
-    
-    return {
-      rows: rowNodes,
-      columns: columnNodes,
-      data: data,
+    const start=  new Date().valueOf();
+    // Créer les suppliers pour PivotDataService
+    const suppliers: PivotDataServiceSuppliers = {
+      getView: () => this.getActiveView(),
+      getLocalDataSources: () => this.rootStore.pivotProject.dataSources.filter(
+        (ds): ds is LocalDataSource => ds.type === 'local'
+      ),
+      getDimension: (dimensionId: string) => this.rootStore.getDimension(dimensionId),
+      getDimensions: () => this.rootStore.getDimensions()
     };
+    
+    // Construire les données pivot (les totaux sont gérés par view.showTotals et view.showGrandTotal)
+    var result = PivotDataService.buildPivotData(suppliers);
+    console.log("Generate pivotData", (new Date().valueOf() - start), "ms");
+    return result;
   }
-  
+
   // ==========================================================================
   // LEGACY COMPATIBILITY
   // ==========================================================================
