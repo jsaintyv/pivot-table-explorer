@@ -263,8 +263,8 @@ export const PivotGridTable = observer(({
           className="grid-cell header column-header"
           style={{ 
             ...baseStyle, 
-            ...(isHighlighted ? hoverHighlightStyleHeader : {}),
-            ...headerCellStyles            
+            ...headerCellStyles,
+            ...(isHighlighted ? hoverHighlightStyleHeader : {}),            
           }}
           onMouseEnter={() => handleCellMouseEnter(rowIdx, colIdx)}
           onMouseLeave={handleCellMouseLeave}
