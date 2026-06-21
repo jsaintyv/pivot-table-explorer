@@ -21,6 +21,8 @@ What to Review:
 * Error handling    
 * API design and naming
 * Architectural fit [react/mobx pattern](../../../docs/typescript/pattern.md)
+* Verify code compiling
+* Verify test `npm run test` and `cd playwright && npx playwright test` 
 
 
 

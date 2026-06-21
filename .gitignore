@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+playwright/node_modules
+playwright/test-results
+playwright/playwright-report

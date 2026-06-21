@@ -22,6 +22,7 @@ pivot-table-explorer/
 │   ├── main.tsx              # React entry point
 │   └── index.css             # Global styles
 ├── package.json
+├── tests/                    # End-to-end tests (Playwright)
 ├── tsconfig.json
 └── vite.config.ts
 ```
@@ -34,6 +35,7 @@ pivot-table-explorer/
 - **Styling**: CSS Modules / Vanilla CSS
 - **Language**: TypeScript (strict mode)
 - **State Management**: MobX
+- **E2E Testing**: Playwright
 
 ### Typescript / React guidelines
 See [@docs/typescript/pattern.md](docs/typescript/pattern.md)
@@ -52,9 +54,21 @@ npm run preview
 
 # Type checking
 npx tsc --noEmit
+
+# Unit tests
+npm run test
+
+# End-to-end tests
+npx playwright test
+
+# End-to-end tests with UI
+npx playwright test --ui
+
+# End-to-end tests headed mode
+npx playwright test --headed
 ```
 
-*** Never end development without checking that `npm run build` and `npm run test` succeed *** 
+*** Never end development without checking that `npm run build`, `npm run test`, and `npx playwright test` succeed *** 
 
 ## Models
 
@@ -83,9 +97,10 @@ The `/docs/screens/screenflow.md` file describes navigation between screens.
 
 
 ### Best Practices
-- **Verify changes**: Always run `npm run build` and `npm run test` after Vibe’s edits.
+- **Verify changes**: Always run `npm run build`, `npm run test`, and `npx playwright test` after Vibe’s edits.
 - **Human oversight**: Review critical changes (e.g., state management, data models) before committing.
 - **Context**: Reference existing code (e.g., "Like in `ViewStore.ts`, but for rows").
+- **E2E Testing**: Use Playwright for end-to-end testing. Write tests in `tests/` directory and run them with `npx playwright test`.
 
 
 ## **Restrictions**
