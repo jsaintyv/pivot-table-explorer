@@ -102,16 +102,14 @@ export const PivotGridTable = observer(({
   pivotData,
   showTotals = false,
   showGrandTotal = false,
-}: PivotGridTableProps) => {
+}: PivotGridTableProps) => {  
   // All hooks must be called unconditionally at the start, before any early returns
   // Référence pour le conteneur de scroll
   const containerRef = React.useRef<HTMLDivElement>(null);
+  // In fact , we will use containerRef current position but keep those useState for component refresh
+  const [, setScrollLeftTmp] = React.useState(0);
+  const [, setScrollTopTmp] = React.useState(0);
 
-  // État pour le scroll et la taille du viewport
-  const [scrollLeft, setScrollLeft] = React.useState(0);
-  const [scrollTop, setScrollTop] = React.useState(0);
-  const [viewportWidth, setViewportWidth] = React.useState(0);
-  const [viewportHeight, setViewportHeight] = React.useState(0);
 
   // État pour la cellule survolée (highlight de la ligne et colonne)
   const [hoveredCell, setHoveredCell] = React.useState<{ rowIdx: number; colIdx: number } | null>(null);
@@ -119,7 +117,8 @@ export const PivotGridTable = observer(({
   // Destructure after all hooks to ensure consistent hook order
   const {rows, columns, measures, pivotCellByColKeyByRowKeyByMeasureId} = pivotData;
 
-  
+  const scrollLeft = containerRef.current?.scrollLeft ?? 0;
+  const scrollTop = containerRef.current?.scrollTop ?? 0;
 
   // Vérifier si on doit afficher les totaux
   const hasRowTotals = showTotals && rows.some(r => r.axeKey === TOTAL);
@@ -137,13 +136,13 @@ export const PivotGridTable = observer(({
   const startCol = Math.max(0, Math.floor(scrollLeft / CELL_WIDTH) - SCROLL_BUFFER);
   const endCol = Math.min(
     dataColCount + totalColCount,
-    Math.ceil((scrollLeft + viewportWidth) / CELL_WIDTH) + SCROLL_BUFFER
+    Math.ceil((scrollLeft + (containerRef.current?.clientWidth ?? 600)) / CELL_WIDTH) + SCROLL_BUFFER
   );
 
   const startRow = Math.max(0, Math.floor(scrollTop / CELL_HEIGHT) - SCROLL_BUFFER);
   const endRow = Math.min(
     rows.length + totalRowCount,
-    Math.ceil((scrollTop + viewportHeight) / CELL_HEIGHT) + SCROLL_BUFFER
+    Math.ceil((scrollTop + (containerRef.current?.clientHeight ?? 600)) / CELL_HEIGHT) + SCROLL_BUFFER
   );
   
   const headerTop = scrollTop;
@@ -155,28 +154,22 @@ export const PivotGridTable = observer(({
     if (!container) return;
 
     const handleScroll = () => {
+      // Utiliser requestAnimationFrame pour éviter trop de re-renders      
       // Utiliser requestAnimationFrame pour éviter trop de re-renders
       requestAnimationFrame(() => {
-        setScrollLeft(container.scrollLeft);
-        setScrollTop(container.scrollTop);
+        setScrollLeftTmp(container.scrollLeft);
+        setScrollTopTmp(container.scrollTop);
       });
     };
 
-    const handleResize = () => {
-      setViewportWidth(container.clientWidth);
-      setViewportHeight(container.clientHeight);
-    };
-
-    container.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleResize);
+    container.addEventListener('scroll', handleScroll);    
 
     // Initialisation
     handleScroll();
-    handleResize();
+    
 
     return () => {
-      container.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
+      container.removeEventListener('scroll', handleScroll);      
     };
   }, []);
 

@@ -56,5 +56,7 @@ test('upload CSV file and verify Customer dimension is present', async ({ page }
 
   // Vérifies qu'on a "Magasin 1" qui apparait dans .pivot-grid-container
   await expect(page.locator('.pivot-grid-container:has-text("Magasin 1")')).toBeVisible({ timeout: 10000 });
+  await expect(page.locator('.pivot-grid-container:has-text("Magasin 101")')).toBeVisible({ timeout: 10000 });
+  await expect(page.locator('.pivot-grid-container:has-text("Magasin 102")')).toBeVisible({ timeout: 10000 });
 });
 
