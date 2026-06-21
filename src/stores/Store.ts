@@ -959,34 +959,71 @@ export class Store {
         
         // Auto-create dimensions for each column
         dataColumns.forEach((column, colIndex) => {
+          // Check if a dimension with the same name already exists
+          const existingDim = dimensions.find(d => d.name === column.name);
+          
+          if (existingDim) {
+            // Dimension exists: add new column mapping
+            existingDim.columnMappings.push({
+              dataSourceId: dataSource.id,
+              columnIndex: colIndex,
+              level: 0,
+              name: column.name,
+            });
             
+            // Update nodes: get unique values and add/update nodes with sourceIds
+            const uniqueValues = getUniqueValues(csvData, column.name);
+            uniqueValues.forEach((value) => {
+              const existingNode = existingDim.nodes.find(n => n.value === value);
+              if (existingNode) {
+                // Node exists: add dataSource.id to sourceIds if not already present
+                if (!existingNode.sourceIds.includes(dataSource.id)) {
+                  existingNode.sourceIds.push(dataSource.id);
+                }
+              } else {
+                // Create new node
+                const n = PivotProjectService.buildNode(
+                  existingDim.id,
+                  String(value),
+                  value,
+                  {},
+                  [],
+                  [dataSource.id]
+                );
+                existingDim.rootNodes.push(n.id);
+                existingDim.nodes.push(n);
+              }
+            });
+          } else {
+            // Dimension doesn't exist: create new dimension
             const dim = PivotProjectService.buildDimension(
-            column.name,
-            column.dataType as 'string' | 'number' | 'date' | 'boolean',
-            `Dimension for ${column.name}`,
-            [{
-                dataSourceId: dataSource.id,
-                columnIndex: colIndex,
-                level: 0,
-                name: column.name,
-            }]
+              column.name,
+              column.dataType as 'string' | 'number' | 'date' | 'boolean',
+              `Dimension for ${column.name}`,
+              [{
+                  dataSourceId: dataSource.id,
+                  columnIndex: colIndex,
+                  level: 0,
+                  name: column.name,
+              }]
             );
             dimensions.push(dim);
             
             // Create root node for this dimension
-          const uniqueValues = getUniqueValues(csvData, column.name);          
-          uniqueValues.forEach((value) => {
-            let n = PivotProjectService.buildNode(
-              dim.id,
-              String(value),
-              value,
-              {},
-              [],
-              [dataSource.id]
-            );
-            dim.rootNodes.push(n.id);
-            dim.nodes.push(n);
-          });
+            const uniqueValues = getUniqueValues(csvData, column.name);          
+            uniqueValues.forEach((value) => {
+              let n = PivotProjectService.buildNode(
+                dim.id,
+                String(value),
+                value,
+                {},
+                [],
+                [dataSource.id]
+              );
+              dim.rootNodes.push(n.id);
+              dim.nodes.push(n);
+            });
+          }
         });
         this.updateProject({
             ...this.pivotProject,

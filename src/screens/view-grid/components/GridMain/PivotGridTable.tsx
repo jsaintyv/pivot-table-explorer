@@ -1,6 +1,5 @@
 import { observer } from 'mobx-react-lite';
 import { TOTAL } from '../../../../services/PivotDataService';
-import type { PivotCell } from '../../../../stores';
 import type { PivotData } from '../../../../stores/ViewStore';
 import React from 'react';
 
@@ -104,31 +103,7 @@ export const PivotGridTable = observer(({
   showTotals = false,
   showGrandTotal = false,
 }: PivotGridTableProps) => {
-  const {rows, columns, measures, pivotCellByColKeyByRowKeyByMeasureId} = pivotData;
-
-  // Si aucune donnée, afficher un message
-  if (rows.length === 0 || columns.length === 0) {
-    return (
-      <div className="pivot-grid-table">
-        <div className="empty-message" style={{ padding: '20px' }}>
-          No data to display. Add dimensions and measures to configure your pivot table.
-        </div>
-      </div>
-    );
-  }
-
-  // Vérifier si on doit afficher les totaux
-  const hasRowTotals = showTotals && rows.some(r => r.axeKey === TOTAL);
-  const hasColTotals = showTotals && columns.some(c => c.axeKey === TOTAL);
-
-  // Calculer les dimensions de la grille
-  const dataColCount = columns.length * measures.length;
-  const totalColCount = hasColTotals ? 1 : 0;
-  const totalRowCount = hasRowTotals ? 1 : 0;
-
-  const gridTotalWidth = (1 + dataColCount + totalColCount) * CELL_WIDTH;
-  const gridTotalHeight = (1 + rows.length + totalRowCount) * CELL_HEIGHT;
-
+  // All hooks must be called unconditionally at the start, before any early returns
   // Référence pour le conteneur de scroll
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -141,6 +116,23 @@ export const PivotGridTable = observer(({
   // État pour la cellule survolée (highlight de la ligne et colonne)
   const [hoveredCell, setHoveredCell] = React.useState<{ rowIdx: number; colIdx: number } | null>(null);
 
+  // Destructure after all hooks to ensure consistent hook order
+  const {rows, columns, measures, pivotCellByColKeyByRowKeyByMeasureId} = pivotData;
+
+  
+
+  // Vérifier si on doit afficher les totaux
+  const hasRowTotals = showTotals && rows.some(r => r.axeKey === TOTAL);
+  const hasColTotals = showTotals && columns.some(c => c.axeKey === TOTAL);
+
+  // Calculer les dimensions de la grille
+  const dataColCount = columns.length * measures.length;
+  const totalColCount = hasColTotals ? 1 : 0;
+  const totalRowCount = hasRowTotals ? 1 : 0;
+
+  const gridTotalWidth = (1 + dataColCount + totalColCount) * CELL_WIDTH;
+  const gridTotalHeight = (1 + rows.length + totalRowCount) * CELL_HEIGHT;
+  
   // Calculer les cellules visibles avec buffer
   const startCol = Math.max(0, Math.floor(scrollLeft / CELL_WIDTH) - SCROLL_BUFFER);
   const endCol = Math.min(
@@ -507,6 +499,18 @@ export const PivotGridTable = observer(({
     
     return cells;
   }, [startRow, endRow, startCol, endCol, headerTop, headerLeft , renderCell]);
+
+  // Si aucune donnée, afficher un message
+  // Note: This check must come AFTER all hooks
+  if (rows.length === 0 || columns.length === 0) {
+    return (
+      <div className="pivot-grid-table">
+        <div className="empty-message" style={{ padding: '20px' }}>
+          No data to display. Add dimensions and measures to configure your pivot table.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
