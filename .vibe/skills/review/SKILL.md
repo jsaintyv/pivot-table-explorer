@@ -15,11 +15,13 @@ What to Review:
 * Logic correctness and edge cases
 * Security vulnerabilities
 * Check for orphan functions or unused variables
+* Always search if a new method duplicate logic in an other existing function
 * Performance implications
 * Test coverage and quality
 * Error handling    
 * API design and naming
 * Architectural fit [react/mobx pattern](../../../docs/typescript/pattern.md)
+
 
 
 
