@@ -186,15 +186,7 @@ export const PivotGridTable = observer(({
     return columns[colGroupIndex]?.axeKey || '';
   }, [columns, measures.length, dataColCount, hasColTotals]);
 
-  // Fonction pour gérer le survol des cellules  
-  const handleCellMouseEnter = React.useCallback((rowIdx: number, colIdx: number) => {
-    setHoveredCell({ rowIdx, colIdx });
-  }, []);
-
-  const handleCellMouseLeave = React.useCallback(() => {
-    setHoveredCell(null);
-  }, []);  
-
+  
   // Vérifie si une cellule doit être surlignée
   const isCellHighlighted = React.useCallback((rowIdx: number, colIdx: number): boolean => {
     if (!hoveredCell) return false;
@@ -232,9 +224,7 @@ export const PivotGridTable = observer(({
           style={{ 
             ...baseStyle, 
             ...cornerCellStyles,
-          }}          
-          onMouseEnter={() => handleCellMouseEnter(rowIdx, colIdx)}
-          onMouseLeave={handleCellMouseLeave}
+          }}                    
         />
       );
     }
@@ -252,9 +242,7 @@ export const PivotGridTable = observer(({
             ...baseStyle, 
             ...headerCellStyles,
             ...(isHighlighted ? hoverHighlightStyleHeader : {}),            
-          }}
-          onMouseEnter={() => handleCellMouseEnter(rowIdx, colIdx)}
-          onMouseLeave={handleCellMouseLeave}
+          }}          
         >
           <div className="header-content">
             <span className="header-label">{colLabel}</span>
@@ -275,9 +263,7 @@ export const PivotGridTable = observer(({
             ...baseStyle, 
             ...headerTotalCellStyles,
             ...(isHighlighted ? hoverHighlightStyleHeader : {}),            
-          }}          
-          onMouseEnter={() => handleCellMouseEnter(rowIdx, colIdx)}
-          onMouseLeave={handleCellMouseLeave}
+          }}                    
         >
           <div className="header-content">
             <span className="header-label">Total</span>
@@ -305,9 +291,7 @@ export const PivotGridTable = observer(({
             ...baseStyle, 
             ...cellStyle,
             ...(isHighlighted ? hoverHighlightStyleHeader : {})
-          }}          
-          onMouseEnter={() => handleCellMouseEnter(rowIdx, colIdx)}
-          onMouseLeave={handleCellMouseLeave}
+          }}
         >
           <div className="row-header-content">
             <span className="row-header-label">{rowLabel}</span>
@@ -342,9 +326,7 @@ export const PivotGridTable = observer(({
             ...baseStyle, 
             ...cellStyle,
             ...(isHighlighted ? hoverHighlightStyle : {})
-          }}          
-          onMouseEnter={() => handleCellMouseEnter(rowIdx, colIdx)}
-          onMouseLeave={handleCellMouseLeave}
+          }}                    
         >
           <div className="cell-content">
             {value}
@@ -367,9 +349,7 @@ export const PivotGridTable = observer(({
             ...totalCellStyles,
             ...(isHighlighted ? hoverHighlightStyle : {})
           }}          
-          onMouseEnter={() => handleCellMouseEnter(rowIdx, colIdx)}
-          onMouseLeave={handleCellMouseLeave}
-        >
+          >
           <div className="cell-content">
             {measures.map((measureId) => {
               const cellMap = pivotCellByColKeyByRowKeyByMeasureId.get(measureId);
@@ -408,9 +388,7 @@ export const PivotGridTable = observer(({
             ...baseStyle, 
             ...totalCellStyles,
             ...(isHighlighted ? hoverHighlightStyle : {})
-          }}          
-          onMouseEnter={() => handleCellMouseEnter(rowIdx, colIdx)}
-          onMouseLeave={handleCellMouseLeave}
+          }}                    
         >
           <div className="cell-content">
             {value}
@@ -432,9 +410,7 @@ export const PivotGridTable = observer(({
             ...baseStyle, 
             ...grandTotalCellStyles,
             ...(isHighlighted ? hoverHighlightStyle : {})
-          }}          
-          onMouseEnter={() => handleCellMouseEnter(rowIdx, colIdx)}
-          onMouseLeave={handleCellMouseLeave}
+          }}                    
         >
           <div className="cell-content">
             {measures.map((measureId) => {
@@ -453,7 +429,7 @@ export const PivotGridTable = observer(({
     }
 
     return null;
-  }, [rows, columns, measures, pivotCellByColKeyByRowKeyByMeasureId, dataColCount, hasRowTotals, hasColTotals, showGrandTotal, getColumnLabel, hoveredCell, handleCellMouseEnter, handleCellMouseLeave, isCellHighlighted]);
+  }, [rows, columns, measures, pivotCellByColKeyByRowKeyByMeasureId, dataColCount, hasRowTotals, hasColTotals, showGrandTotal, getColumnLabel, hoveredCell, isCellHighlighted]);
 
   // Générer les cellules visibles
   const visibleCells = React.useMemo(() => {
@@ -516,8 +492,7 @@ export const PivotGridTable = observer(({
         position: 'relative',
         width: '100%',
         height: '100%'
-      }}      
-      onMouseLeave={handleCellMouseLeave}
+      }}            
     >
       <div style={{
         position: 'relative',
