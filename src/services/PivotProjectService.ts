@@ -222,39 +222,7 @@ export class PivotProjectService {
         return rowDataList;
     }
 
-    /**
-     * Construit la liste des tuples de colonnes uniques à partir de RowData
-     * @param rowDataList Liste de RowData
-     * @returns Liste de tuples de colonnes triés
-     */
-    static buildColumnTuples(rowDataList: RowData[]): Tuple[] {
-        const tupleSet: Set<string> = new Set();
-        
-        for (const rowData of rowDataList) {
-            const tupleKey = rowData.tupleColumns.join('|');
-            if (!tupleSet.has(tupleKey)) {
-                tupleSet.add(tupleKey);
-            }
-        }
-        
-        const tuples: Tuple[] = [];
-        for (const tupleKey of tupleSet) {
-            tuples.push(tupleKey.split('|'));
-        }
-        
-        // Trier par ordre naturel (lexicographique)
-        tuples.sort((a, b) => {
-            for (let i = 0; i < Math.min(a.length, b.length); i++) {
-                if (a[i] !== b[i]) {
-                    return a[i].localeCompare(b[i]);
-                }
-            }
-            return a.length - b.length;
-        });
-        
-        return tuples;
-    }
-
+  
     /**
      * Construit la liste des tuples de lignes uniques à partir de RowData
      * @param rowDataList Liste de RowData

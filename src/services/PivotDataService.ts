@@ -184,10 +184,7 @@ export class PivotDataService {
           dimensionToColumnIndex
       );
       
-      // Étape 3: Construire les listes de tuples de colonnes et lignes uniques
-      const columnTuples = PivotProjectService.buildColumnTuples(rowDataList);
-      const rowTuples = PivotProjectService.buildRowTuples(rowDataList);
-               
+      // Étape 3: Construire les listes de tuples de colonnes et lignes uniques                     
       let pivotCellByColKeyByRowKey = pivotCellByColKeyByRowKeyByMeasureId.get(measure.id);
       if(! pivotCellByColKeyByRowKey) {
         pivotCellByColKeyByRowKey = new Map();
