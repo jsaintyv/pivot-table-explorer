@@ -106,6 +106,7 @@ export class ViewStore {
   public currentMeasureId: string = "";
   public showAggregationModal: boolean = false;
   
+  
   // ==========================================================================
   // CONSTRUCTOR
   // ==========================================================================
