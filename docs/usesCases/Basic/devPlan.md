@@ -30,8 +30,9 @@ This plan describes the implementation of hierarchical headers in `PivotGridTabl
 
 | # | Task | File | Status | Dependencies |
 |---|------|------|--------|--------------|
-| 1.1 | Define `PivotAxeHierarchy` type | `src/stores/ViewStore.ts` | ❌ | None |
-| 1.2 | Update `PivotData` type to include hierarchies | `src/stores/ViewStore.ts` | ❌ | 1.1 |
+| 1.1 | Move `PivotData`,`PivotCellMap`,`PivotAxe`,`PivotCell` in src/models/pivot-data/pivot-data.ts | `src/stores/ViewStore.ts` | ❌ | 1.1 |
+| 1.2 | Define `PivotAxeHierarchy` in src/models/pivot-data/pivot-data.ts | `src/stores/ViewStore.ts` | ❌ | None |
+| 1.3 | Update `PivotData` type to include hierarchies | | ❌ | 1.1 |
 
 **Phase 1 Status**: ❌ 0% (0/2)
 
@@ -43,7 +44,9 @@ This plan describes the implementation of hierarchical headers in `PivotGridTabl
 |---|------|------|--------|--------------|
 | 2.1 | Create `buildHierarchyFromAxeKeys` utility | `src/services/PivotDataService.ts` | ❌ | 1.1, 1.2 |
 | 2.2 | Create `buildColumnHierarchyWithMeasures` | `src/services/PivotDataService.ts` | ❌ | 2.1 |
-| 2.3 | Update `buildPivotData` to generate hierarchies | `src/services/PivotDataService.ts` | ❌ | 2.1, 2.2 |
+| 2.3 | Generate unit test which verify `buildHierarchyFromAxeKeys` &  `buildColumnHierarchyWithMeasures` | `src/services/PivotDataService.ts`  | ❌ | 2.3 |
+| 2.4 | Update `buildPivotData` to generate hierarchies | `src/services/PivotDataService.ts` | ❌ | 2.3 |
+| 2.5 | Generate unit test which verify `buildPivotData` | `src/services/PivotDataService.ts`  | ❌ | 2.4 |
 
 **Phase 2 Status**: ❌ 0% (0/3)
 

@@ -23,24 +23,24 @@ Then I expect, a grid
 <div class="pivot-grid-wrapper">
     <!-- Header columns -->
     <!-- Header 2024, below 3 period , 2 measure -->
-    <div class="header" style="left:120;top:0px;width:{3*2*120)}">2024</div>
+    <div class="header" style="left:{120*2};top:0px;width:{3*2*120)};height:40px">2024</div>
     <!-- Header 2024, Period 1 => below 2 measure -->
-    <div class="header" style="left:120;top:40px;width:{2*120)}">1</div>
+    <div class="header" style="left:{120*2};top:40px;width:{2*120)};height:40px">1</div>
     <!-- Header 2024, Period 2 => below 2 measure -->
-    <div class="header" style="left:{120 + (2*120)};top:40px;width:{2*120)}">2</div>
+    <div class="header" style="left:{120*2 + (2*120)};top:40px;width:{2*120);height:40px}">2</div>
     <!-- Header 2024, Period 3 => below 2 measure -->
-    <div class="header" style="left:{120 + (4*120)};top:40px;width:{2*120)}">2</div>
+    <div class="header" style="left:{120*2 + (4*120)};top:40px;width:{2*120);height:40px}">2</div>
     <!-- Header 2024, Period 1, Measure "Recalled" => below 2 measure -->
-    <div class="header" style="left:120;top:80px;width:120}">Recalled</div>
+    <div class="header" style="left:120*2;top:80px;width:120;height:40px}">Recalled</div>
     <!-- Header 2024, Period 1, Measure "Recalled" => below 2 measure -->
-    <div class="header" style="left:(120+120);top:80px;width:120}">Sold</div>
+    <div class="header" style="left:(120*2+120);top:80px;width:120;height:40px}">Sold</div>
     <!-- ... -->
-    <div class="header" style="left:{previousColumn*120px};top:0px;width:120px; height:{3 * 40px}}">Total row</div>
+    <div class="header" style="left:{120*2+previousColumn*120px};top:0px;width:120px; height:{3 * 40px}}">Total row</div>
 
     <!-- Header rows -->
-    <div class="header" style="left:0px;top:40px;width:120px;height:{2 products * 40px}}">Shop A</div>
-    <div class="header" style="left:120px;top:40px;width:120px;height:40px">Tool A</div>
-    <div class="header" style="left:120px;top:80px;width:120px;height:40px">Tool B</div>
+    <div class="header" style="left:0px;top:{3*40px};width:120px;height:{2 products * 40px}}">Shop A</div>
+    <div class="header" style="left:120px;top:{3*40px};width:120px;height:40px">Tool A</div>
+    <div class="header" style="left:120px;top:{4*40px};width:120px;height:40px">Tool B</div>
 
     <!-- Data cells -->
     <!-- ... -->
