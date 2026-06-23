@@ -117,10 +117,11 @@ export const PivotGridTable = observer(({
   // Destructure after all hooks to ensure consistent hook order
   const {rows, columns, measures, pivotCellByColKeyByRowKeyByMeasureId} = pivotData;
 
+  console.log("Redraw PivotGridTable Scroll:" , scrollLeftTmp, scrollTopTmp, " Client size:", containerRef.current?.clientWidth, containerRef.current?.clientHeight, "Grid size:", rows.length, columns.length);
+
   // scrollLeftTmp is not usefull. But we need to read it to force refreshing 
   const scrollLeft = (scrollLeftTmp == containerRef.current?.scrollLeft ? scrollLeftTmp : containerRef.current?.scrollLeft) || 0;
   const scrollTop = (scrollTopTmp == containerRef.current?.scrollTop ? scrollTopTmp : containerRef.current?.scrollTop) || 0;
-
 
   // Vérifier si on doit afficher les totaux
   const hasRowTotals = showTotals && rows.some(r => r.axeKey === TOTAL);
