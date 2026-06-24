@@ -69,8 +69,8 @@ This plan describes the implementation of hierarchical headers in `PivotGridTabl
 
 | # | Task | File | Status | Dependencies |
 |---|------|------|--------|--------------|
-| 4.1 | Create `renderHierarchyHeaders` function | `PivotGridTable.tsx` | ❌ | 3 |
-| 4.2 | Create `renderRowHierarchyHeaders` function | `PivotGridTable.tsx` | ❌ | 3 |
+| 4.1 | Create `renderHierarchyHeaders` use `cellsGenerator` | `PivotGridTable.tsx` | ❌ | 3 |
+| 4.2 | Create `renderRowHierarchyHeaders` use `cellsGenerator` | `PivotGridTable.tsx` | ❌ | 3 |
 | 4.3 | Update data cell rendering | `PivotGridTable.tsx` | ❌ | 4.1 |
 | 4.4 | Update visible cells calculation | `PivotGridTable.tsx` | ❌ | 4.1-4.4 |
 | 4.5 | Add CSS classes for hierarchy levels | `PivotGridTable.tsx` | ❌ | 4.1 |
