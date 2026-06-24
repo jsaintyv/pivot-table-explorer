@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { PivotDataService, TOTAL } from '../PivotDataService';
 import type { PivotDataServiceSuppliers } from '../PivotDataService';
 import type { View, Dimension, Measure, LocalDataSource, FilterDimension } from '../../models/pivot-project/types';
+import type { Tuple, RowData } from '../../models/pivot-data/pivot-data';
 
 /**
  * Test unitaires pour PivotDataService
@@ -563,6 +564,391 @@ describe('PivotDataService', () => {
 
     it('devrait utiliser sum comme défaut pour une agrégation inconnue', () => {
       expect(PivotDataService.applyAggregation([1, 2, 3], 'unknown')).toBe(6);
+    });
+  });
+
+  // ============================================================================
+  // HIERARCHY BUILDING TESTS
+  // ============================================================================
+
+  describe('buildHierarchyFromAxeKeys', () => {
+    it('devrait construire une hiérarchie simple à un niveau', () => {
+      const axeKeys = ['Paris', 'Rouen', 'Perpignan'];
+      const dimensions: Dimension[] = [
+        {
+          id: 'city',
+          name: 'City',
+          dataType: 'string',
+          columnMappings: [],
+          rootNodes: [],
+          nodes: [
+            { id: 'city-1', dimensionId: 'city', code: 'Paris', value: 'Paris', metaData: {}, children: [], sourceIds: [] },
+            { id: 'city-2', dimensionId: 'city', code: 'Rouen', value: 'Rouen', metaData: {}, children: [], sourceIds: [] },
+            { id: 'city-3', dimensionId: 'city', code: 'Perpignan', value: 'Perpignan', metaData: {}, children: [], sourceIds: [] }
+          ]
+        }
+      ];
+
+      const result = PivotDataService.buildHierarchyFromAxeKeys(
+        axeKeys,
+        dimensions
+      );
+
+      expect(result.length).toBe(3);
+      expect(result[0].key).toBe('Paris');
+      expect(result[0].value).toBe('Paris');
+      expect(result[0].level).toBe(0);
+      expect(result[0].dimensionId).toBe('city');
+      expect(result[0].leaf).toBe(true);
+    });
+
+    it('devrait construire une hiérarchie à deux niveaux', () => {
+      const axeKeys = ['2024;1', '2024;2', '2025;1'];
+      const dimensions: Dimension[] = [
+        {
+          id: 'year',
+          name: 'Year',
+          dataType: 'string',
+          columnMappings: [],
+          rootNodes: [],
+          nodes: [
+            { id: 'year-1', dimensionId: 'year', code: '2024', value: '2024', metaData: {}, children: [], sourceIds: [] },
+            { id: 'year-2', dimensionId: 'year', code: '2025', value: '2025', metaData: {}, children: [], sourceIds: [] }
+          ]
+        },
+        {
+          id: 'month',
+          name: 'Month',
+          dataType: 'string',
+          columnMappings: [],
+          rootNodes: [],
+          nodes: [
+            { id: 'month-1', dimensionId: 'month', code: '1', value: 'January', metaData: {}, children: [], sourceIds: [] },
+            { id: 'month-2', dimensionId: 'month', code: '2', value: 'February', metaData: {}, children: [], sourceIds: [] }
+          ]
+        }
+      ];
+
+      const result = PivotDataService.buildHierarchyFromAxeKeys(
+        axeKeys,
+        dimensions
+      );
+
+      expect(result.length).toBe(2); // Should have 2024 and 2025 as root nodes
+      
+      // Find 2024 node
+      const year2024 = result.find(n => n.key === '2024');
+      expect(year2024).toBeDefined();
+      expect(year2024!.value).toBe('2024');
+      expect(year2024!.level).toBe(0);
+      expect(year2024!.dimensionId).toBe('year');
+      expect(year2024!.leaf).toBe(false);
+      expect(year2024!.children).toHaveLength(2);
+      
+      // Check children
+      const month1 = year2024!.children!.find(n => n.key === '2024;1');
+      expect(month1).toBeDefined();
+      expect(month1!.value).toBe('January');
+      expect(month1!.level).toBe(1);
+      expect(month1!.dimensionId).toBe('month');
+      expect(month1!.leaf).toBe(true);
+      
+      // Check 2025 node
+      const year2025 = result.find(n => n.key === '2025');
+      expect(year2025).toBeDefined();
+      expect(year2025!.children).toHaveLength(1);
+    });
+
+    it('devrait gérer les valeurs manquantes dans les dimensions', () => {
+      const axeKeys = ['A', 'B'];
+      const dimensions: Dimension[] = [
+        {
+          id: 'dim1',
+          name: 'Dim1',
+          dataType: 'string',
+          columnMappings: [],
+          rootNodes: [],
+          nodes: []
+        }
+      ];
+
+      const result = PivotDataService.buildHierarchyFromAxeKeys(
+        axeKeys,
+        dimensions
+      );
+
+      expect(result.length).toBe(2);
+      expect(result[0].value).toBe('A'); // Should use the key as fallback
+      expect(result[1].value).toBe('B');
+    });
+
+    it('devrait retourner un tableau vide pour des axeKeys vides', () => {
+      const dimensions: Dimension[] = [
+        {
+          id: 'dim1',
+          name: 'Dim1',
+          dataType: 'string',
+          columnMappings: [],
+          rootNodes: [],
+          nodes: []
+        }
+      ];
+
+      const result = PivotDataService.buildHierarchyFromAxeKeys(
+        [],
+        dimensions
+      );
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('buildColumnHierarchyWithMeasures', () => {
+    it('devrait construire une hiérarchie de colonnes avec des mesures', () => {
+      const columnAxeKeys = ['2024;1', '2024;2'];
+      const dimensions: Dimension[] = [
+        {
+          id: 'year',
+          name: 'Year',
+          dataType: 'string',
+          columnMappings: [],
+          rootNodes: [],
+          nodes: [
+            { id: 'year-1', dimensionId: 'year', code: '2024', value: '2024', metaData: {}, children: [], sourceIds: [] }
+          ]
+        },
+        {
+          id: 'month',
+          name: 'Month',
+          dataType: 'string',
+          columnMappings: [],
+          rootNodes: [],
+          nodes: [
+            { id: 'month-1', dimensionId: 'month', code: '1', value: '1', metaData: {}, children: [], sourceIds: [] },
+            { id: 'month-2', dimensionId: 'month', code: '2', value: '2', metaData: {}, children: [], sourceIds: [] }
+          ]
+        }
+      ];
+      const measures: Measure[] = [
+        { id: 'Recalled', name: 'Recalled', source: { type: 'column', dataSourceId: 'ds1', columnIndex: 0 }, aggregation: 'sum', visible: true },
+        { id: 'Sold', name: 'Sold', source: { type: 'column', dataSourceId: 'ds1', columnIndex: 1 }, aggregation: 'sum', visible: true }
+      ];
+
+      const result = PivotDataService.buildColumnHierarchyWithMeasures(
+        columnAxeKeys,
+        dimensions,
+        measures
+      );
+
+      expect(result.length).toBe(1); // 2024 root node
+      
+      const year2024 = result[0];
+      expect(year2024.key).toBe('2024');
+      expect(year2024.children).toHaveLength(2); // 2 months
+      
+      const month1 = year2024.children![0];
+      expect(month1.key).toBe('2024;1');
+      expect(month1.children).toHaveLength(2); // 2 measures
+      
+      const recalledNode = month1.children!.find(n => n.key === '2024;1;Recalled');
+      expect(recalledNode).toBeDefined();
+      expect(recalledNode!.value).toBe('Recalled');
+      expect(recalledNode!.level).toBe(2);
+      expect(recalledNode!.leaf).toBe(true);
+    });
+
+    it('devrait gérer le cas sans dimensions de colonne (mesures seulement)', () => {
+      const dimensions: Dimension[] = [];
+      const measures: Measure[] = [
+        { id: 'Recalled', name: 'Recalled', source: { type: 'column', dataSourceId: 'ds1', columnIndex: 0 }, aggregation: 'sum', visible: true },
+        { id: 'Sold', name: 'Sold', source: { type: 'column', dataSourceId: 'ds1', columnIndex: 1 }, aggregation: 'sum', visible: true }
+      ];
+
+      const result = PivotDataService.buildColumnHierarchyWithMeasures(
+        [],
+        dimensions,
+        measures
+      );
+
+      expect(result.length).toBe(2);
+      expect(result[0].key).toBe('Recalled');
+      expect(result[1].key).toBe('Sold');
+      expect(result[0].leaf).toBe(true);
+    });
+
+    it('devrait retourner un tableau vide pour des entrées vides', () => {
+      const result = PivotDataService.buildColumnHierarchyWithMeasures(
+        [],
+        [],
+        []
+      );
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  // ============================================================================
+  // HIERARCHY IN BUILDPIVOTDATA TESTS
+  // ============================================================================
+
+  describe('buildPivotData - with hierarchies', () => {
+    it('devrait générer des hiérarchies pour les lignes et colonnes', () => {
+      const view: View = {
+        id: 'test-view-hierarchy',
+        name: 'Test View with Hierarchy',
+        rowDimensions: ['customer', 'product'],
+        columnDimensions: ['year', 'month'],
+        measures: [
+          {
+            id: 'recalled',
+            name: 'Recalled',
+            source: {
+              type: 'column',
+              dataSourceId: 'test-ds-hierarchy',
+              columnIndex: 4
+            },
+            aggregation: 'sum',
+            visible: true
+          },
+          {
+            id: 'sold',
+            name: 'Sold',
+            source: {
+              type: 'column',
+              dataSourceId: 'test-ds-hierarchy',
+              columnIndex: 5
+            },
+            aggregation: 'sum',
+            visible: true
+          }
+        ],
+        filterDimensions: [],
+        showTotals: false,
+        showGrandTotal: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      const dimensions = [
+        {
+          id: 'customer',
+          name: 'Customer',
+          dataType: 'string',
+          columnMappings: [{ dataSourceId: 'test-ds-hierarchy', columnIndex: 0, level: 0 }],
+          rootNodes: [],
+          nodes: [
+            { id: 'cust-1', dimensionId: 'customer', code: 'Shop A', value: 'Shop A', metaData: {}, children: [], sourceIds: [] },
+            { id: 'cust-2', dimensionId: 'customer', code: 'Shop B', value: 'Shop B', metaData: {}, children: [], sourceIds: [] }
+          ]
+        },
+        {
+          id: 'product',
+          name: 'Product',
+          dataType: 'string',
+          columnMappings: [{ dataSourceId: 'test-ds-hierarchy', columnIndex: 1, level: 0 }],
+          rootNodes: [],
+          nodes: [
+            { id: 'prod-1', dimensionId: 'product', code: 'Tool A', value: 'Tool A', metaData: {}, children: [], sourceIds: [] },
+            { id: 'prod-2', dimensionId: 'product', code: 'Tool B', value: 'Tool B', metaData: {}, children: [], sourceIds: [] }
+          ]
+        },
+        {
+          id: 'year',
+          name: 'Year',
+          dataType: 'string',
+          columnMappings: [{ dataSourceId: 'test-ds-hierarchy', columnIndex: 2, level: 0 }],
+          rootNodes: [],
+          nodes: [
+            { id: 'year-1', dimensionId: 'year', code: '2024', value: '2024', metaData: {}, children: [], sourceIds: [] },
+            { id: 'year-2', dimensionId: 'year', code: '2025', value: '2025', metaData: {}, children: [], sourceIds: [] }
+          ]
+        },
+        {
+          id: 'month',
+          name: 'Month',
+          dataType: 'string',
+          columnMappings: [{ dataSourceId: 'test-ds-hierarchy', columnIndex: 3, level: 0 }],
+          rootNodes: [],
+          nodes: [
+            { id: 'month-1', dimensionId: 'month', code: '1', value: '1', metaData: {}, children: [], sourceIds: [] },
+            { id: 'month-2', dimensionId: 'month', code: '2', value: '2', metaData: {}, children: [], sourceIds: [] }
+          ]
+        }
+      ];
+
+      // Données : [Customer, Product, Year, Month, Recalled, Sold]
+      const data = [
+        ['Shop A', 'Tool A', '2024', '1', 3, 5],
+        ['Shop A', 'Tool B', '2024', '1', 20, 15],
+        ['Shop B', 'Tool A', '2025', '2', 43, 320]
+      ];
+
+      const dataSource: LocalDataSource = {
+        id: 'test-ds-hierarchy',
+        name: 'Test Data Source Hierarchy',
+        type: 'local',
+        originalFormat: 'csv',
+        loadedAt: new Date().toISOString(),
+        columns: [
+          { index: 0, name: 'Customer', dataType: 'string', nullable: false, unique: false },
+          { index: 1, name: 'Product', dataType: 'string', nullable: false, unique: false },
+          { index: 2, name: 'Year', dataType: 'string', nullable: false, unique: false },
+          { index: 3, name: 'Month', dataType: 'string', nullable: false, unique: false },
+          { index: 4, name: 'Recalled', dataType: 'number', nullable: false, unique: false },
+          { index: 5, name: 'Sold', dataType: 'number', nullable: false, unique: false }
+        ],
+        data
+      };
+
+      const suppliers = createSuppliers(view, dimensions, [dataSource]);
+
+      const result = PivotDataService.buildPivotData(suppliers);
+
+      // Verify row hierarchy exists
+      expect(result.rowHierarchy).toBeDefined();
+      expect(result.rowHierarchy!.length).toBeGreaterThan(0);
+      
+      // Should have customer nodes
+      const shopANode = result.rowHierarchy!.find(n => n.key === 'Shop A');
+      expect(shopANode).toBeDefined();
+      expect(shopANode!.dimensionId).toBe('customer');
+      expect(shopANode!.leaf).toBe(false); // Should have product children
+      
+      // Verify column hierarchy exists
+      expect(result.columnHierarchy).toBeDefined();
+      expect(result.columnHierarchy!.length).toBeGreaterThan(0);
+      
+      // Should have year nodes with measure children
+      const year2024Node = result.columnHierarchy!.find(n => n.key === '2024');
+      expect(year2024Node).toBeDefined();
+      expect(year2024Node!.dimensionId).toBe('year');
+    });
+
+    it('devrait générer une hiérarchie vide quand il n\'y a pas de dimensions', () => {
+      const view: View = {
+        id: 'test-view-no-dimensions',
+        name: 'Test View No Dimensions',
+        rowDimensions: [],
+        columnDimensions: [],
+        measures: [],
+        filterDimensions: [],
+        showTotals: false,
+        showGrandTotal: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      const suppliers: PivotDataServiceSuppliers = {
+        getView: () => view,
+        getLocalDataSources: () => [],
+        getDimension: () => undefined,
+        getDimensions: () => []
+      };
+
+      const result = PivotDataService.buildPivotData(suppliers);
+
+      expect(result.rowHierarchy).toBeUndefined();
+      expect(result.columnHierarchy).toBeUndefined();
     });
   });
 });

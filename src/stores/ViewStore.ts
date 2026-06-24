@@ -25,56 +25,11 @@ import type {
 import type { Store } from '.';
 import { PivotProjectService } from '../services/PivotProjectService';
 import { PivotDataService, type PivotDataServiceSuppliers, TOTAL } from '../services/PivotDataService';
+import type { PivotData, PivotCellMap, PivotAxe, PivotCell, PivotAxeHierarchy, Tuple, RowData } from '../models/pivot-data/pivot-data';
+import { EMPTY_PIVOTDATA } from '../models/pivot-data/pivot-data';
 
-
-// ============================================================================
-// PIVOT DATA TYPE (à définir plus précisément si nécessaire)
-// ============================================================================
-
-export type PivotCellMap = Map<string, Map<string, Map<string, PivotCell>>>;
-
-export interface PivotData {
-  rows: PivotAxe[];
-  columns: PivotAxe[];
-  measures: string[];
-  pivotCellByColKeyByRowKeyByMeasureId: PivotCellMap;
-}
-
-export const EMPTY_PIVOTDATA: PivotData = {
-  rows: [], columns:[], measures:[], pivotCellByColKeyByRowKeyByMeasureId: new Map()
-}
-
-export interface PivotAxe {  
-  axeKey: string;
-}
-
-export interface PivotCell {
-  value: any;
-  formattedValue?: string;
-  rowAxeKey: string;
-  colAxeKey: string;
-  isTotal?: boolean;
-}
-
-// ============================================================================
-// ROW DATA AND TUPLE TYPES
-// ============================================================================
-
-/**
- * Représente un tuple de dimensions pour les colonnes ou les lignes
- * Ex: ["Paris", "2024"] pour une colonne avec dimension Ville=Paris et Année=2024
- */
-export type Tuple = string[];
-
-/**
- * Représente une donnée de ligne pour la construction du pivot
- */
-export interface RowData {
-  measureId: string;
-  tupleColumns: Tuple;
-  tupleRows: Tuple;
-  value: number;
-}
+// Re-export types for backward compatibility
+export type { PivotData, PivotCellMap, PivotAxe, PivotCell, PivotAxeHierarchy, Tuple, RowData };
 
 export type ModalType = 'row' | 'column' | 'value' ;
 
