@@ -1,7 +1,7 @@
 # Dev Plan: Hierarchical Headers in PivotGridTable
 
 **Use Case**: [useCase.md](./useCase.md)
-**Status**: 🟢 Phase 1 & 2 Completed
+**Status**: 🟢 Phase 1, 2 & 3 Completed
 **Last Updated**: 2026-06-24
 
 ---
@@ -56,11 +56,11 @@ This plan describes the implementation of hierarchical headers in `PivotGridTabl
 
 | # | Task | File | Status | Dependencies |
 |---|------|------|--------|--------------|
-| 3.1 | Create interface `CellsGeneratorParam {baseCellWidth: number, baseCellHeight:number, startLeft:number , startTop:number, mode: 'ROW' | 'COLUMN'}` | `src/services/helpers/CellGenerator.ts` | ❌ |  |
-| 3.2 | Create `cellsGenerator(hierarchy: PivotAxeHierarchy, params: CellsGeneratorParam, (top, left, width, height) => any)` | `src/services/helpers/CellGenerator.ts` | ❌ |  |
-| 3.3 | Create `src/services/helpers/__tests__/CellsGenerator.test.ts` | `CellGenerator.ts` | ❌ |  |
+| 3.1 | Create interface `CellsGeneratorParam {baseCellWidth: number, baseCellHeight:number, startLeft:number, startTop:number, mode: 'ROW' | 'COLUMN'}` | `src/services/helpers/CellGenerator.ts` | ✅ | Phase 1, 2 |
+| 3.2 | Create `cellsGenerator(hierarchy: PivotAxeHierarchy, params: CellsGeneratorParam, (top, left, width, height) => any)` | `src/services/helpers/CellGenerator.ts` | ✅ | 3.1 |
+| 3.3 | Create `src/services/__tests__/CellsGenerator.test.ts` | `src/services/__tests__/CellsGenerator.test.ts` | ✅ | 3.2 |
 
-**Phase 3 Status**: ❌ 0% (0/3)
+**Phase 3 Status**: ✅ 100% (3/3)
 
 
 ---
@@ -96,10 +96,10 @@ This plan describes the implementation of hierarchical headers in `PivotGridTabl
 ## Overall Progress
 
 - **Total Tasks**: 15
-- **Completed**: 8
+- **Completed**: 11
 - **In Progress**: 0
-- **Remaining**: 7
-- **Progress**: 53% (Phase 1 & 2 complete)
+- **Remaining**: 4
+- **Progress**: 73% (Phase 1, 2 & 3 complete)
 
 ---
 
@@ -158,9 +158,10 @@ Based on [useCase.md](./useCase.md), the component should render hierarchical he
 
 ## Files to Modify
 
-1. `src/stores/ViewStore.ts` - Add hierarchy types
+1. `src/models/pivot-data/pivot-data.ts` - Hierarchy types
 2. `src/services/PivotDataService.ts` - Generate hierarchies
-3. `src/screens/view-grid/components/GridMain/PivotGridTable.tsx` - Hierarchical rendering
+3. `src/services/helpers/CellGenerator.ts` - Cell position generator
+4. `src/screens/view-grid/components/GridMain/PivotGridTable.tsx` - Hierarchical rendering
 
 ---
 
