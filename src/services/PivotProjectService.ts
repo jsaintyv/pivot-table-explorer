@@ -1,5 +1,5 @@
-import type { ColumnMapping, DataColumn, Dimension, LocalDataSource, MetaData, Node, NodeSchema, PivotProject, FilterDimension, Measure, View } from "../stores";
-import type { RowData, Tuple } from "../stores/ViewStore";
+import type { ColumnMapping, DataColumn, Dimension, LocalDataSource, MetaData, Node, NodeSchema, PivotProject, FilterDimension, Measure, View } from "../models/pivot-project/types";
+import type { RowData, Tuple } from "../models/pivot-data/pivot-data";
 
 var nextId = 1;
 
