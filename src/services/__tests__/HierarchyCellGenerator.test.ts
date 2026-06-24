@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { cellsGenerator, type CellsGeneratorParam, type CellGeneratorCallback } from '../helpers/CellGenerator';
+import { hierarchyCellsGenerator, type CellsGeneratorParam, type CellGeneratorCallback } from '../helpers/HierarchyCellGenerator';
 import type { PivotAxeHierarchyNode } from '../../models/pivot-data/pivot-data';
 
 /**
@@ -21,7 +21,7 @@ function collectCells(hierarchy: PivotAxeHierarchyNode[], params: CellsGenerator
   const callback: CellGeneratorCallback = (node, top, left, width, height) => {
     cells.push({ node, top, left, width, height });
   };
-  cellsGenerator(hierarchy, params, callback);
+  hierarchyCellsGenerator(hierarchy, params, callback);
   return cells;
 }
 

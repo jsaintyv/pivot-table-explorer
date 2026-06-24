@@ -34,7 +34,7 @@ export type CellGeneratorCallback = (
  * Calculates the total span (number of leaf nodes) in a hierarchy
  * Used to determine width for column headers or height for row headers
  */
-function countLeafNodes(node: PivotAxeHierarchyNode): number {
+export function countLeafNodes(node: PivotAxeHierarchyNode): number {
   if (node.leaf) {
     return 1;
   }
@@ -69,7 +69,7 @@ function countLeafNodes(node: PivotAxeHierarchyNode): number {
  * @param params Generation parameters
  * @param callback Function called for each node with its position and dimensions
  */
-export function cellsGenerator(
+export function hierarchyCellsGenerator(
   hierarchy: PivotAxeHierarchy,
   params: CellsGeneratorParam,
   callback: CellGeneratorCallback
@@ -169,4 +169,49 @@ function generateChildrenRow(
     
     currentTop += height;
   }
+}
+
+
+// Helper to get all leaf nodes from a hierarchy
+export function getLeafNodesFromHierarchy(hierarchy: PivotAxeHierarchy): PivotAxeHierarchyNode[] {
+  const leaves: PivotAxeHierarchyNode[] = [];
+  for (const node of hierarchy) {
+    collectLeafNodes(node, leaves);
+  }
+  return leaves;
+}
+
+export function collectLeafNodes(node: PivotAxeHierarchyNode, leaves: PivotAxeHierarchyNode[]): void {
+  if (node.leaf) {
+    leaves.push(node);
+  } else if (node.children) {
+    for (const child of node.children) {
+      collectLeafNodes(child, leaves);
+    }
+  }
+}
+
+// Helper to calculate the maximum depth of a hierarchy
+export function getHierarchyMaxDepth(hierarchy: PivotAxeHierarchy): number {
+  let maxDepth = 0;
+  for (const node of hierarchy) {
+    const depth = getNodeMaxDepth(node);
+    if (depth > maxDepth) {
+      maxDepth = depth;
+    }
+  }
+  return maxDepth;
+}
+
+export function getNodeMaxDepth(node: PivotAxeHierarchyNode): number {
+  let maxDepth = node.level + 1; // +1 because level is 0-indexed
+  if (node.children) {
+    for (const child of node.children) {
+      const childDepth = getNodeMaxDepth(child);
+      if (childDepth > maxDepth) {
+        maxDepth = childDepth;
+      }
+    }
+  }
+  return maxDepth;
 }

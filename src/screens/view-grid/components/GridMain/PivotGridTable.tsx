@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { TOTAL } from '../../../../services/PivotDataService';
 import type { PivotData, PivotAxeHierarchy, PivotAxeHierarchyNode } from '../../../../models/pivot-data/pivot-data';
 import React from 'react';
-import { cellsGenerator, type CellsGeneratorParam, type CellGeneratorCallback } from '../../../../services/helpers/CellGenerator';
+import { hierarchyCellsGenerator, type CellsGeneratorParam, type CellGeneratorCallback, getLeafNodesFromHierarchy, getHierarchyMaxDepth } from '../../../../services/helpers/HierarchyCellGenerator';
 
 
 /**
@@ -120,64 +120,7 @@ interface PivotGridTableProps {
   showGrandTotal?: boolean;
 }
 
-// Helper to count leaf nodes in a hierarchy
-function countLeafNodes(node: PivotAxeHierarchyNode): number {
-  if (node.leaf) {
-    return 1;
-  }
-  
-  let count = 0;
-  if (node.children) {
-    for (const child of node.children) {
-      count += countLeafNodes(child);
-    }
-  }
-  return count > 0 ? count : 1;
-}
 
-// Helper to get all leaf nodes from a hierarchy
-function getLeafNodesFromHierarchy(hierarchy: PivotAxeHierarchy): PivotAxeHierarchyNode[] {
-  const leaves: PivotAxeHierarchyNode[] = [];
-  for (const node of hierarchy) {
-    collectLeafNodes(node, leaves);
-  }
-  return leaves;
-}
-
-function collectLeafNodes(node: PivotAxeHierarchyNode, leaves: PivotAxeHierarchyNode[]): void {
-  if (node.leaf) {
-    leaves.push(node);
-  } else if (node.children) {
-    for (const child of node.children) {
-      collectLeafNodes(child, leaves);
-    }
-  }
-}
-
-// Helper to calculate the maximum depth of a hierarchy
-function getHierarchyMaxDepth(hierarchy: PivotAxeHierarchy): number {
-  let maxDepth = 0;
-  for (const node of hierarchy) {
-    const depth = getNodeMaxDepth(node);
-    if (depth > maxDepth) {
-      maxDepth = depth;
-    }
-  }
-  return maxDepth;
-}
-
-function getNodeMaxDepth(node: PivotAxeHierarchyNode): number {
-  let maxDepth = node.level + 1; // +1 because level is 0-indexed
-  if (node.children) {
-    for (const child of node.children) {
-      const childDepth = getNodeMaxDepth(child);
-      if (childDepth > maxDepth) {
-        maxDepth = childDepth;
-      }
-    }
-  }
-  return maxDepth;
-}
 
 export const PivotGridTable = observer(({
   pivotData,
@@ -333,7 +276,7 @@ export const PivotGridTable = observer(({
       );
     };
 
-    cellsGenerator(columnHierarchy, params, callback);
+    hierarchyCellsGenerator(columnHierarchy, params, callback);
     return cells;
   }, [scrollLeft, scrollTop, columnHierarchy, rowHeaderWidth, isCellHighlighted]);
 
@@ -383,7 +326,7 @@ export const PivotGridTable = observer(({
       );
     };
 
-    cellsGenerator(rowHierarchy, params, callback);
+    hierarchyCellsGenerator(rowHierarchy, params, callback);
     return cells;
   }, [scrollLeft, scrollTop, rowHierarchy, columnHeaderHeight, isCellHighlighted]);
 
