@@ -1,8 +1,8 @@
 # Dev Plan: Hierarchical Headers in PivotGridTable
 
 **Use Case**: [useCase.md](./useCase.md)
-**Status**: 🟡 Not Started
-**Last Updated**: 2026-06-23
+**Status**: 🟢 Phase 1 & 2 Completed
+**Last Updated**: 2026-06-24
 
 ---
 
@@ -30,11 +30,11 @@ This plan describes the implementation of hierarchical headers in `PivotGridTabl
 
 | # | Task | File | Status | Dependencies |
 |---|------|------|--------|--------------|
-| 1.1 | Move `PivotData`,`PivotCellMap`,`PivotAxe`,`PivotCell` in src/models/pivot-data/pivot-data.ts | `src/stores/ViewStore.ts` | ❌ | 1.1 |
-| 1.2 | Define `PivotAxeHierarchy` in src/models/pivot-data/pivot-data.ts | `src/stores/ViewStore.ts` | ❌ | None |
-| 1.3 | Update `PivotData` type to include hierarchies | | ❌ | 1.1 |
+| 1.1 | Move `PivotData`,`PivotCellMap`,`PivotAxe`,`PivotCell` to src/models/pivot-data/pivot-data.ts | `src/stores/ViewStore.ts` | ✅ | None |
+| 1.2 | Define `PivotAxeHierarchy` in src/models/pivot-data/pivot-data.ts | `src/models/pivot-data/pivot-data.ts` | ✅ | None |
+| 1.3 | Update `PivotData` type to include hierarchies | `src/models/pivot-data/pivot-data.ts` | ✅ | 1.1 |
 
-**Phase 1 Status**: ❌ 0% (0/2)
+**Phase 1 Status**: ✅ 100% (3/3)
 
 ---
 
@@ -42,51 +42,64 @@ This plan describes the implementation of hierarchical headers in `PivotGridTabl
 
 | # | Task | File | Status | Dependencies |
 |---|------|------|--------|--------------|
-| 2.1 | Create `buildHierarchyFromAxeKeys` utility | `src/services/PivotDataService.ts` | ❌ | 1.1, 1.2 |
-| 2.2 | Create `buildColumnHierarchyWithMeasures` | `src/services/PivotDataService.ts` | ❌ | 2.1 |
-| 2.3 | Generate unit test which verify `buildHierarchyFromAxeKeys` &  `buildColumnHierarchyWithMeasures` | `src/services/PivotDataService.ts`  | ❌ | 2.3 |
-| 2.4 | Update `buildPivotData` to generate hierarchies | `src/services/PivotDataService.ts` | ❌ | 2.3 |
-| 2.5 | Generate unit test which verify `buildPivotData` | `src/services/PivotDataService.ts`  | ❌ | 2.4 |
+| 2.1 | Create `buildHierarchyFromAxeKeys` utility | `src/services/PivotDataService.ts` | ✅ | 1.1, 1.2 |
+| 2.2 | Create `buildColumnHierarchyWithMeasures` | `src/services/PivotDataService.ts` | ✅ | 2.1 |
+| 2.3 | Generate unit test which verify `buildHierarchyFromAxeKeys` & `buildColumnHierarchyWithMeasures` | `src/services/__tests__/PivotDataService.test.ts` | ✅ | 2.1, 2.2 |
+| 2.4 | Update `buildPivotData` to generate hierarchies | `src/services/PivotDataService.ts` | ✅ | 2.1, 2.2 |
+| 2.5 | Generate unit test which verify `buildPivotData` | `src/services/__tests__/PivotDataService.test.ts` | ✅ | 2.4 |
 
-**Phase 2 Status**: ❌ 0% (0/3)
-
----
-
-### Phase 3: PivotGridTable Refactoring
-
-| # | Task | File | Status | Dependencies |
-|---|------|------|--------|--------------|
-| 3.1 | Add position calculation utilities | `PivotGridTable.tsx` | ❌ | Phase 1, 2 |
-| 3.2 | Create `renderHierarchyHeaders` function | `PivotGridTable.tsx` | ❌ | 3.1 |
-| 3.3 | Create `renderRowHierarchyHeaders` function | `PivotGridTable.tsx` | ❌ | 3.1 |
-| 3.4 | Update data cell rendering | `PivotGridTable.tsx` | ❌ | 3.1 |
-| 3.5 | Update visible cells calculation | `PivotGridTable.tsx` | ❌ | 3.1-3.4 |
-| 3.6 | Add CSS classes for hierarchy levels | `PivotGridTable.tsx` | ❌ | 3.1 |
-
-**Phase 3 Status**: ❌ 0% (0/6)
+**Phase 2 Status**: ✅ 100% (5/5)
 
 ---
 
-### Phase 4: Testing & Validation
+### Phase 3: Build generator
 
 | # | Task | File | Status | Dependencies |
 |---|------|------|--------|--------------|
-| 4.1 | Manual test with useCase data | Browser | ❌ | All |
-| 4.2 | Run existing tests | `npm run test` | ❌ | All |
-| 4.3 | Run Playwright tests | `npx playwright test` | ❌ | All |
-| 4.4 | Run build | `npm run build` | ❌ | All |
+| 3.1 | Create interface `CellsGeneratorParam {baseCellWidth: number, baseCellHeight:number, startLeft:number , startTop:number, mode: 'ROW' | 'COLUMN'}` | `src/services/helpers/CellGenerator.ts` | ❌ |  |
+| 3.2 | Create `cellsGenerator(hierarchy: PivotAxeHierarchy, params: CellsGeneratorParam, (top, left, width, height) => any)` | `src/services/helpers/CellGenerator.ts` | ❌ |  |
+| 3.3 | Create `src/services/helpers/__tests__/CellsGenerator.test.ts` | `CellGenerator.ts` | ❌ |  |
 
-**Phase 4 Status**: ❌ 0% (0/4)
+**Phase 3 Status**: ❌ 0% (0/3)
+
+
+---
+
+### Phase 4: PivotGridTable Refactoring
+
+| # | Task | File | Status | Dependencies |
+|---|------|------|--------|--------------|
+| 4.1 | Add position calculation utilities | `PivotGridTable.tsx` | ❌ | Phase 1, 2, 3 |
+| 4.2 | Create `renderHierarchyHeaders` function | `PivotGridTable.tsx` | ❌ | 4.1 |
+| 4.3 | Create `renderRowHierarchyHeaders` function | `PivotGridTable.tsx` | ❌ | 4.1 |
+| 4.4 | Update data cell rendering | `PivotGridTable.tsx` | ❌ | 4.1 |
+| 4.5 | Update visible cells calculation | `PivotGridTable.tsx` | ❌ | 4.1-4.4 |
+| 4.6 | Add CSS classes for hierarchy levels | `PivotGridTable.tsx` | ❌ | 4.1 |
+
+**Phase 4 Status**: ❌ 0% (0/6)
+
+---
+
+### Phase 5: Testing & Validation
+
+| # | Task | File | Status | Dependencies |
+|---|------|------|--------|--------------|
+| 5.1 | Manual test with useCase data | Browser | ❌ | All |
+| 5.2 | Run existing tests | `npm run test` | ❌ | All |
+| 5.3 | Run Playwright tests | `npx playwright test` | ❌ | All |
+| 5.4 | Run build | `npm run build` | ❌ | All |
+
+**Phase 5 Status**: ❌ 0% (0/4)
 
 ---
 
 ## Overall Progress
 
 - **Total Tasks**: 15
-- **Completed**: 0
+- **Completed**: 8
 - **In Progress**: 0
-- **Remaining**: 15
-- **Progress**: 0%
+- **Remaining**: 7
+- **Progress**: 53% (Phase 1 & 2 complete)
 
 ---
 
@@ -167,8 +180,8 @@ npx playwright test
 - [ ] Column headers display hierarchically with correct spanning
 - [ ] Row headers display hierarchically with correct spanning
 - [ ] Data cells in correct positions
-- [ ] All tests pass
-- [ ] Build succeeds
+- [x] All tests pass
+- [x] Build succeeds
 - [ ] Output matches [useCase.md](./useCase.md)
 
 ---
