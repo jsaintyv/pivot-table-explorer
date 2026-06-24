@@ -301,7 +301,7 @@ export const PivotGridTable = observer(({
       baseCellWidth: CELL_WIDTH,
       baseCellHeight: CELL_HEIGHT,
       startLeft: rowHeaderWidth,
-      startTop: 0,
+      startTop: scrollTop,
       mode: 'COLUMN'
     };
 
@@ -315,11 +315,12 @@ export const PivotGridTable = observer(({
         height: height,
         ...getHeaderCellStyles(node.level),
         ...(isHighlighted ? hoverHighlightStyleHeader : {}),
+        zIndex: 10,
       };
 
       cells.push(
         <div
-          key={`col-hierarchy-${node.key}`}
+          key={`hc-${left}-${top}`}
           className={`grid-cell header column-header hierarchy-level-${node.level}`}
           style={style}
           onMouseEnter={() => setHoveredCell({ rowKey: '', colKey: node.key })}
@@ -334,7 +335,7 @@ export const PivotGridTable = observer(({
 
     cellsGenerator(columnHierarchy, params, callback);
     return cells;
-  }, [columnHierarchy, rowHeaderWidth, isCellHighlighted]);
+  }, [scrollLeft, scrollTop, columnHierarchy, rowHeaderWidth, isCellHighlighted]);
 
   /**
    * Render row hierarchy headers using cellsGenerator
@@ -349,7 +350,7 @@ export const PivotGridTable = observer(({
     const params: CellsGeneratorParam = {
       baseCellWidth: CELL_WIDTH,
       baseCellHeight: CELL_HEIGHT,
-      startLeft: 0,
+      startLeft: scrollLeft,
       startTop: columnHeaderHeight,
       mode: 'ROW'
     };
@@ -364,11 +365,12 @@ export const PivotGridTable = observer(({
         height: height,
         ...getRowHeaderCellStyles(node.level),
         ...(isHighlighted ? hoverHighlightStyleHeader : {}),
+        zIndex: 9,
       };
 
       cells.push(
         <div
-          key={`row-hierarchy-${node.key}`}
+          key={`hr-${left}-${top}`}
           className={`grid-cell header row-header hierarchy-level-${node.level}`}
           style={style}
           onMouseEnter={() => setHoveredCell({ rowKey: node.key, colKey: '' })}
@@ -383,7 +385,7 @@ export const PivotGridTable = observer(({
 
     cellsGenerator(rowHierarchy, params, callback);
     return cells;
-  }, [rowHierarchy, columnHeaderHeight, isCellHighlighted]);
+  }, [scrollLeft, scrollTop, rowHierarchy, columnHeaderHeight, isCellHighlighted]);
 
   // ==========================================================================
   // DATA CELL RENDERING
@@ -456,7 +458,7 @@ export const PivotGridTable = observer(({
 
     return (
       <div
-        key={`data-${rowKey}-${colKey}`}
+        key={`data-${x}-${y}`}
         className={`grid-cell ${isTotal ? 'total' : ''}`}
         style={style}
         onMouseEnter={() => setHoveredCell({ rowKey, colKey })}
@@ -511,7 +513,7 @@ export const PivotGridTable = observer(({
 
       cells.push(
         <div
-          key={`row-total-${rowKey}`}
+          key={`row-total-${x}-${y}`}
           className="grid-cell total"
           style={style}
           onMouseEnter={() => setHoveredCell({ rowKey, colKey: TOTAL })}
@@ -566,7 +568,7 @@ export const PivotGridTable = observer(({
 
       cells.push(
         <div
-          key={`col-total-${actualColKey}`}
+          key={`total-${x}-${y}`}
           className="grid-cell total"
           style={style}
           onMouseEnter={() => setHoveredCell({ rowKey: TOTAL, colKey: actualColKey })}
@@ -640,11 +642,12 @@ export const PivotGridTable = observer(({
   const renderCornerCell = React.useCallback((): React.ReactNode => {
     const style = {
       position: 'absolute' as const,
-      left: 0,
-      top: 0,
+      left: scrollLeft,
+      top: scrollTop,
       width: rowHeaderWidth,
       height: columnHeaderHeight,
       ...cornerCellStyles,
+      zIndex: 12,
     };
 
     return (
@@ -654,7 +657,7 @@ export const PivotGridTable = observer(({
         style={style}
       />
     );
-  }, [rowHeaderWidth, columnHeaderHeight]);
+  }, [scrollLeft, scrollTop, rowHeaderWidth, columnHeaderHeight]);
 
   // Générer toutes les cellules visibles
   const visibleCells = React.useMemo(() => {
