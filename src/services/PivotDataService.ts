@@ -208,7 +208,7 @@ export class PivotDataService {
           
           for (const measure of measures) {
             const measureNode: PivotAxeHierarchyNode = {
-              key: `${leaf.key};${measure.id}`,
+              key: `${leaf.key};${measure.name}`,
               value: measure.name,
               level: leaf.level + 1,
               dimensionId: `measure:${measure.id}`,
@@ -229,7 +229,7 @@ export class PivotDataService {
     const measureHierarchy: PivotAxeHierarchyNode[] = [];
     for (const measure of measures) {
       measureHierarchy.push({
-        key: measure.id,
+        key: measure.name,
         value: measure.name,
         level: 0,
         dimensionId: `measure:${measure.id}`,
@@ -338,10 +338,10 @@ export class PivotDataService {
       );
       
       // Étape 3: Construire les listes de tuples de colonnes et lignes uniques                     
-      let pivotCellByColKeyByRowKey = pivotCellByColKeyByRowKeyByMeasureId.get(measure.id);
+      let pivotCellByColKeyByRowKey = pivotCellByColKeyByRowKeyByMeasureId.get(measure.name);
       if(! pivotCellByColKeyByRowKey) {
         pivotCellByColKeyByRowKey = new Map();
-        pivotCellByColKeyByRowKeyByMeasureId.set(measure.id, pivotCellByColKeyByRowKey);
+        pivotCellByColKeyByRowKeyByMeasureId.set(measure.name, pivotCellByColKeyByRowKey);
       }
       
       for(let row of rowDataList) {
@@ -373,7 +373,7 @@ export class PivotDataService {
     // Ajouter les totaux pour les lignes et colonnes
     if (includeTotals) {
       for(let measure of view.measures) {
-        const measureId = measure.id;
+        const measureId = measure.name;
         let pivotCellByColKeyByRowKey = pivotCellByColKeyByRowKeyByMeasureId.get(measureId);
         if(! pivotCellByColKeyByRowKey) {
           continue;
@@ -513,7 +513,7 @@ export class PivotDataService {
     const result = {
       rows: sortedRows,
       columns: sortedColumns,
-      measures: view.measures.map(m => m.id),
+      measures: view.measures.map(m => m.name),
       rowHierarchy,
       columnHierarchy,
       pivotCellByColKeyByRowKeyByMeasureId,

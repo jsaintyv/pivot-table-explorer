@@ -209,8 +209,7 @@ export class PivotProjectService {
                 if (colIndex !== undefined && row[colIndex] !== undefined) {
                     tupleColumns.push(String(row[colIndex]));
                 }
-            }
-            
+            }            
             rowDataList.push({
                 measureId: measure.id,
                 tupleColumns,

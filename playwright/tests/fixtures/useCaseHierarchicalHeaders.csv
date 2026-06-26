@@ -1,0 +1,13 @@
+Customer;Year;Month;Product;Recalled;Sold
+Shop A;2025;1;Tool A;3;5
+Shop B;2025;3;Tool A;43;320
+Shop A;2025;1;Tool B;20;15
+Shop B;2025;3;Tool B;43;302
+Shop A;2025;2;Tool C;4;303
+Shop B;2025;1;Tool C;41;500
+Shop A;2024;1;Tool A;3;5
+Shop B;2024;3;Tool A;43;320
+Shop A;2024;1;Tool B;20;15
+Shop B;2024;3;Tool B;43;302
+Shop A;2024;2;Tool C;4;303
+Shop B;2024;1;Tool C;41;500
