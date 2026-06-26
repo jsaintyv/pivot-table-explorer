@@ -399,9 +399,11 @@ export const PivotGridTable = observer(({
       ...(isHighlighted ? hoverHighlightStyle : {}),
     };
 
+    const key = rowKey + ":" + colKey;
     return (
       <div
-        key={`data-${x}-${y}`}
+        key={key}
+        data-testid={key}
         className={`grid-cell ${isTotal ? 'total' : ''}`}
         style={style}
         onMouseEnter={() => setHoveredCell({ rowKey, colKey })}

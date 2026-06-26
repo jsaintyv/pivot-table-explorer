@@ -184,13 +184,13 @@ describe('PivotDataService', () => {
       expect(result.columns.map(c => c.axeKey)).toContain('2024');
 
       // Vérifier les mesures
-      expect(result.measures).toEqual(['sales']);
+      expect(result.measures).toEqual(['Sales']);
 
       // Vérifier les cellules
       const pivotMap = result.pivotCellByColKeyByRowKeyByMeasureId;
       expect(pivotMap.size).toBe(1);
       
-      const salesMap = pivotMap.get('sales');
+      const salesMap = pivotMap.get('Sales');
       expect(salesMap).toBeDefined();
       
       // Vérifier la cellule Paris x 2023
@@ -228,7 +228,7 @@ describe('PivotDataService', () => {
 
       // Vérifier les totaux par ligne
       const pivotMap = result.pivotCellByColKeyByRowKeyByMeasureId;
-      const salesMap = pivotMap.get('sales');
+      const salesMap = pivotMap.get('Sales');
       
       // Total pour Paris = 100 + 150 = 250
       expect(salesMap?.get('Paris')?.get(TOTAL)?.value).toBe(250);
@@ -278,8 +278,8 @@ describe('PivotDataService', () => {
 
       const result = PivotDataService.buildPivotData(suppliers);
 
-      const pivotMap = result.pivotCellByColKeyByRowKeyByMeasureId;
-      const avgSalesMap = pivotMap.get('avg-sales');
+      const pivotMap = result.pivotCellByColKeyByRowKeyByMeasureId;      
+      const avgSalesMap = pivotMap.get('Average Sales');
       
       // Total pour Paris avec average = (100 + 150) / 2 = 125
       expect(avgSalesMap?.get('Paris')?.get(TOTAL)?.value).toBe(125);
@@ -333,7 +333,7 @@ describe('PivotDataService', () => {
       const result = PivotDataService.buildPivotData(suppliers);
 
       const pivotMap = result.pivotCellByColKeyByRowKeyByMeasureId;
-      const countMap = pivotMap.get('count');
+      const countMap = pivotMap.get('Count');
       
       // Total pour Paris avec count = 3
       expect(countMap?.get('Paris')?.get(TOTAL)?.value).toBe(3);
@@ -397,18 +397,18 @@ describe('PivotDataService', () => {
       const result = PivotDataService.buildPivotData(suppliers);
 
       // Vérifier les mesures
-      expect(result.measures).toEqual(['sales', 'quantity']);
+      expect(result.measures).toEqual(['Sales', 'Quantity']);
 
       // Vérifier les cellules
       const pivotMap = result.pivotCellByColKeyByRowKeyByMeasureId;
       expect(pivotMap.size).toBe(2);
       
       // Vérifier la mesure sales
-      const salesMap = pivotMap.get('sales');
+      const salesMap = pivotMap.get('Sales');
       expect(salesMap?.get('Paris')?.get('2023')?.value).toBe(100);
       
       // Vérifier la mesure quantity
-      const quantityMap = pivotMap.get('quantity');
+      const quantityMap = pivotMap.get('Quantity');
       expect(quantityMap?.get('Paris')?.get('2023')?.value).toBe(10);
     });
   });
