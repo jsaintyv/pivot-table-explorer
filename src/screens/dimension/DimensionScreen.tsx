@@ -2,15 +2,15 @@ import { useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import type { LocalDataSource, Dimension, DataColumn, ColumnMapping } from '../../models/pivot-project/types';
-import './AxeScreen.css';
+import './DimensionScreen.css';
 import { useStore } from '../../stores/contexts/StoreContext';
-
+ 
 /**
  * AxeScreen component
  * Allows users to create and edit dimensions by mapping columns from data sources
  * Wrapped with observer to react to MobX store changes (MVC View)
  */
-function AxeScreenComponent() {
+function DimensionScreenComponent() {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
@@ -275,4 +275,4 @@ function AxeScreenComponent() {
 }
 
 // Export the component directly - StoreContext is now provided at App level
-export default observer(AxeScreenComponent);
+export default observer(DimensionScreenComponent);
