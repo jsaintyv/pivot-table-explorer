@@ -4,7 +4,7 @@ The View Grid screen allows users to configure and visualize pivot table data by
 
 ## Related use cases
 
-[multi dimension in cols & in rows](../../useCases/Basic/useCase.md)
+[multi dimension in cols & in rows](../../useCases/viewWithMultiDimensionsInColsInRows/useCase.md)
 
 ## Design
 > **👉 [View Interactive Design Mockup](./design.html)** - Open this file in a browser to see the visual layout.

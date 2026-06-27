@@ -1,42 +1,14 @@
-# Axe Screen
+# Dimensions Screen
 
-The Axe screen allows users to **create and edit dimensions** by associating columns from source CSV files as axes for pivoting data.
+The diemnsions screen allows users to **create and edit dimensions** by associating columns from source CSV files as axes for pivoting data.
+
+## Related use cases
+
+[configureHierarchicalDimension](../../useCases/configureHierarchicalDimension/useCase.md)
 
 ## Design
 
-In pseudo HTML:
-```
-<h1>Edit Dimension</h1>
-
-<!-- Dimension Identity -->
-<div class="dimension-identity">
-  <input type="text" placeholder="Dimension name" value="{dimension.name}"/>
-  <select>
-    <option value="string">String</option>
-    <option value="number">Number</option>
-    <option value="date">Date</option>
-    <option value="boolean">Boolean</option>
-  </select>
-</div>
-
-<!-- Column Mappings -->
-<h3>Map Source Columns</h3>
-<forEach sourceFile in sourceFiles>
-  <div class="source-file-mapping">
-    <span>{sourceFile.name}</span>
-    <select>
-      <option value="" disabled>Select a column</option>
-      <forEach column in sourceFile.columns>
-        <option value="{column.index}">{column.name}</option>
-      </forEach>
-    </select>
-    <button onClick="unlink()">Unlink</button>
-  </div>
-</forEach>
-
-<button>Save Dimension</button>
-<button>Back to Main screen</button>
-```
+[design.html](design.html)
 
 ## Components
 
