@@ -2,6 +2,10 @@
 
 The View Grid screen allows users to configure and visualize pivot table data by defining row dimensions, column dimensions, value fields, and applying filters. The screen features a main grid area occupying **80% of the space** for data visualization, with a **20% sidebar** for configuration options.
 
+## Related use cases
+
+[multi dimension in cols & in rows](../../useCases/Basic/useCase.md)
+
 ## Design
 > **👉 [View Interactive Design Mockup](./design.html)** - Open this file in a browser to see the visual layout.
 
