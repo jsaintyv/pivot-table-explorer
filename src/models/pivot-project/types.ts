@@ -87,7 +87,9 @@ export interface Dimension {
   name: string;
   description?: string;
   dataType: 'string' | 'number' | 'date' | 'boolean';
+  hierarchyMode?: 'parent' | 'generation'; // Optional for backward compatibility
   columnMappings: ColumnMapping[];
+  propertyMappings?: PropertyMapping[]; // Optional for backward compatibility
   rootNodes: string[]; // IDs of root nodes in this dimension's hierarchy
   nodeSchema?: NodeSchema;
   nodes: Node[]; // All nodes in this dimension
@@ -99,9 +101,30 @@ export interface Dimension {
 export interface ColumnMapping {
   dataSourceId: string;
   columnIndex: number;
-  level: number; // 0 = root, 1 = child, etc.
+  level: number; // 0 = root, 1 = child, etc. (for backward compatibility)
   name?: string; // Optional custom name for this level
+  mappingType?: ParentMappingType | GenerationMappingType; // Optional for backward compatibility
 }
+
+/**
+ * Property mapping for dimension metadata
+ */
+export interface PropertyMapping {
+  id: string;
+  dataSourceId: string;
+  columnIndex: number;
+  propertyName: string;
+  propertyType: 'string' | 'number' | 'boolean' | 'color' | 'date';
+}
+
+// Mapping types for parent mode
+export type ParentMappingType = 'parentCode' | 'label' | 'property';
+
+// Mapping types for generation mode
+export type GenerationMappingType = 'root' | 'gen1' | 'gen2' | 'gen3' | 'label' | 'property';
+
+// Union type for all mapping types
+export type MappingType = ParentMappingType | GenerationMappingType;
 
 /**
  * Schema for Node metadata in a dimension

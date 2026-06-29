@@ -18,6 +18,7 @@ import type {
   LazyDataSource,
   Dimension,
   ColumnMapping,
+  PropertyMapping,
   Node,
   MetaData,
   NodeSchema,
@@ -406,7 +407,9 @@ export class Store {
     name: string,
     dataType: 'string' | 'number' | 'date' | 'boolean',
     description?: string,
-    columnMappings?: ColumnMapping[]
+    columnMappings?: ColumnMapping[],
+    hierarchyMode: 'parent' | 'generation' = 'generation',
+    propertyMappings?: PropertyMapping[]
   ): string {
     const id = `dim-${Date.now()}`;
     const dimension: Dimension = {
@@ -414,7 +417,9 @@ export class Store {
       name,
       description,
       dataType,
+      hierarchyMode,
       columnMappings: columnMappings || [],
+      propertyMappings: propertyMappings || [],
       rootNodes: [],
       nodes: [],
       nodeSchema: undefined,
@@ -451,7 +456,9 @@ export class Store {
         // Clone the dimension to avoid mutating the original
         this.editingDimension = {
           ...existingDim,
+          hierarchyMode: existingDim.hierarchyMode || 'generation',
           columnMappings: [...existingDim.columnMappings],
+          propertyMappings: existingDim.propertyMappings ? [...existingDim.propertyMappings] : [],
         };
       }
     } else {
@@ -461,7 +468,9 @@ export class Store {
         name: '',
         description: '',
         dataType: 'string',
+        hierarchyMode: 'generation',
         columnMappings: [],
+        propertyMappings: [],
         rootNodes: [],
         nodes: [],
       };
@@ -500,7 +509,9 @@ export class Store {
         name: this.editingDimension.name,
         description: this.editingDimension.description,
         dataType: this.editingDimension.dataType,
+        hierarchyMode: this.editingDimension.hierarchyMode,
         columnMappings: this.editingDimension.columnMappings,
+        propertyMappings: this.editingDimension.propertyMappings,
       });
       dimensionId = this.editingDimension.id;
     } else {
@@ -509,7 +520,9 @@ export class Store {
         this.editingDimension.name,
         this.editingDimension.dataType,
         this.editingDimension.description,
-        this.editingDimension.columnMappings
+        this.editingDimension.columnMappings,
+        this.editingDimension.hierarchyMode || 'generation',
+        this.editingDimension.propertyMappings
       );
     }
 

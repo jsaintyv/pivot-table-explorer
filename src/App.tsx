@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { MainScreen, DimensionScreen, ViewGridScreen } from './screens';
+import { MainScreen,  ViewGridScreen } from './screens';
+import { DimensionEditorScreen } from './screens/dimensions';
 import { StoreContext } from './stores/contexts/StoreContext';
 import { ViewStoreContext } from './stores/contexts/ViewStoreContext';
 import { ToastStoreContext } from './stores/contexts/ToastStoreContext';
@@ -36,9 +37,9 @@ function App() {
                   {/* Main screen - manages data sources, dimensions, and views */}
                   <Route path="/" element={<MainScreen />} />
                   
-                  {/* Axe screen - configures which columns are used as dimensions */}
-                  <Route path="/axe" element={<DimensionScreen />} />
-                  <Route path="/axe/:dimensionId" element={<DimensionScreen />} />
+                  {/* Dimension Editor screen - new editor for dimensions */}
+                  <Route path="/dimensions" element={<DimensionEditorScreen />} />
+                  <Route path="/dimensions/:dimensionId" element={<DimensionEditorScreen />} />                                    
                   
                   {/* View Grid screen - configures pivot table structure */}
                   <Route path="/view-grid" element={<ViewGridScreen />} />

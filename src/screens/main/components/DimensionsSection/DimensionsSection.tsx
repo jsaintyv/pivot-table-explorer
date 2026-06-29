@@ -70,10 +70,10 @@ export const DimensionsSection = observer(() => {
   };
 
   /**
-   * Navigate to Axe screen to edit a dimension
+   * Navigate to Dimension Editor screen to edit a dimension
    */
   const handleEditDimension = (dimensionId: string) => {
-    navigate(`/axe?dimensionId=${dimensionId}`);
+    navigate(`/dimensions/${dimensionId}`);
   };
 
   /**
@@ -86,10 +86,10 @@ export const DimensionsSection = observer(() => {
   };
 
   /**
-   * Navigate to Axe screen to create a new dimension
+   * Navigate to Dimension Editor screen to create a new dimension
    */
   const handleCreateDimension = () => {
-    navigate('/axe');
+    navigate('/dimensions');
   };
 
   return (

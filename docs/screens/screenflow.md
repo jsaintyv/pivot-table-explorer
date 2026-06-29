@@ -12,12 +12,12 @@ The entry point and primary interface of the application.
 
 [Main Screen documentation](/docs/screens/main/screen.md)
 
-## Axe Screen
+## Dimensions Screen
 Allows users to configure which columns from source CSV files will be used as axes (dimensions) for pivoting data.
 - Allows identifying and configuring axes from the data source
 - Allows returning to the Main Screen
 
-[Axe Screen documentation](/docs/screens/axe/screen.md)
+[Dimensions Screen documentation](/docs/screens/dimensions/screen.md)
 
 ## View Grid Screen
 Allows users to configure the pivot table structure by defining row dimensions, column dimensions, filters, and value fields.
