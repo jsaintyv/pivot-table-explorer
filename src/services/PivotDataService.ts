@@ -361,12 +361,20 @@ export class PivotDataService {
           pivotCellByColKey = new Map();
           pivotCellByColKeyByRowKey.set(rowKey, pivotCellByColKey);
         }
-        pivotCellByColKey.set(colKey, {
+        
+        const existingCell = pivotCellByColKey.get(colKey);
+        if (existingCell) {
+          // Aggregate values by summing them (for consolidation)
+          existingCell.value += row.value;
+          existingCell.formattedValue = "" + existingCell.value;
+        } else {
+          pivotCellByColKey.set(colKey, {
             colAxeKey: colKey,
             rowAxeKey: rowKey,
             value: row.value,
             formattedValue: "" + row.value
-        });
+          });
+        }
       }
     }
 
