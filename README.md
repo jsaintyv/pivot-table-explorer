@@ -13,7 +13,7 @@ or why like bellow in github.io
 
 ## Try it 
 
-Follow [https://jsaintyv.github.io/jsaintyv/](https://jsaintyv.github.io/jsaintyv/) 
+Follow [https://jsaintyv.github.io/](https://jsaintyv.github.io/) 
 
 ## TODO
 

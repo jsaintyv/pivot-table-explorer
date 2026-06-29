@@ -456,10 +456,12 @@ export const PivotGridTable = observer(({
         ...(isHighlighted ? hoverHighlightStyle : {}),
       };
 
+      const testId = `${rowKey}:${TOTAL}`;
       cells.push(
         <div
           key={`row-total-${x}-${y}`}
           className="grid-cell total"
+          data-testid={testId}
           style={style}
           onMouseEnter={() => setHoveredCell({ rowKey, colKey: TOTAL })}
           onMouseLeave={() => setHoveredCell(null)}
@@ -511,10 +513,12 @@ export const PivotGridTable = observer(({
         ...(isHighlighted ? hoverHighlightStyle : {}),
       };
 
+      const testId = `${TOTAL}:${colNode.key}`;
       cells.push(
         <div
           key={`total-${x}-${y}`}
           className="grid-cell total"
+          data-testid={testId}
           style={style}
           onMouseEnter={() => setHoveredCell({ rowKey: TOTAL, colKey: actualColKey })}
           onMouseLeave={() => setHoveredCell(null)}
@@ -566,6 +570,7 @@ export const PivotGridTable = observer(({
       <div
         key="grand-total"
         className="grid-cell total grand-total"
+        data-testid="__GRAND_TOTAL__"
         style={style}
         onMouseEnter={() => setHoveredCell({ rowKey: TOTAL, colKey: TOTAL })}
         onMouseLeave={() => setHoveredCell(null)}
