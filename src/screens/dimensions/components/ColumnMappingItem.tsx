@@ -8,17 +8,18 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import type { DimensionEditorStore, EditorColumnMapping } from '../stores/DimensionEditorStore';
 import { MAPPING_TYPES_BY_MODE, MAPPING_TYPE_LABELS } from '../types';
-import type { MappingType } from '../../../models/pivot-project/types';
+import type { ColumnMapping, MappingType } from '../../../models/pivot-project/types';
 
 interface Props {
-  mapping: EditorColumnMapping;
+  mapping: ColumnMapping;
   index: number;
   store: DimensionEditorStore;
 }
 
 export const ColumnMappingItem = observer(({ mapping, index, store }: Props) => {
   // Get data source options
-  const dataSourceOptions = store.dataSources;
+  const dimension = store.dimension;  
+  const dataSourceOptions = store.pivotProject.dataSources;
   
   // Get current data source
   const currentDataSource = dataSourceOptions.find(
@@ -54,8 +55,7 @@ export const ColumnMappingItem = observer(({ mapping, index, store }: Props) => 
     store.removeColumnMapping(mapping.id);
   };
 
-  // Get available mapping types based on current hierarchy mode
-  const availableMappingTypes = MAPPING_TYPES_BY_MODE[store.hierarchyMode];
+  
 
   // Get error for this mapping
   const getError = (field: string): string | undefined => {
@@ -63,8 +63,15 @@ export const ColumnMappingItem = observer(({ mapping, index, store }: Props) => 
     return error?.message;
   };
 
+  if(!dimension ) {
+    return <></>;
+  }
+
+  // Get available mapping types based on current hierarchy mode
+  const availableMappingTypes = MAPPING_TYPES_BY_MODE[dimension.hierarchyMode || "generation"];
+
   return (
-    <div className={`mapping-item mapping-${store.hierarchyMode}`}>
+    <div className={`mapping-item mapping-${dimension.hierarchyMode}`}>
       {/* Data Source Selector */}
       <div className="form-group">
         <label htmlFor={`mapping-${index}-dataSource`}>Data Source</label>

@@ -5,6 +5,7 @@
  * This can be used to validate the PivotProject model functionality.
  */
 
+import { DimensionService } from '../../services/DimensionService';
 import type {
   PivotProject,
   LocalDataSource,
@@ -98,9 +99,9 @@ function createCustomerDimension(): Dimension {
     description: 'Identifiant client avec son libellé',
     dataType: 'string',
     columnMappings: [
-      { dataSourceId: 'ds-customer', columnIndex: 0, level: 0, name: 'CustomerId' },
-      { dataSourceId: 'ds-customer', columnIndex: 1, level: 1, name: 'Label' },
-      { dataSourceId: 'ds-order', columnIndex: 3, level: 0, name: 'CustomerId' },
+      { dataSourceId: 'ds-customer', columnIndex: 0, level: 0, name: 'CustomerId', id: DimensionService.getMappingId() },
+      { dataSourceId: 'ds-customer', columnIndex: 1, level: 1, name: 'Label', id: DimensionService.getMappingId() },
+      { dataSourceId: 'ds-order', columnIndex: 3, level: 0, name: 'CustomerId', id: DimensionService.getMappingId() },
     ],
     rootNodes: [],
     nodeSchema: {
@@ -122,9 +123,9 @@ function createProductDimension(): Dimension {
     description: 'Identifiant produit avec son libellé',
     dataType: 'string',
     columnMappings: [
-      { dataSourceId: 'ds-product', columnIndex: 0, level: 0, name: 'ProductId' },
-      { dataSourceId: 'ds-product', columnIndex: 1, level: 1, name: 'Label' },
-      { dataSourceId: 'ds-order', columnIndex: 2, level: 0, name: 'ProductId' },
+      { dataSourceId: 'ds-product', columnIndex: 0, level: 0, name: 'ProductId', id: DimensionService.getMappingId() },
+      { dataSourceId: 'ds-product', columnIndex: 1, level: 1, name: 'Label', id: DimensionService.getMappingId() },
+      { dataSourceId: 'ds-order', columnIndex: 2, level: 0, name: 'ProductId', id: DimensionService.getMappingId() },
     ],
     rootNodes: [],
     nodeSchema: {
@@ -146,7 +147,7 @@ function createOrderDateDimension(): Dimension {
     description: 'Date de commande',
     dataType: 'date',
     columnMappings: [
-      { dataSourceId: 'ds-order', columnIndex: 1, level: 0, name: 'OrderDate' },
+      { dataSourceId: 'ds-order', columnIndex: 1, level: 0, name: 'OrderDate', id: DimensionService.getMappingId() },
     ],
     rootNodes: [],
     nodes: []

@@ -7,19 +7,22 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import type { DimensionEditorStore, EditorPropertyMapping } from '../stores/DimensionEditorStore';
+import type { ColumnMapping } from '../../../stores';
+import type { PropertyMapping } from '../../../models';
 
 interface Props {
-  mapping: EditorPropertyMapping;
+  mapping: PropertyMapping;
   index: number;
   store: DimensionEditorStore;
 }
 
 export const PropertyMappingItem = observer(({ mapping, index, store }: Props) => {
   // Get data source options
-  const dataSourceOptions = store.dataSources;
+  const dataSources= store.pivotProject.dataSources;
+  const dimension = store.dimension;
   
   // Get current data source
-  const currentDataSource = dataSourceOptions.find(
+  const currentDataSource = dataSources.find(
     ds => ds.id === mapping.dataSourceId
   );
   
@@ -29,7 +32,7 @@ export const PropertyMappingItem = observer(({ mapping, index, store }: Props) =
   // Handle data source change
   const handleDataSourceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const dataSourceId = e.target.value;
-    const dataSource = dataSourceOptions.find(ds => ds.id === dataSourceId);
+    const dataSource = dataSources.find(ds => ds.id === dataSourceId);
     if (dataSource && dataSource.columns.length > 0) {
       const firstColumn = dataSource.columns[0];
       store.updatePropertyMapping(mapping.id, {
@@ -80,10 +83,10 @@ export const PropertyMappingItem = observer(({ mapping, index, store }: Props) =
           value={mapping.dataSourceId || ''}
           onChange={handleDataSourceChange}
         >
-          {dataSourceOptions.length === 0 ? (
+          {dataSources.length === 0 ? (
             <option value="">No data sources available</option>
           ) : (
-            dataSourceOptions.map(ds => (
+            dataSources.map(ds => (
               <option key={ds.id} value={ds.id}>
                 {ds.name}
               </option>

@@ -5,7 +5,7 @@
  * Manages state and actions specific to dimension editing
  */
 
-import { makeObservable, action, computed, observable } from 'mobx';
+import { makeObservable, action, computed, observable, runInAction } from 'mobx';
 import type {
   Dimension,
   DataSource,
@@ -15,8 +15,12 @@ import type {
   ParentMappingType,
   GenerationMappingType,
   MappingType,
+  Node,
+  PivotProject,
 } from '../../../models/pivot-project/types';
 import { Store } from '../../../stores/Store';
+import { DimensionService } from '../../../services/DimensionService';
+import { MAPPING_TYPES_BY_MODE } from '../types';
 
 // ============================================================================
 // EDITOR MAPPING TYPES
@@ -73,6 +77,8 @@ export interface DataColumnOption {
   dataType: 'string' | 'number' | 'date' | 'boolean' | 'unknown';
 }
 
+
+
 // ============================================================================
 // MAIN STORE CLASS
 // ============================================================================
@@ -82,29 +88,25 @@ export class DimensionEditorStore {
   private mainStore: Store;
 
   // Editor state
-  dimension: Partial<Dimension> | null = null;
-  dataSources: DataSourceOption[] = [];
-  columnMappings: EditorColumnMapping[] = [];
-  propertyMappings: EditorPropertyMapping[] = [];
+  dimension: Dimension|null = null;  
   isLoading: boolean = false;
   errors: EditorValidationError[] = [];
-  hierarchyMode: 'parent' | 'generation' = 'generation';
+  nodesByCode: Map<string, Node> = new Map();  
 
   constructor(mainStore: Store = Store.getInstance()) {
     this.mainStore = mainStore;
     makeObservable(this, {
       dimension: observable.ref,
-      dataSources: observable.ref,
-      columnMappings: observable.ref,
-      propertyMappings: observable.ref,
+      
+      
+      
       isLoading: observable,
       errors: observable.ref,
-      hierarchyMode: observable,
+      nodesByCode: observable.ref,      
       loadDimension: action,
       updateName: action,
       updateDescription: action,
-      updateDataType: action,
-      updateHierarchyMode: action,
+      updateDataType: action,      
       addColumnMapping: action,
       removeColumnMapping: action,
       updateColumnMapping: action,
@@ -116,13 +118,13 @@ export class DimensionEditorStore {
       updatePropertyMapping: action,
       updatePropertyMappingPropertyName: action,
       saveDimension: action,
-      cancelEditing: action,
+      cancelEditing: action,      
+      validateAll: action,
       isValid: computed,
       nameError: computed,
       dataTypeError: computed,
       hierarchyModeError: computed,
-      availableMappingTypes: computed,
-      hierarchyPreview: computed
+      availableMappingTypes: computed,      
     });
   }
 
@@ -140,18 +142,14 @@ export class DimensionEditorStore {
     this.isLoading = true;
     this.errors = [];
 
-    try {
-      const dataSources = this.mainStore.getLocalDataSources();
-      this.dataSources = this.convertToDataSourceOptions(dataSources);
-
+    try {      
       if (dimensionId) {
         // Load existing dimension
         const existingDim = this.mainStore.getDimension(dimensionId);
-        if (existingDim) {
-          this.dimension = { ...existingDim };
-          this.hierarchyMode = existingDim.hierarchyMode || 'generation';
-          this.columnMappings = this.convertToEditorColumnMappings(existingDim.columnMappings);
-          this.propertyMappings = this.convertToEditorPropertyMappings(existingDim.propertyMappings || []);
+        if (existingDim) {          
+          // Update nodes from mappings
+          this.dimension = existingDim;
+          this.updateDimensionNodes(existingDim);
         } else {
           this.createNewDimension();
         }
@@ -184,10 +182,11 @@ export class DimensionEditorStore {
       propertyMappings: [],
       rootNodes: [],
       nodes: [],
-    };
-    this.hierarchyMode = 'generation';
-    this.columnMappings = [];
-    this.propertyMappings = [];
+    };        
+  }
+
+  get pivotProject() {
+    return this.mainStore.pivotProject;
   }
 
   // ==========================================================================
@@ -217,23 +216,67 @@ export class DimensionEditorStore {
   }
 
   
-  updateHierarchyMode(mode: 'parent' | 'generation'): void {
-    this.hierarchyMode = mode;
-    if (this.dimension) {
-      this.dimension.hierarchyMode = mode;
+  updateHierarchyMode(mode: 'parent' | 'generation'): void {    
+    if (! this.dimension) {
+      return;
     }
     // When mode changes, we may need to update existing mappings
     // to ensure they have valid mapping types for the new mode
-    this.columnMappings = this.columnMappings.map(mapping => {
+    const columnMappings = this.dimension!.columnMappings.map(mapping => {
       // Check if current mapping type is valid for new mode
       if (!this.isValidMappingType(mapping.mappingType as MappingType, mode)) {
         // Reset to a valid default
         return {
           ...mapping,
-          mappingType: this.getDefaultMappingType(mode)
+          mappingType: DimensionService.getDefaultMappingType(mode)
         };
       }
       return mapping;
+    });
+    
+    // Update nodes with new hierarchy mode
+    this.updateDimensionNodes({
+      hierarchyMode: mode,
+      columnMappings
+      }
+    );
+  }
+
+  // ==========================================================================
+  // ACTIONS: Nodes Update
+  // ==========================================================================
+
+  /**
+   * Update the dimension's nodes based on current column mappings
+   * Uses DimensionService to build nodes from data sources
+   */
+  updateDimensionNodes(partial: Partial<Dimension>): void {
+    runInAction(() => {
+    if (!this.dimension || !this.dimension.id) return;
+    
+    const project = this.mainStore.pivotProject;
+    
+    // Find the dimension in the project
+    const projectDimension = {...this.dimension, ...partial};
+        
+    // Update nodes using DimensionService
+    DimensionService.updateNodesInDimension(project, projectDimension);    
+    
+    // Update editor's dimension nodes      
+    this.dimension = projectDimension;
+    this.dimension.nodes = [...(projectDimension.nodes || [])];
+    this.nodesByCode = new Map();
+    this.dimension.nodes.forEach(n => this.nodesByCode.set(n.id, n));
+
+    this.validateAll();
+    
+    console.log("--------------------------------");
+    console.log(this.nodesByCode);
+    console.log(this.dimension.nodes);
+    console.log(this.dimension.rootNodes);
+    console.log(projectDimension.rootNodes);
+    console.log("################################");
+    
     });
   }
 
@@ -243,31 +286,44 @@ export class DimensionEditorStore {
 
   
   addColumnMapping(dataSourceId: string, columnIndex: number, columnName: string): string {
-    const id = `mapping-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const mapping: EditorColumnMapping = {
+    const id = DimensionService.getMappingId();
+
+    const hierarchyMode = this.dimension!.hierarchyMode || "generation";
+
+    const mapping: ColumnMapping = {
       id,
       dataSourceId,
-      columnIndex,
-      columnName,
+      columnIndex,      
+      name: columnName,
       level: 0, // Default level
-      mappingType: this.getDefaultMappingType(this.hierarchyMode)
-    };
-    this.columnMappings = [...this.columnMappings, mapping];
+      mappingType: DimensionService.getDefaultMappingType(hierarchyMode)
+    };    
+    const columnMappings = [...this.dimension!.columnMappings, mapping];    
+    this.updateDimensionNodes({hierarchyMode, columnMappings});
     return id;
   }
 
   
-  removeColumnMapping(mappingId: string): void {
-    this.columnMappings = this.columnMappings.filter(m => m.id !== mappingId);
+  removeColumnMapping(id: string): void {
+    const dimension = this.dimension;
+    if(! dimension) {
+      return;
+    }
+    const columnMappings = dimension.columnMappings.filter(m => m.id === id);
+    this.updateDimensionNodes({columnMappings});
   }
 
   
   updateColumnMapping(
-    mappingId: string,
+    id: string,
     updates: Partial<Omit<EditorColumnMapping, 'id'>>
   ): void {
-    this.columnMappings = this.columnMappings.map(mapping => {
-      if (mapping.id === mappingId) {
+    const dimension = this.dimension;
+    if(! dimension) {
+      return;
+    }
+    const columnMappings = dimension.columnMappings.map(mapping => {
+      if (mapping.id === id) {
         return {
           ...mapping,
           ...updates
@@ -275,20 +331,22 @@ export class DimensionEditorStore {
       }
       return mapping;
     });
+    this.updateDimensionNodes({columnMappings});
   }
 
   
-  updateColumnMappingDataSource(mappingId: string, dataSourceId: string): void {
-    const mapping = this.columnMappings.find(m => m.id === mappingId);
+  updateColumnMappingDataSource(id: string, dataSourceId: string): void {
+    const mapping = this.dimension!.columnMappings.find(m => m.id ===id);
     if (mapping) {
-      const dataSource = this.dataSources.find(ds => ds.id === dataSourceId);
+      const dataSource = (this.mainStore.pivotProject.dataSources.find(ds => ds.id === dataSourceId))as LocalDataSource;
       if (dataSource) {
         // If column is no longer valid for new data source, reset it
+         
         const column = dataSource.columns.find(c => c.index === mapping.columnIndex);
         const columnIndex = column ? mapping.columnIndex : 0;
         const columnName = column ? column.name : dataSource.columns[0]?.name || '';
         
-        this.updateColumnMapping(mappingId, {
+        this.updateColumnMapping(id, {
           dataSourceId,
           columnIndex,
           columnName
@@ -298,18 +356,20 @@ export class DimensionEditorStore {
   }
 
   
-  updateColumnMappingColumn(mappingId: string, columnIndex: number, columnName: string): void {
-    this.updateColumnMapping(mappingId, {
+  updateColumnMappingColumn(id: string, columnIndex: number, columnName: string): void {
+    this.updateColumnMapping(id, {
       columnIndex,
       columnName
     });
+    // updateColumnMapping already calls updateDimensionNodes
   }
 
   
-  updateColumnMappingType(mappingId: string, mappingType: MappingType): void {
-    this.updateColumnMapping(mappingId, {
+  updateColumnMappingType(id:string, mappingType: MappingType): void {
+    this.updateColumnMapping(id, {
       mappingType
     });
+    // updateColumnMapping already calls updateDimensionNodes
   }
 
   // ==========================================================================
@@ -318,6 +378,7 @@ export class DimensionEditorStore {
 
   
   addPropertyMapping(dataSourceId: string, columnIndex: number, columnName: string): string {
+    const dimension = this.dimension!;    
     const id = `prop-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const mapping: EditorPropertyMapping = {
       id,
@@ -327,13 +388,14 @@ export class DimensionEditorStore {
       propertyName: '',
       propertyType: 'string'
     };
-    this.propertyMappings = [...this.propertyMappings, mapping];
+    this.updateDimensionNodes({propertyMappings:  [...(dimension.propertyMappings || []), mapping]});
     return id;
   }
 
   
   removePropertyMapping(mappingId: string): void {
-    this.propertyMappings = this.propertyMappings.filter(m => m.id !== mappingId);
+    const propertyMappings = this.dimension!.propertyMappings?.filter(m => m.id === mappingId);
+    this.updateDimensionNodes({propertyMappings});
   }
 
   
@@ -341,7 +403,7 @@ export class DimensionEditorStore {
     mappingId: string,
     updates: Partial<Omit<EditorPropertyMapping, 'id'>>
   ): void {
-    this.propertyMappings = this.propertyMappings.map(mapping => {
+    const propertyMappings = (this.dimension!.propertyMappings || []).map(mapping => {
       if (mapping.id === mappingId) {
         return {
           ...mapping,
@@ -350,6 +412,7 @@ export class DimensionEditorStore {
       }
       return mapping;
     });
+    this.updateDimensionNodes({propertyMappings});
   }
 
   
@@ -374,67 +437,17 @@ export class DimensionEditorStore {
       throw new Error('Validation failed');
     }
 
-    // Convert editor mappings to domain mappings
-    const domainColumnMappings: ColumnMapping[] = this.columnMappings.map(m => ({
-      dataSourceId: m.dataSourceId,
-      columnIndex: m.columnIndex,
-      level: m.level,
-      name: m.name,
-      mappingType: m.mappingType as MappingType
-    }));
+    this.mainStore.updateDimension(this.dimension.id, this.dimension);
 
-    const domainPropertyMappings: PropertyMapping[] = this.propertyMappings.map(m => ({
-      id: m.id,
-      dataSourceId: m.dataSourceId,
-      columnIndex: m.columnIndex,
-      propertyName: m.propertyName,
-      propertyType: m.propertyType
-    }));
-
-    // Create full dimension object
-    const dimensionToSave: Dimension = {
-      ...this.dimension as Dimension,
-      hierarchyMode: this.hierarchyMode,
-      columnMappings: domainColumnMappings,
-      propertyMappings: domainPropertyMappings,
-    };
-
-    // Save through main store
-    let dimensionId: string;
     
-    if (this.dimension.id) {
-      // Update existing
-      this.mainStore.updateDimension(this.dimension.id, dimensionToSave);
-      dimensionId = this.dimension.id;
-    } else {
-      // Create new
-      dimensionId = this.mainStore.addDimension(
-        dimensionToSave.name,
-        dimensionToSave.dataType,
-        dimensionToSave.description,
-        dimensionToSave.columnMappings
-      );
-      // Also save hierarchy mode and property mappings
-      // Note: addDimension doesn't support these yet, so we need to update
-      const newDim = this.mainStore.getDimension(dimensionId);
-      if (newDim) {
-        this.mainStore.updateDimension(dimensionId, {
-          hierarchyMode: dimensionToSave.hierarchyMode,
-          propertyMappings: dimensionToSave.propertyMappings
-        });
-      }
-    }
-
-    return dimensionId;
+    return this.dimension.id;
   }
 
   
   cancelEditing(): void {
-    this.dimension = null;
-    this.columnMappings = [];
-    this.propertyMappings = [];
-    this.errors = [];
-    this.hierarchyMode = 'generation';
+    if(this.dimension)  {
+      this.dimension = this.mainStore.getDimension(this.dimension!.id) || null;    
+    }
   }
 
   // ==========================================================================
@@ -476,29 +489,20 @@ export class DimensionEditorStore {
 
   
   get availableMappingTypes(): MappingType[] {
-    if (this.hierarchyMode === 'parent') {
-      return ['parentCode', 'label', 'property'];
+    if (this.dimension?.hierarchyMode === 'parent') {
+      return MAPPING_TYPES_BY_MODE.parent;
     }
-    return ['root', 'gen1', 'gen2', 'gen3', 'label', 'property'];
+    return MAPPING_TYPES_BY_MODE.generation;
   }
-
-  // ==========================================================================
-  // COMPUTED: Hierarchy Preview
-  // ==========================================================================
 
   
-  get hierarchyPreview(): { name: string; type: string; children: any[] }[] {
-    if (this.hierarchyMode === 'generation') {
-      return this.buildGenerationHierarchy();
-    }
-    return this.buildParentHierarchy();
-  }
-
   // ==========================================================================
   // PRIVATE: Validation Methods
   // ==========================================================================
 
-  private validateAll(): boolean {
+  validateAll(): boolean {
+    const dimension  = this.dimension!;
+    
     const errors: EditorValidationError[] = [];
 
     if (!this.dimension?.name?.trim()) {
@@ -525,8 +529,10 @@ export class DimensionEditorStore {
       });
     }
 
+    const hierarchyMode= dimension.hierarchyMode || "generation";
+
     // Validate column mappings
-    this.columnMappings.forEach((mapping, index) => {
+    dimension.columnMappings.forEach((mapping, index) => {
       if (!mapping.dataSourceId) {
         errors.push({
           field: `mapping-${index}-dataSource`,
@@ -534,7 +540,7 @@ export class DimensionEditorStore {
           severity: 'error'
         });
       }
-      if (!mapping.columnName) {
+      if (!mapping.name) {
         errors.push({
           field: `mapping-${index}-column`,
           message: 'Column is required',
@@ -547,17 +553,17 @@ export class DimensionEditorStore {
           message: 'Mapping type is required',
           severity: 'error'
         });
-      } else if (!this.isValidMappingType(mapping.mappingType as MappingType, this.hierarchyMode)) {
+      } else if (!this.isValidMappingType(mapping.mappingType as MappingType, hierarchyMode)) {
         errors.push({
           field: `mapping-${index}-mappingType`,
-          message: `Invalid mapping type for ${this.hierarchyMode} mode`,
+          message: `Invalid mapping type for ${hierarchyMode} mode`,
           severity: 'error'
         });
       }
     });
 
     // Validate property mappings
-    this.propertyMappings.forEach((mapping, index) => {
+    (dimension.propertyMappings|| []).forEach((mapping, index) => {
       if (!mapping.propertyName?.trim()) {
         errors.push({
           field: `property-${index}-propertyName`,
@@ -599,123 +605,18 @@ export class DimensionEditorStore {
     }));
   }
 
-  private convertToEditorColumnMappings(columnMappings: ColumnMapping[]): EditorColumnMapping[] {
-    return columnMappings.map((mapping, index) => {
-      const dataSource = this.dataSources.find(ds => ds.id === mapping.dataSourceId);
-      const columnName = dataSource?.columns.find(c => c.index === mapping.columnIndex)?.name || 
-                        `Column ${mapping.columnIndex}`;
-      
-      return {
-        id: `mapping-${index}`,
-        ...mapping,
-        columnName
-      };
-    });
-  }
-
-  private convertToEditorPropertyMappings(propertyMappings: PropertyMapping[]): EditorPropertyMapping[] {
-    return propertyMappings.map((mapping, index) => {
-      const dataSource = this.dataSources.find(ds => ds.id === mapping.dataSourceId);
-      const columnName = dataSource?.columns.find(c => c.index === mapping.columnIndex)?.name || 
-                        `Column ${mapping.columnIndex}`;
-      
-      return {
-        ...mapping,
-        id: mapping.id || `prop-${index}`,
-        columnName
-      };
-    });
-  }
-
-  // ==========================================================================
-  // PRIVATE: Hierarchy Builders
-  // ==========================================================================
-
-  private buildGenerationHierarchy(): { name: string; type: string; children: any[] }[] {
-    // For generation mode, we need to build hierarchy based on mapping types
-    // Group mappings by data source and build levels
-    const rootMappings = this.columnMappings.filter(m => m.mappingType === 'root');
-    const gen1Mappings = this.columnMappings.filter(m => m.mappingType === 'gen1');
-    const gen2Mappings = this.columnMappings.filter(m => m.mappingType === 'gen2');
-    const gen3Mappings = this.columnMappings.filter(m => m.mappingType === 'gen3');
-
-    const result: { name: string; type: string; children: any[] }[] = [];
-
-    // For each root mapping, find its children
-    rootMappings.forEach(root => {
-      const rootChildren = gen1Mappings
-        .filter(g1 => g1.dataSourceId === root.dataSourceId)
-        .map(g1 => ({
-          name: g1.columnName,
-          type: 'Génération 1',
-          children: gen2Mappings
-            .filter(g2 => g2.dataSourceId === root.dataSourceId)
-            .map(g2 => ({
-              name: g2.columnName,
-              type: 'Génération 2',
-              children: gen3Mappings
-                .filter(g3 => g3.dataSourceId === root.dataSourceId)
-                .map(g3 => ({
-                  name: g3.columnName,
-                  type: 'Génération 3',
-                  children: []
-                }))
-            }))
-        }));
-
-      result.push({
-        name: root.columnName,
-        type: 'Racine',
-        children: rootChildren
-      });
-    });
-
-    return result;
-  }
-
-  private buildParentHierarchy(): { name: string; type: string; children: any[] }[] {
-    // For parent mode, hierarchy is built via parent codes
-    // This is a simplified preview - actual hierarchy would need data
-    const parentCodeMappings = this.columnMappings.filter(m => m.mappingType === 'parentCode');
-    const labelMappings = this.columnMappings.filter(m => m.mappingType === 'label');
-
-    // Show which columns are mapped to what
-    return [
-      {
-        name: 'Parent Code Column',
-        type: 'Parent Code',
-        children: parentCodeMappings.map(m => ({
-          name: m.columnName,
-          type: 'Parent Reference',
-          children: []
-        }))
-      },
-      {
-        name: 'Label Column',
-        type: 'Label',
-        children: labelMappings.map(m => ({
-          name: m.columnName,
-          type: 'Display Name',
-          children: []
-        }))
-      }
-    ];
-  }
-
   // ==========================================================================
   // PRIVATE: Utility Methods
   // ==========================================================================
 
   private isValidMappingType(mappingType: MappingType, mode: 'parent' | 'generation'): boolean {
     if (mode === 'parent') {
-      return ['parentCode', 'label', 'property'].includes(mappingType as ParentMappingType);
+      return MAPPING_TYPES_BY_MODE.parent.includes(mappingType as ParentMappingType);
     }
-    return ['root', 'gen1', 'gen2', 'gen3', 'label', 'property'].includes(mappingType as GenerationMappingType);
+    return MAPPING_TYPES_BY_MODE.generation.includes(mappingType as GenerationMappingType);
   }
 
-  private getDefaultMappingType(mode: 'parent' | 'generation'): MappingType {
-    return mode === 'parent' ? 'parentCode' : 'root';
-  }
+  
 }
 
 // ============================================================================

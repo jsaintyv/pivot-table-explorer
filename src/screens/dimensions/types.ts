@@ -167,7 +167,7 @@ export type HierarchyModeMappingTypes = {
  * Available mapping types by mode
  */
 export const MAPPING_TYPES_BY_MODE: HierarchyModeMappingTypes = {
-  parent: ['parentCode', 'label', 'property'],
+  parent: ['code', 'parentCode', 'label', 'property'],
   generation: ['root', 'gen1', 'gen2', 'gen3', 'label', 'property']
 };
 
@@ -175,6 +175,7 @@ export const MAPPING_TYPES_BY_MODE: HierarchyModeMappingTypes = {
  * Display labels for mapping types
  */
 export const MAPPING_TYPE_LABELS: Record<MappingType, string> = {
+  code: 'Code',
   // Parent mode types
   parentCode: 'Parent Code',
   

@@ -62,6 +62,7 @@ export interface LazyDataSource extends BaseDataSource {
   endpoint?: string;
   parameters?: Record<string, any>;
   dataSchema?: any;
+  columns: DataColumn[];
 }
 
 /**
@@ -95,13 +96,15 @@ export interface Dimension {
   nodes: Node[]; // All nodes in this dimension
 }
 
+
 /**
  * Maps a dimension to columns in data sources
  */
 export interface ColumnMapping {
+  id: string,
   dataSourceId: string;
   columnIndex: number;
-  level: number; // 0 = root, 1 = child, etc. (for backward compatibility)
+  level: number; // 0 = root, 1 = child, etc. (for backward compatibility)  
   name?: string; // Optional custom name for this level
   mappingType?: ParentMappingType | GenerationMappingType; // Optional for backward compatibility
 }
@@ -118,7 +121,7 @@ export interface PropertyMapping {
 }
 
 // Mapping types for parent mode
-export type ParentMappingType = 'parentCode' | 'label' | 'property';
+export type ParentMappingType = 'code' | 'parentCode' | 'label' | 'property';
 
 // Mapping types for generation mode
 export type GenerationMappingType = 'root' | 'gen1' | 'gen2' | 'gen3' | 'label' | 'property';

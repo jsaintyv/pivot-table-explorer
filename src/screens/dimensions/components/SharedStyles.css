@@ -246,6 +246,7 @@
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
   line-height: 1.8;
+  min-height: 20px;
 }
 
 .hierarchy-preview .legend {

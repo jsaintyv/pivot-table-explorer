@@ -14,13 +14,15 @@ interface Props {
 }
 
 export const PropertyMappingList = observer(({ store }: Props) => {
+  const dataSources= store.pivotProject.dataSources;
+  const dimension = store.dimension;
   // Add a new empty property mapping
   const handleAddProperty = () => {
-    if (store.dataSources.length === 0) {
+    if (dataSources.length === 0) {
       return; // No data sources available
     }
     // Use first data source by default
-    const firstDataSource = store.dataSources[0];
+    const firstDataSource = dataSources[0];
     const firstColumn = firstDataSource?.columns[0];
     
     if (firstColumn) {
@@ -32,19 +34,22 @@ export const PropertyMappingList = observer(({ store }: Props) => {
     }
   };
 
+  const propertyMappings = dimension?.propertyMappings || [];
+
+  
   return (
     <div className="properties-section">
       <p className="section-description">
         Associate columns from your data sources to dimension properties (e.g., color, description, isActive).
       </p>
       
-      {store.propertyMappings.length === 0 ? (
+      {propertyMappings.length === 0 ? (
         <div className="empty-state">
           <p>No property mappings defined.</p>
           <p>Add property mappings to include metadata with your dimension nodes.</p>
         </div>
       ) : (
-        store.propertyMappings.map((mapping, index) => (
+        propertyMappings.map((mapping, index) => (
           <PropertyMappingItem
             key={mapping.id}
             mapping={mapping}
@@ -57,7 +62,7 @@ export const PropertyMappingList = observer(({ store }: Props) => {
       <button 
         onClick={handleAddProperty}
         className="add-mapping-btn"
-        disabled={store.dataSources.length === 0}
+        disabled={dataSources.length === 0}
       >
         + Add Property Mapping
       </button>

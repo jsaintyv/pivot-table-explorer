@@ -100,7 +100,7 @@ Store State Update → Service Layer → Model → Persistence
 Nouveaux champs à ajouter :
 ```typescript
 // Dans ColumnMapping
-mappingType: 'parentCode' | 'label' | 'property' | 'root' | 'gen1' | 'gen2' | 'gen3';
+mappingType: 'code' | 'parentCode' | 'label' | 'property' | 'root' | 'gen1' | 'gen2' | 'gen3';
 hierarchyMode: 'parent' | 'generation';
 
 // Nouveau interface
@@ -121,7 +121,7 @@ propertyMappings: PropertyMapping[];
 **Nouveau fichier** : `src/screens/dimensions/types.ts`
 
 ```typescript
-export type ParentMappingType = 'parentCode' | 'label' | 'property';
+export type ParentMappingType = 'code' | 'parentCode' | 'label' | 'property';
 export type GenerationMappingType = 'root' | 'gen1' | 'gen2' | 'gen3' | 'label' | 'property';
 export type MappingType = ParentMappingType | GenerationMappingType;
 
@@ -202,7 +202,7 @@ export interface DataSourceOption {
 ```typescript
 const getMappingTypeOptions = (mode: 'parent' | 'generation') => 
   mode === 'parent' 
-    ? ['parentCode', 'label', 'property']
+    ? ['code', 'parentCode', 'label', 'property']
     : ['root', 'gen1', 'gen2', 'gen3', 'label', 'property'];
 ```
 

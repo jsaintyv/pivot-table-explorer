@@ -6,21 +6,27 @@
 
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import type { DimensionEditorStore } from '../stores/DimensionEditorStore';
+import { getDimensionEditorStore, type DimensionEditorStore } from '../stores/DimensionEditorStore';
 import { ColumnMappingItem } from './ColumnMappingItem';
 
 interface Props {
-  store: DimensionEditorStore;
+  
 }
 
-export const ColumnMappingList = observer(({ store }: Props) => {
+export const ColumnMappingList = observer(({  }: Props) => {
+  const store = getDimensionEditorStore();
+  const pivotProject = store.pivotProject;
+  const dimension = store.dimension;
+  if(!dimension) {
+    return <></>;
+  }
   // Add a new empty mapping
   const handleAddMapping = () => {
-    if (store.dataSources.length === 0) {
+    if (pivotProject.dataSources.length === 0) {
       return; // No data sources available
     }
     // Use first data source by default
-    const firstDataSource = store.dataSources[0];
+    const firstDataSource = pivotProject.dataSources[0];
     const firstColumn = firstDataSource?.columns[0];
     
     if (firstColumn) {
@@ -34,13 +40,13 @@ export const ColumnMappingList = observer(({ store }: Props) => {
 
   return (
     <div className="mappings-container">
-      {store.columnMappings.length === 0 ? (
+      {dimension.columnMappings.length === 0 ? (
         <div className="empty-state">
           <p>No column mappings defined.</p>
           <p>Add mappings to associate columns from data sources to hierarchy levels.</p>
         </div>
       ) : (
-        store.columnMappings.map((mapping, index) => (
+        dimension.columnMappings.map((mapping, index) => (
           <ColumnMappingItem
             key={mapping.id}
             mapping={mapping}
@@ -53,7 +59,7 @@ export const ColumnMappingList = observer(({ store }: Props) => {
       <button 
         onClick={handleAddMapping}
         className="add-mapping-btn"
-        disabled={store.dataSources.length === 0}
+        disabled={pivotProject.dataSources.length === 0}
       >
         + Add Column Mapping
       </button>

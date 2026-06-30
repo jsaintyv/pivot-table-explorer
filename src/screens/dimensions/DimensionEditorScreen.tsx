@@ -24,6 +24,8 @@ export const DimensionEditorScreen = observer(() => {
   const navigate = useNavigate();
   const params = useParams<{ dimensionId?: string }>();
   const store = getDimensionEditorStore();
+  const dataSources= store.pivotProject.dataSources;
+  const dimension = store.dimension;
 
   // Load dimension on mount or when dimensionId changes
   useEffect(() => {
@@ -64,7 +66,7 @@ export const DimensionEditorScreen = observer(() => {
   }
 
   // If no dimension data, show empty state
-  if (!store.dimension) {
+  if (!dimension) {
     return (
       <main className="dimension-editor-screen">
         <h1>Create New Dimension</h1>
@@ -80,7 +82,7 @@ export const DimensionEditorScreen = observer(() => {
         <div className="header-content">
           <h1>Edit Dimension</h1>
           <p className="subtitle">
-            {store.dimension.id ? 'Edit existing dimension' : 'Create a new dimension'}
+            {dimension.id ? 'Edit existing dimension' : 'Create a new dimension'}
           </p>
         </div>
         <div className="header-actions">
@@ -116,13 +118,13 @@ export const DimensionEditorScreen = observer(() => {
             <h2>Available Data Sources</h2>
           </div>
           <div className="source-files-list">
-            {store.dataSources.map(ds => (
+            {dataSources.map(ds => (
               <span key={ds.id} className="source-badge">
                 📁 {ds.name}
               </span>
             ))}
           </div>
-          {store.dataSources.length === 0 && (
+          {dataSources.length === 0 && (
             <p className="empty-state">No data sources available. Please add CSV files first.</p>
           )}
         </section>
@@ -133,11 +135,11 @@ export const DimensionEditorScreen = observer(() => {
             <h2>
               Column Mappings
               <span className="mode-badge mode-{store.hierarchyMode}">
-                {store.hierarchyMode === 'generation' ? 'Generation Mode' : 'Parent Mode'}
+                {dimension.hierarchyMode === 'generation' ? 'Generation Mode' : 'Parent Mode'}
               </span>
             </h2>
           </div>
-          <ColumnMappingList store={store} />
+          <ColumnMappingList />
         </section>
 
         {/* Properties Mapping Section */}
@@ -153,7 +155,7 @@ export const DimensionEditorScreen = observer(() => {
           <div className="section-header">
             <h2>Hierarchy Preview</h2>
           </div>
-          <HierarchyPreview store={store} />
+          <HierarchyPreview  />
         </section>
       </div>
 

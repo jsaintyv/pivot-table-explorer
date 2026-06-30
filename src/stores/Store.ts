@@ -36,6 +36,7 @@ import { StorageService, type StoredProject } from '../services/StorageService';
 import { ViewStore } from './ViewStore';
 import { ToastStore } from './ToastStore';
 import type { PivotData } from './ViewStore';
+import { DimensionService } from '../services/DimensionService';
 
 // ============================================================================
 // STORE CLASS (Controller + Model)
@@ -336,6 +337,7 @@ export class Store {
       endpoint,
       parameters,
       dataSchema,
+      columns: []
     };
     this.pivotProject.dataSources.push(dataSource);
     this.pivotProject.updatedAt = new Date().toISOString();
@@ -946,8 +948,8 @@ export class Store {
   } 
 
     
-  importCsv(file: File) {
-     importCSV(file, (columns, csvData) => {
+  importCsv(file: File) {    
+     importCSV(file, (columns, csvData) => {      
       // Convert to row-major format (array of arrays)
         const data: any[][] = csvData.map(row => columns.map(col => row[col]));
         
@@ -978,6 +980,7 @@ export class Store {
           if (existingDim) {
             // Dimension exists: add new column mapping
             existingDim.columnMappings.push({
+              id: DimensionService.getMappingId(),
               dataSourceId: dataSource.id,
               columnIndex: colIndex,
               level: 0,
@@ -1014,10 +1017,12 @@ export class Store {
               column.dataType as 'string' | 'number' | 'date' | 'boolean',
               `Dimension for ${column.name}`,
               [{
+                  id: DimensionService.getMappingId(),
                   dataSourceId: dataSource.id,
                   columnIndex: colIndex,
                   level: 0,
                   name: column.name,
+                  mappingType: DimensionService.getDefaultMappingType("generation")
               }]
             );
             dimensions.push(dim);
