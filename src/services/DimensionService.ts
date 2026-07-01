@@ -224,6 +224,10 @@ function buildNodesFromGenerationMode(
 ): Node[] {
   const nodes: Node[] = [];
   const nodeByCode: Map<string, Node> = new Map();
+
+  if(! dimension.columnMappings) {
+    return nodes;
+  }
   
   // Find mappings for each generation level
   const rootMappings = dimension.columnMappings.filter(
@@ -342,15 +346,14 @@ export function updateNodesInDimension(
   // Build nodes from data sources
   const nodes = buildNodesFromDimension(project, dimension);
   
-  // Update the dimension
+  // Update the dimension   
   dimension.nodes = nodes;
   
   // Identify root nodes (nodes with no parent or parent not found)
   // For now, we'll identify root nodes as those that appear in the hierarchy
   // without a parent reference
   const rootNodeIds = identifyRootNodes(dimension, nodes);
-  dimension.rootNodes = rootNodeIds;
-  console.log(dimension.rootNodes)
+  dimension.rootNodes = rootNodeIds;  
   
   return dimension;
 }

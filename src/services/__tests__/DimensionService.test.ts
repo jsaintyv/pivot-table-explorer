@@ -263,7 +263,7 @@ describe('DimensionService - updateNodesInDimension', () => {
     const dimension = createTestParentDimension('test-dim');
     project.dimensions.push(dimension);
 
-    const updatedDimension = updateNodesInDimension(project, 'test-dim');
+    const updatedDimension = updateNodesInDimension(project, dimension);
 
     expect(updatedDimension).toBeDefined();
     expect(updatedDimension!.nodes.length).toBe(6);
@@ -271,7 +271,7 @@ describe('DimensionService - updateNodesInDimension', () => {
   });
 
   it('should return null for non-existent dimension', () => {
-    const updatedDimension = updateNodesInDimension(project, 'non-existent');
+    const updatedDimension = updateNodesInDimension(project, null);
 
     expect(updatedDimension).toBeNull();
   });
@@ -280,7 +280,7 @@ describe('DimensionService - updateNodesInDimension', () => {
     const dimension = createTestParentDimension('test-dim');
     project.dimensions.push(dimension);
 
-    const updatedDimension = updateNodesInDimension(project, 'test-dim');
+    const updatedDimension = updateNodesInDimension(project, dimension);
 
     expect(updatedDimension!.rootNodes.length).toBe(2);
     

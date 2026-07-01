@@ -17,6 +17,15 @@ import {
 } from './test-case';
 import type { PivotProject } from './types';
 
+
+function removeIdsFromColumnMappings(mappings: any[] | undefined): any[] | undefined {
+  if (!mappings) return undefined;
+  return mappings.map(mapping => {
+    const { id, ...rest } = mapping;
+    return rest;
+  });
+}
+
 describe('PivotProject Test Case', () => {
   let project: PivotProject;
 
@@ -101,7 +110,7 @@ describe('PivotProject Test Case', () => {
       expect(customerDim?.dataType).toBe('string');
       expect(customerDim?.columnMappings).toHaveLength(3);
       
-      const mappings = customerDim?.columnMappings;
+      const mappings = removeIdsFromColumnMappings(customerDim?.columnMappings);
       expect(mappings?.[0]).toEqual({
         dataSourceId: 'ds-customer',
         columnIndex: 0,
@@ -139,7 +148,7 @@ describe('PivotProject Test Case', () => {
       expect(productDim?.dataType).toBe('string');
       expect(productDim?.columnMappings).toHaveLength(3);
       
-      const mappings = productDim?.columnMappings;
+      const mappings = removeIdsFromColumnMappings(productDim?.columnMappings);
       expect(mappings?.[0]).toEqual({
         dataSourceId: 'ds-product',
         columnIndex: 0,
@@ -165,7 +174,7 @@ describe('PivotProject Test Case', () => {
       expect(orderDateDim).toBeDefined();
       expect(orderDateDim?.dataType).toBe('date');
       expect(orderDateDim?.columnMappings).toHaveLength(1);
-      expect(orderDateDim?.columnMappings[0]).toEqual({
+      expect(removeIdsFromColumnMappings(orderDateDim?.columnMappings)[0]).toEqual({
         dataSourceId: 'ds-order',
         columnIndex: 1,
         level: 0,
