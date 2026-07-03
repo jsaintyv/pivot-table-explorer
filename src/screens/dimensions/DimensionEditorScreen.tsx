@@ -95,7 +95,7 @@ export const DimensionEditorScreen = observer(() => {
           <button 
             onClick={handleSave}
             className="btn btn-primary"
-            disabled={!store.isValid}
+            disabled={store.errors.length > 0}
           >
             💾 Save Dimension
           </button>

@@ -114,8 +114,7 @@ export class DimensionEditorStore {
       updatePropertyMappingPropertyName: action,
       saveDimension: action,
       cancelEditing: action,      
-      validateAll: action,
-      isValid: computed,
+      validateAll: action,      
       nameError: computed,
       dataTypeError: computed,
       hierarchyModeError: computed,
@@ -142,6 +141,9 @@ export class DimensionEditorStore {
         // Load existing dimension
         const existingDim = this.mainStore.getDimension(dimensionId);
         if (existingDim) {          
+          if(existingDim.id === undefined) {
+            existingDim.id = DimensionService.getMappingId();
+          }
           // Update nodes from mappings
           this.dimension = existingDim;
           this.updateDimensionNodes(existingDim);
@@ -247,7 +249,7 @@ export class DimensionEditorStore {
    */
   updateDimensionNodes(partial: Partial<Dimension>): void {
     runInAction(() => {
-    if (!this.dimension || !this.dimension.id) return;
+    if (!this.dimension)  return;
     
     const project = this.mainStore.pivotProject;
     
@@ -419,7 +421,6 @@ export class DimensionEditorStore {
     if (!this.dimension) {
       throw new Error('No dimension to save');
     }
-
     // Validate before save
     if (!this.validateAll()) {
       throw new Error('Validation failed');
@@ -442,12 +443,6 @@ export class DimensionEditorStore {
   // COMPUTED: Validation
   // ==========================================================================
 
-  
-  get isValid(): boolean {
-    return this.validateAll();
-  }
-
-  
   get nameError(): string | null {
     if (!this.dimension?.name?.trim()) {
       return 'Name is required';
@@ -561,7 +556,7 @@ export class DimensionEditorStore {
       }
     });
 
-    this.errors = errors;
+    this.errors = [...errors];
     return errors.length === 0;
   }
 
