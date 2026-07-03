@@ -7,16 +7,14 @@
 
 import { makeObservable, action, computed, observable, runInAction } from 'mobx';
 import type {
-  Dimension,
-  DataSource,
+  Dimension,  
   LocalDataSource,
   ColumnMapping,
   PropertyMapping,
   ParentMappingType,
   GenerationMappingType,
   MappingType,
-  Node,
-  PivotProject,
+  Node,  
 } from '../../../models/pivot-project/types';
 import { Store } from '../../../stores/Store';
 import { DimensionService } from '../../../services/DimensionService';
@@ -97,9 +95,6 @@ export class DimensionEditorStore {
     this.mainStore = mainStore;
     makeObservable(this, {
       dimension: observable.ref,
-      
-      
-      
       isLoading: observable,
       errors: observable.ref,
       nodesByCode: observable.ref,      
@@ -269,14 +264,7 @@ export class DimensionEditorStore {
     this.dimension.nodes.forEach(n => this.nodesByCode.set(n.id, n));
 
     this.validateAll();
-    
-    console.log("--------------------------------");
-    console.log(this.nodesByCode);
-    console.log(this.dimension.nodes);
-    console.log(this.dimension.rootNodes);
-    console.log(projectDimension.rootNodes);
-    console.log("################################");
-    
+      
     });
   }
 
@@ -588,23 +576,7 @@ export class DimensionEditorStore {
       });
     }
   }
-
-  // ==========================================================================
-  // PRIVATE: Conversion Methods
-  // ==========================================================================
-
-  private convertToDataSourceOptions(dataSources: LocalDataSource[]): DataSourceOption[] {
-    return dataSources.map(ds => ({
-      id: ds.id,
-      name: ds.name,
-      columns: ds.columns.map(col => ({
-        index: col.index,
-        name: col.name,
-        dataType: col.dataType
-      }))
-    }));
-  }
-
+  
   // ==========================================================================
   // PRIVATE: Utility Methods
   // ==========================================================================
@@ -614,9 +586,7 @@ export class DimensionEditorStore {
       return MAPPING_TYPES_BY_MODE.parent.includes(mappingType as ParentMappingType);
     }
     return MAPPING_TYPES_BY_MODE.generation.includes(mappingType as GenerationMappingType);
-  }
-
-  
+  }  
 }
 
 // ============================================================================
