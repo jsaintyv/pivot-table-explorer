@@ -1,0 +1,320 @@
+/**
+ * Shared Styles for Dimension Editor Components
+ */
+
+/* Form Groups */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #34495e;
+}
+
+.required-marker {
+  color: #e74c3c;
+}
+
+/* Form Inputs */
+.form-input {
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  background: white;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-input::placeholder {
+  color: #bdc3c7;
+}
+
+.form-input:disabled {
+  background: #f8f9fa;
+  cursor: not-allowed;
+}
+
+/* Form Select */
+.form-select {
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232c3e50' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: all 0.2s;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-select:disabled {
+  background: #f8f9fa;
+  cursor: not-allowed;
+}
+
+/* Textarea */
+.form-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Error Messages */
+.error-message {
+  color: #e74c3c;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+/* Mode Description */
+.mode-description {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Mappings Container */
+.mappings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Mapping Item */
+.mapping-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr 120px auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border: 2px dashed #bdc3c7;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.mapping-item:hover {
+  border-color: #3498db;
+  background: #e8f4fc;
+}
+
+.mapping-item .form-group {
+  margin-bottom: 0;
+}
+
+.mapping-item .form-group label {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  font-weight: 400;
+}
+
+/* Property Mapping Item */
+.property-mapping {
+  grid-template-columns: 1fr 1fr 1fr auto;
+}
+
+/* Remove Mapping Button */
+.remove-mapping {
+  color: #e74c3c;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.remove-mapping:hover {
+  background: #fadbd8;
+  transform: scale(1.1);
+}
+
+.remove-mapping:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Add Mapping Button */
+.add-mapping-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: transparent;
+  border: 2px dashed #3498db;
+  color: #3498db;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: fit-content;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.add-mapping-btn:hover:not(:disabled) {
+  background: #e8f4fc;
+  border-color: #2980b9;
+}
+
+.add-mapping-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-mapping-btn::before {
+  content: "+";
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* Properties Section */
+.properties-section {
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #bdc3c7;
+}
+
+.properties-section .section-description {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin-bottom: 16px;
+}
+
+/* Hierarchy Preview */
+.hierarchy-preview {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 16px;
+}
+
+.hierarchy-preview .preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.hierarchy-preview .preview-title {
+  font-size: 1rem;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.hierarchy-preview .mode-indicator {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  background: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+
+.hierarchy-preview .preview-description {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin-bottom: 16px;
+}
+
+.hierarchy-preview .hierarchy-tree {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  min-height: 20px;
+}
+
+.hierarchy-preview .legend {
+  margin-top: 20px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+}
+
+.hierarchy-preview .legend h4 {
+  color: #2c3e50;
+  font-size: 0.9rem;
+  margin: 0 0 12px 0;
+}
+
+.hierarchy-preview .legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.hierarchy-preview .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.hierarchy-preview .color-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  color: #7f8c8d;
+}
+
+.empty-state p {
+  margin: 0 0 4px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mapping-item {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .mapping-item .remove-mapping {
+    justify-self: end;
+  }
+
+  .property-mapping {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .property-mapping .remove-mapping {
+    justify-self: end;
+  }
+
+  .add-mapping-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

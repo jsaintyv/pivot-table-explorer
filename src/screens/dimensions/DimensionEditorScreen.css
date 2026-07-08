@@ -1,0 +1,213 @@
+/**
+ * Dimension Editor Screen Styles
+ */
+
+.dimension-editor-screen {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: #f5f7fa;
+  color: #2c3e50;
+  line-height: 1.6;
+}
+
+/* Header */
+.dimension-editor-screen .editor-header {
+  background: white;
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.dimension-editor-screen .editor-header .header-content h1 {
+  color: #2980b9;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.dimension-editor-screen .editor-header .subtitle {
+  color: #7f8c8d;
+  font-size: 0.95rem;
+  margin: 4px 0 0 0;
+}
+
+.dimension-editor-screen .header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Buttons */
+.dimension-editor-screen .btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dimension-editor-screen .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dimension-editor-screen .btn-secondary {
+  background: #ecf0f1;
+  color: #2980b9;
+}
+
+.dimension-editor-screen .btn-secondary:hover:not(:disabled) {
+  background: #bdc3c7;
+}
+
+.dimension-editor-screen .btn-primary {
+  background: #2980b9;
+  color: white;
+}
+
+.dimension-editor-screen .btn-primary:hover:not(:disabled) {
+  background: #1f618d;
+}
+
+/* Editor Card */
+.dimension-editor-screen .editor-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.dimension-editor-screen .card-section {
+  padding: 28px 32px;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.dimension-editor-screen .card-section:last-child {
+  border-bottom: none;
+}
+
+.dimension-editor-screen .section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.dimension-editor-screen .section-header h2 {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.dimension-editor-screen .section-header::before {
+  content: "";
+  width: 4px;
+  height: 20px;
+  background: #3498db;
+  border-radius: 2px;
+}
+
+.dimension-editor-screen .mode-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 12px;
+}
+
+.dimension-editor-screen .mode-badge.mode-generation {
+  background: #3498db;
+  color: white;
+}
+
+.dimension-editor-screen .mode-badge.mode-parent {
+  background: #27ae60;
+  color: white;
+}
+
+/* Source Files List */
+.dimension-editor-screen .source-files-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.dimension-editor-screen .source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #e8f4fc;
+  border: 1px solid #3498db;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: #2980b9;
+}
+
+.dimension-editor-screen .empty-state {
+  text-align: center;
+  padding: 20px;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* Error Display */
+.dimension-editor-screen .error-display {
+  margin-top: 24px;
+  padding: 16px 20px;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+}
+
+.dimension-editor-screen .error-display h3 {
+  color: #721c24;
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+}
+
+.dimension-editor-screen .error-display ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.dimension-editor-screen .error-item {
+  color: #721c24;
+  font-size: 0.9rem;
+}
+
+.dimension-editor-screen .error-item.severity-warning {
+  color: #856404;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dimension-editor-screen .editor-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dimension-editor-screen .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .dimension-editor-screen .btn {
+    flex: 1;
+    justify-content: center;
+  }
+}

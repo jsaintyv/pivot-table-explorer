@@ -1,4 +1,4 @@
-# Use Case: Basic Pivot Grid with Hierarchical Headers
+# Use Case: View with multiple dimensions in cols & in rows
 
 ## Overview
 

@@ -23,10 +23,8 @@ import type {
   LocalDataSource,
 } from '../models/pivot-project/types';
 import type { Store } from '.';
-import { PivotProjectService } from '../services/PivotProjectService';
 import { PivotDataService, type PivotDataServiceSuppliers, TOTAL } from '../services/PivotDataService';
 import type { PivotData, PivotCellMap, PivotAxe, PivotCell, PivotAxeHierarchy, Tuple, RowData } from '../models/pivot-data/pivot-data';
-import { EMPTY_PIVOTDATA } from '../models/pivot-data/pivot-data';
 
 // Re-export types for backward compatibility
 export type { PivotData, PivotCellMap, PivotAxe, PivotCell, PivotAxeHierarchy, Tuple, RowData };
@@ -204,18 +202,7 @@ export class ViewStore {
     }
   }
   
-  /**
-   * Supprime une vue
-   */
-  removeView(id: string): void {
-    this.rootStore.removeView(id);
-    // Si on supprime la vue active, la désactiver
-    if (this.rootStore.activeViewId === id) {
-      this.rootStore.activeViewId = undefined;
-      this.clearLegacyProperties();
-    }
-  }
-  
+ 
   // ==========================================================================
   // DIMENSION MANAGEMENT IN VIEW
   // ==========================================================================

@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dimension Editor - Design Mockup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .editor-header {
+            background: white;
+            padding: 24px 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .editor-header h1 {
+            color: #2980b9;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .editor-header h1::before {
+            content: "📊";
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #2980b9;
+        }
+
+        .btn-secondary:hover {
+            background: #bdc3c7;
+        }
+
+        .btn-primary {
+            background: #2980b9;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1f618d;
+        }
+
+        /* Main Content Card */
+        .editor-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .card-section {
+            padding: 28px 32px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .card-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .section-header::before {
+            content: "";
+            width: 4px;
+            height: 20px;
+            background: #3498db;
+            border-radius: 2px;
+        }
+
+        /* Dimension Identity Form */
+        .identity-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 800px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #34495e;
+        }
+
+        .form-group label.required::after {
+            content: "*";
+            color: #e74c3c;
+        }
+
+        .form-input {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-select {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232c3e50' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            transition: all 0.2s;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* Column Mappings Section */
+        .mappings-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .mapping-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 120px auto;
+            gap: 16px;
+            align-items: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border: 2px dashed #bdc3c7;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .mapping-item:hover {
+            border-color: #3498db;
+            background: #e8f4fc;
+        }
+
+        .mapping-item .form-group {
+            margin-bottom: 0;
+        }
+
+        .mapping-item .form-group label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            font-weight: 400;
+        }
+
+        .remove-mapping {
+            color: #e74c3c;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .remove-mapping:hover {
+            background: #fadbd8;
+            transform: scale(1.1);
+        }
+
+        .add-mapping-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: transparent;
+            border: 2px dashed #3498db;
+            color: #3498db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: fit-content;
+        }
+
+        .add-mapping-btn:hover {
+            background: #e8f4fc;
+            border-color: #2980b9;
+        }
+
+        .add-mapping-btn::before {
+            content: "+";
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* Hierarchy Preview */
+        .hierarchy-preview {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .hierarchy-preview h3 {
+            font-size: 0.95rem;
+            color: #34495e;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hierarchy-tree {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: #2c3e50;
+        }
+
+        .tree-root {
+            font-weight: 600;
+            color: #2980b9;
+        }
+
+        .tree-child {
+            color: #34495e;
+            position: relative;
+            margin-left: 20px;
+        }
+
+        .tree-child::before {
+            content: "├── ";
+            color: #7f8c8d;
+            position: absolute;
+            left: -20px;
+        }
+
+        .tree-child:last-child::before {
+            content: "└── ";
+        }
+
+        /* Data Type Badge */
+        .datatype-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: white;
+        }
+
+        .datatype-string { background: #3498db; }
+        .datatype-number { background: #27ae60; }
+        .datatype-date { background: #8e44ad; }
+        .datatype-boolean { background: #e67e22; }
+
+        /* Source File List */
+        .source-files-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .source-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #e8f4fc;
+            border: 1px solid #3498db;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #2980b9;
+        }
+
+        .source-badge::before {
+            content: "📁";
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .editor-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .identity-form {
+                grid-template-columns: 1fr;
+            }
+
+            .mapping-item {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .mapping-item .remove-mapping {
+                justify-self: end;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            color: #7f8c8d;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Level Color Coding */
+        .level-0 { border-left: 4px solid #27ae60; }
+        .level-1 { border-left: 4px solid #3498db; }
+        .level-2 { border-left: 4px solid #8e44ad; }
+        .level-3 { border-left: 4px solid #e67e22; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="editor-header">
+            <h1>Edit Dimension</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary">← Back to Main</button>
+                <button class="btn btn-primary">💾 Save Dimension</button>
+            </div>
+        </div>
+
+        <!-- Main Editor Card -->
+        <div class="editor-card">
+            <!-- Dimension Identity Section -->
+            <div class="card-section">
+                <div class="section-header">
+                    <h2>Dimension Identity</h2>
+                </div>
+
+                <div class="identity-form">
+                    <div class="form-group">
+                        <label class="required" for="dimension-name">Dimension Name</label>
+                        <input type="text" id="dimension-name" class="form-input" placeholder="e.g., Product">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dimension-description">Description</label>
+                        <textarea id="dimension-description" class="form-input form-textarea" placeholder="Optional description of this dimension"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required" for="dimension-datatype">Data Type</label>
+                        <select id="dimension-datatype" class="form-select">
+                            <option value="">Select data type...</option>
+                            <option value="string" selected>String</option>
+                            <option value="number">Number</option>
+                            <option value="date">Date</option>
+                            <option value="boolean">Boolean</option>
+                        </select>
+                        <div style="margin-top: 8px;">
+                            <span class="datatype-badge datatype-string">STRING</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required" for="hierarchy-mode">Hierarchy Mode</label>
+                        <select id="hierarchy-mode" class="form-select">
+                            <option value="">Select hierarchy mode...</option>
+                            <option value="parent">Parent Mode</option>
+                            <option value="generation" selected>Generation Mode</option>
+                        </select>
+                        <div style="margin-top: 8px; font-size: 0.85rem; color: #7f8c8d;">
+                            Parent Mode: Uses parent codes to build hierarchy<br>
+                            Generation Mode: Each column represents a generation level
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dimension-id">Dimension ID</label>
+                        <input type="text" id="dimension-id" class="form-input" placeholder="Auto-generated" disabled>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Source Files -->
+            <div class="card-section">
+                <div class="section-header">
+                    <h2>Available Data Sources</h2>
+                </div>
+
+                <div class="source-files-list">
+                    <span class="source-badge">Product.csv</span>
+                    <span class="source-badge">Sale.csv</span>
+                    <span class="source-badge">Customer.csv</span>
+                </div>
+            </div>
+
+            <!-- Column Mappings Section -->
+            <div class="card-section">
+                <div class="section-header">
+                    <h2>Column Mappings
+                        <span class="tooltip" data-tooltip="Map columns from data sources to hierarchy. Select mode above to change mapping type options.">
+                            ℹ️
+                        </span>
+                    </h2>
+                    <div style="margin-top: 8px; font-size: 0.85rem; color: #27ae60; font-weight: 600;">
+                        Current Mode: Generation
+                    </div>
+                </div>
+
+                <div class="mappings-container">
+                    <div class="mapping-item mapping-parent">
+                        <div class="form-group">
+                            <label>Data Source</label>
+                            <select class="form-select">
+                                <option value="" selected>Product.csv</option>
+                                <option value="">Sale.csv</option>
+                                <option value="">Customer.csv</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Column</label>
+                            <select class="form-select">
+                                <option value="">Select column...</option>
+                                <option value="" selected>ParentCode</option>
+                                <option value="">ProductCode</option>
+                                <option value="">Label</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Mapping Type</label>
+                            <select class="form-select mapping-type-select" data-mode="generation">
+                                <option value="">Select mapping type...</option>
+                                <option value="root" selected>Racine</option>
+                                <option value="gen1">Génération 1</option>
+                                <option value="gen2">Génération 2</option>
+                                <option value="gen3">Génération 3</option>
+                                <option value="label">Label</option>
+                                <option value="property">Property</option>
+                            </select>
+                        </div>
+                        <button class="remove-mapping" title="Unlink this mapping">×</button>
+                    </div>
+
+                    <div class="mapping-item mapping-child">
+                        <div class="form-group">
+                            <label>Data Source</label>
+                            <select class="form-select">
+                                <option value="">Product.csv</option>
+                                <option value="" selected>Product.csv</option>
+                                <option value="">Sale.csv</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Column</label>
+                            <select class="form-select">
+                                <option value="">Select column...</option>
+                                <option value="">ParentCode</option>
+                                <option value="" selected>ProductCode</option>
+                                <option value="">Label</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Mapping Type</label>
+                            <select class="form-select mapping-type-select" data-mode="generation">
+                                <option value="">Select mapping type...</option>
+                                <option value="root">Racine</option>
+                                <option value="gen1" selected>Génération 1</option>
+                                <option value="gen2">Génération 2</option>
+                                <option value="gen3">Génération 3</option>
+                                <option value="label">Label</option>
+                                <option value="property">Property</option>
+                            </select>
+                        </div>
+                        <button class="remove-mapping" title="Unlink this mapping">×</button>
+                    </div>
+
+                    <div class="mapping-item mapping-child">
+                        <div class="form-group">
+                            <label>Data Source</label>
+                            <select class="form-select">
+                                <option value="">Product.csv</option>
+                                <option value="" selected>Product.csv</option>
+                                <option value="">Sale.csv</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Column</label>
+                            <select class="form-select">
+                                <option value="">Select column...</option>
+                                <option value="">ParentCode</option>
+                                <option value="">ProductCode</option>
+                                <option value="" selected>Label</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Mapping Type</label>
+                            <select class="form-select mapping-type-select" data-mode="generation">
+                                <option value="">Select mapping type...</option>
+                                <option value="root">Racine</option>
+                                <option value="gen1">Génération 1</option>
+                                <option value="gen2" selected>Génération 2</option>
+                                <option value="gen3">Génération 3</option>
+                                <option value="label">Label</option>
+                                <option value="property">Property</option>
+                            </select>
+                        </div>
+                        <button class="remove-mapping" title="Unlink this mapping">×</button>
+                    </div>
+
+                    <button class="add-mapping-btn">
+                        Add Column Mapping
+                    </button>
+                </div>
+                
+                <!-- Properties Section -->
+                <div class="properties-section" style="margin-top: 24px; padding: 16px; background: #f8f9fa; border-radius: 8px; border: 1px dashed #bdc3c7;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                        <h3 style="color: #2c3e50; font-size: 1rem; font-weight: 600;">Properties Mapping</h3>
+                        <span class="tooltip" data-tooltip="Associate columns to dimension properties like color, description, etc.">ℹ️</span>
+                    </div>
+                    <div class="mappings-container">
+                        <div class="mapping-item property-mapping">
+                            <div class="form-group">
+                                <label>Data Source</label>
+                                <select class="form-select">
+                                    <option value="">Select source...</option>
+                                    <option value="" selected>Product.csv</option>
+                                    <option value="">Sale.csv</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Column</label>
+                                <select class="form-select">
+                                    <option value="">Select column...</option>
+                                    <option value="" selected>Color</option>
+                                    <option value="">Description</option>
+                                    <option value="">IsActive</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Property Name</label>
+                                <input type="text" class="form-input" placeholder="e.g., color" value="color">
+                            </div>
+                            <button class="remove-mapping" title="Remove property mapping">×</button>
+                        </div>
+                        <button class="add-mapping-btn" style="margin-top: 12px;">
+                            Add Property Mapping
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hierarchy Preview Section -->
+            <div class="card-section">
+                <div class="section-header">
+                    <h2>Hierarchy Preview</h2>
+                </div>
+
+                <div class="hierarchy-preview">
+                    <h3>📊 Current Hierarchy Structure (Product Dimension - Generation Mode)</h3>
+                    <div style="background: #e8f4fc; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">
+                        <strong>Mode:</strong> Generation (Racine → Génération 1 → Génération 2)
+                    </div>
+                    <div class="hierarchy-tree">
+                        <div class="tree-root">MEM (Racine)</div>
+                        <div class="tree-child">DDR4 (Génération 1)</div>
+                        <div class="tree-child">DDR5 (Génération 1)</div>
+
+                        <div class="tree-root">GRAPH (Racine)</div>
+                        <div class="tree-child">NV5050 (Génération 1)</div>
+                        <div class="tree-child">NV5060 (Génération 1)</div>
+                    </div>
+                    <div style="margin-top: 16px; padding: 12px; background: #f0f8ff; border-radius: 6px; font-size: 0.85rem; color: #2980b9;">
+                        <strong>Parent Mode Example:</strong> ParentCode column references parent node codes
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div style="margin-top: 24px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1);">
+        <h3 style="color: #2980b9; margin-bottom: 16px;">Legend</h3>
+        
+        <!-- Hierarchy Mode -->
+        <div style="margin-bottom: 20px;">
+            <h4 style="color: #34495e; margin-bottom: 12px; font-size: 0.95rem;">Hierarchy Modes</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="padding: 4px 12px; background: #27ae60; color: white; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">PARENT MODE</span>
+                    <span style="color: #7f8c8d; font-size: 0.9rem;">Uses parent codes to build hierarchy</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="padding: 4px 12px; background: #3498db; color: white; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">GENERATION MODE</span>
+                    <span style="color: #7f8c8d; font-size: 0.9rem;">Each column = generation level</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mapping Types -->
+        <div style="margin-bottom: 20px;">
+            <h4 style="color: #34495e; margin-bottom: 12px; font-size: 0.95rem;">Mapping Types</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="padding: 2px 8px; background: #27ae60; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">Parent Code</span>
+                        <span style="color: #7f8c8d; font-size: 0.85rem;">(Parent Mode only)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="padding: 2px 8px; background: #2980b9; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">Racine</span>
+                        <span style="color: #7f8c8d; font-size: 0.85rem;">(Generation Mode)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="padding: 2px 8px; background: #3498db; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">Génération 1</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="padding: 2px 8px; background: #8e44ad; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">Label</span>
+                        <span style="color: #7f8c8d; font-size: 0.85rem;">(Both modes)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="padding: 2px 8px; background: #e67e22; color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">Property</span>
+                        <span style="color: #7f8c8d; font-size: 0.85rem;">(Both modes)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data Types -->
+        <div style="margin-bottom: 16px;">
+            <h4 style="color: #34495e; margin-bottom: 12px; font-size: 0.95rem;">Data Types</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="datatype-badge datatype-string">STRING</span>
+                    <span style="color: #7f8c8d; font-size: 0.85rem;">Text values</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="datatype-badge datatype-number">NUMBER</span>
+                    <span style="color: #7f8c8d; font-size: 0.85rem;">Numeric values</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="datatype-badge datatype-date">DATE</span>
+                    <span style="color: #7f8c8d; font-size: 0.85rem;">Date values</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="datatype-badge datatype-boolean">BOOLEAN</span>
+                    <span style="color: #7f8c8d; font-size: 0.85rem;">True/False values</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

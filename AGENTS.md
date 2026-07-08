@@ -82,6 +82,7 @@ A project has these attributes:
 
 The `/docs` folder contains the project documentation.
 The `/docs/screens/screenflow.md` file describes navigation between screens.
+The `/docs/useCases` folder contains some use cases documentation
 
 
 ## Architecture

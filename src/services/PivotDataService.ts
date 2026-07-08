@@ -400,8 +400,8 @@ export class PivotDataService {
           for(let col of allColumns) {
             const colKey = col.axeKey;
             const cell = pivotCellByColKey.get(colKey);
-            if(cell && typeof cell.value === 'number' && !isNaN(cell.value)) {
-              values.push(cell.value);
+            if(cell && typeof cell.value === 'number' && !isNaN(cell.value * 1)) {
+              values.push(cell.value * 1);
             }
           }
           

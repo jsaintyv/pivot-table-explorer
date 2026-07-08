@@ -17,10 +17,10 @@ export const NavigationSection = observer(() => {
   const navigate = useNavigate();
 
   /**
-   * Navigate to Axe screen
+   * Navigate to Dimension Editor screen
    */
-  const navigateToAxeScreen = () => {
-    navigate('/axe');
+  const navigateToDimensionEditor = () => {
+    navigate('/dimensions');
   };
 
   /**
@@ -32,7 +32,7 @@ export const NavigationSection = observer(() => {
 
   return (
     <section className="navigation">
-      <button onClick={navigateToAxeScreen} className="nav-button">
+      <button onClick={navigateToDimensionEditor} className="nav-button">
         Create Dimension
       </button>
       <button onClick={navigateToViewGridScreen} className="nav-button">

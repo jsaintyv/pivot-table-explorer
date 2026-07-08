@@ -5,7 +5,7 @@ import path from 'path';
  * End-to-End Test for Hierarchical Headers in PivotGrid
  * 
  * This test validates the use case described in:
- * docs/usesCases/Basic/useCase.md
+ * docs/useCases/Basic/useCase.md
  * 
  * It tests:
  * - CSV import with specific data (Shop A/B, Year 2024/2025, Month 1/2/3, Product Tool A/B/C)

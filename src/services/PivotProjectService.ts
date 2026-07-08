@@ -1,4 +1,4 @@
-import type { ColumnMapping, DataColumn, Dimension, LocalDataSource, MetaData, Node, NodeSchema, PivotProject, FilterDimension, Measure, View } from "../models/pivot-project/types";
+import type { ColumnMapping, DataColumn, Dimension, LocalDataSource, MetaData, Node, NodeSchema, PivotProject, FilterDimension, Measure, View, PropertyMapping } from "../models/pivot-project/types";
 import type { RowData, Tuple } from "../models/pivot-data/pivot-data";
 
 var nextId = 1;
@@ -52,7 +52,9 @@ export class PivotProjectService {
         dataType: 'string' | 'number' | 'date' | 'boolean',
         description?: string,
         columnMappings?: ColumnMapping[],
-        nodeSchema?: NodeSchema        
+        nodeSchema?: NodeSchema,
+        hierarchyMode?: 'parent' | 'generation',
+        propertyMappings?: PropertyMapping[]        
     ): Dimension {
         const id = `dim-${nextId++}`;
         return  {
@@ -60,7 +62,9 @@ export class PivotProjectService {
             name,
             description,
             dataType,
+            hierarchyMode,
             columnMappings: columnMappings || [],
+            propertyMappings: propertyMappings || [],
             rootNodes: [],
             nodeSchema,
             nodes: [],
