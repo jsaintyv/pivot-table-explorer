@@ -392,6 +392,10 @@ export function getDefaultMappingType(mode: 'parent' | 'generation'): MappingTyp
 }
 
 
+export function getId() {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
 export function getMappingId() {
   return `mapping-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
@@ -405,5 +409,6 @@ export const DimensionService = {
   updateNodesInDimension,
   identifyRootNodes,
   getDefaultMappingType,
+  getId,
   getMappingId
 };

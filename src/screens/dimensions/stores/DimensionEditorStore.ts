@@ -426,7 +426,7 @@ export class DimensionEditorStore {
       throw new Error('Validation failed');
     }
 
-    this.mainStore.updateDimension(this.dimension.id, this.dimension);
+    this.mainStore.updateDimension(this.dimension);
 
     
     return this.dimension.id;

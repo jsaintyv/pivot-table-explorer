@@ -10,7 +10,7 @@
  * - View: React components that observe and render the state
  */
 
-import { action, computed, makeAutoObservable, makeObservable, observable } from 'mobx';
+import { action, computed, makeAutoObservable, makeObservable, observable, runInAction } from 'mobx';
 import type {
   PivotProject,
   DataSource,
@@ -50,10 +50,7 @@ export class Store {
   
   // BASE URL: The base path where the app is deployed (e.g., '/jsaintyv/')
   baseUrl: string = '/';
-  
-  // EDITING STATE: Dimension being edited
-  editingDimension: Dimension | null = null;
-  
+    
   // VIEW STORE: Dédié à la gestion de la vue courante
   viewStore: ViewStore;
   
@@ -68,14 +65,9 @@ export class Store {
       pivotProject: observable.ref,
       activeViewId: observable,
       projectName: observable,
-      baseUrl: observable,
-      editingDimension: observable.ref,
+      baseUrl: observable,  
       setBaseUrl: action,
       updateProject: action,
-      startEditingDimension: action,
-      updateEditingDimension: action,
-      saveEditingDimension: action,
-      cancelEditingDimension: action,
       setProjectName: action,
       autoSetProjectNameFromCSV: action,
       autoGenerateNameFromFilename: action,
@@ -434,119 +426,22 @@ export class Store {
   /**
    * Update an existing dimension
    */
-  updateDimension(id: string, updates: Partial<Dimension>): void {
-    const dim = this.pivotProject.dimensions.find(d => d.id === id);
-    if (dim) {
-      Object.assign(dim, updates);
-      this.pivotProject.updatedAt = new Date().toISOString();
+  updateDimension(updated: Partial<Dimension>): void {
+    if(updated.id) {
+      const dim = this.pivotProject.dimensions.find(d => d.id === updated.id);
+      if (dim) {
+        Object.assign(dim, updated);
+        this.pivotProject.updatedAt = new Date().toISOString();
+      }
+    } else {
+      updated.id = DimensionService.getId();
+      this.updateProject({dimensions: [...this.pivotProject.dimensions, updated as Dimension]});
     }
   }
 
   // ==========================================================================
   // EDITING DIMENSION ACTIONS
   // ==========================================================================
-
-  /**
-   * Start editing a dimension
-   * If dimensionId is provided, loads existing dimension for editing
-   * If not, creates a new empty dimension template
-   */
-  startEditingDimension(dimensionId?: string): void {
-    if (dimensionId) {
-      const existingDim = this.getDimension(dimensionId);
-      if (existingDim) {
-        // Clone the dimension to avoid mutating the original
-        this.editingDimension = {
-          ...existingDim,
-          hierarchyMode: existingDim.hierarchyMode || 'generation',
-          columnMappings: [...existingDim.columnMappings],
-          propertyMappings: existingDim.propertyMappings ? [...existingDim.propertyMappings] : [],
-        };
-      }
-    } else {
-      // Create new empty dimension template
-      this.editingDimension = {
-        id: '',
-        name: '',
-        description: '',
-        dataType: 'string',
-        hierarchyMode: 'generation',
-        columnMappings: [],
-        propertyMappings: [],
-        rootNodes: [],
-        nodes: [],
-      };
-    }
-  }
-
-  /**
-   * Update the dimension being edited
-   */
-  updateEditingDimension(updates: Partial<Dimension>): void {
-    if (this.editingDimension) {
-      Object.assign(this.editingDimension, updates);
-    }
-  }
-
-  /**
-   * Save the dimension being edited
-   * If it has an ID, updates existing dimension
-   * Otherwise, creates a new dimension
-   */
-  saveEditingDimension(): string {
-    if (!this.editingDimension) {
-      throw new Error('No dimension to save');
-    }
-
-    // Validate required fields
-    if (!this.editingDimension.name.trim()) {
-      throw new Error('Dimension name is required');
-    }
-
-    let dimensionId: string;
-    
-    if (this.editingDimension.id) {
-      // Update existing dimension
-      this.updateDimension(this.editingDimension.id, {
-        name: this.editingDimension.name,
-        description: this.editingDimension.description,
-        dataType: this.editingDimension.dataType,
-        hierarchyMode: this.editingDimension.hierarchyMode,
-        columnMappings: this.editingDimension.columnMappings,
-        propertyMappings: this.editingDimension.propertyMappings,
-      });
-      dimensionId = this.editingDimension.id;
-    } else {
-      // Create new dimension
-      dimensionId = this.addDimension(
-        this.editingDimension.name,
-        this.editingDimension.dataType,
-        this.editingDimension.description,
-        this.editingDimension.columnMappings,
-        this.editingDimension.hierarchyMode || 'generation',
-        this.editingDimension.propertyMappings
-      );
-    }
-
-    // Clear editing state
-    this.cancelEditingDimension();
-    
-    return dimensionId;
-  }
-
-  /**
-   * Cancel editing and clear the editing dimension
-   */
-  cancelEditingDimension(): void {
-    this.editingDimension = null;
-  }
-
-  /**
-   * Get the dimension being edited
-   */
-  getEditingDimension(): Dimension | null {
-    return this.editingDimension;
-  }
 
   /**
    * Remove a dimension by ID
@@ -939,12 +834,17 @@ export class Store {
    */
   clear() {
     this.resetAll();
-    this.pivotProject = PivotProjectService.createEmptyPivotProject();
+
+    runInAction(() => { 
+      this.pivotProject = PivotProjectService.createEmptyPivotProject();
+    });
     this.activeViewId = undefined;
   }
 
-  updateProject(update: PivotProject) {    
-      this.pivotProject = update;
+  updateProject(update: Partial<PivotProject>) {   
+      runInAction(() => { 
+        this.pivotProject = {...this.pivotProject, ...update, updatedAt: new Date().toISOString() };
+      });
   } 
 
     
