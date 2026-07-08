@@ -197,7 +197,7 @@ describe('DimensionService - buildNodesFromDimension (Parent Mode)', () => {
 
   it('should identify MEM and GRAPH as root nodes', () => {
     const nodes = buildNodesFromDimension(project, dimension);
-    const rootNodes = identifyRootNodes(dimension, nodes);
+    const rootNodes = identifyRootNodes(nodes);
 
     // MEM and GRAPH should be root nodes
     const memNode = nodes.find(n => n.code === 'MEM');
@@ -305,7 +305,7 @@ describe('DimensionService - Full Parent Hierarchy (Integration Test)', () => {
 
     // Build nodes
     const nodes = buildNodesFromDimension(project, dimension);
-    const rootNodes = identifyRootNodes(dimension, nodes);
+    const rootNodes = identifyRootNodes(nodes);
 
     // Verify complete hierarchy structure
     expect(nodes.length).toBe(6);

@@ -4,7 +4,6 @@
  * Visual preview of the hierarchy structure based on current mappings
  */
 
-import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { DimensionEditorStore, getDimensionEditorStore } from '../stores/DimensionEditorStore';
 import type { Node } from '../../../models/pivot-project/types';
@@ -46,10 +45,8 @@ interface Props {
 }
 
 export const HierarchyPreview = observer(({ }: Props) => {
-  const store = getDimensionEditorStore();    
-  console.log("Root", store.dimension?.rootNodes);
-  const nodes = store.dimension?.rootNodes?.map(id => store.nodesByCode.get(id)).filter(n => n != null);
-  console.log(nodes);
+  const store = getDimensionEditorStore();      
+  const nodes = store.dimension?.rootNodes?.map(id => store.nodesByCode.get(id)).filter(n => n != null);  
   return (
     <div className="hierarchy-preview">
       <div className="preview-header">

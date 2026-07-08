@@ -141,8 +141,8 @@ export class DimensionEditorStore {
         // Load existing dimension
         const existingDim = this.mainStore.getDimension(dimensionId);
         if (existingDim) {          
-          if(existingDim.id === undefined) {
-            existingDim.id = DimensionService.getMappingId();
+          if (existingDim.id === undefined) {
+            existingDim.id = DimensionService.getId();
           }
           // Update nodes from mappings
           this.dimension = existingDim;
@@ -296,10 +296,10 @@ export class DimensionEditorStore {
   
   removeColumnMapping(id: string): void {
     const dimension = this.dimension;
-    if(! dimension) {
+    if (! dimension) {
       return;
     }
-    const columnMappings = dimension.columnMappings.filter(m => m.id === id);
+    const columnMappings = dimension.columnMappings.filter(m => m.id !== id);
     this.updateDimensionNodes({columnMappings});
   }
 
@@ -384,7 +384,7 @@ export class DimensionEditorStore {
 
   
   removePropertyMapping(mappingId: string): void {
-    const propertyMappings = this.dimension!.propertyMappings?.filter(m => m.id === mappingId);
+    const propertyMappings = this.dimension!.propertyMappings?.filter(m => m.id !== mappingId);
     this.updateDimensionNodes({propertyMappings});
   }
 

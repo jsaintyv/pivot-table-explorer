@@ -134,7 +134,7 @@ export const DimensionEditorScreen = observer(() => {
           <div className="section-header">
             <h2>
               Column Mappings
-              <span className="mode-badge mode-{store.hierarchyMode}">
+              <span className="mode-badge mode-{dimension.hierarchyMode}">
                 {dimension.hierarchyMode === 'generation' ? 'Generation Mode' : 'Parent Mode'}
               </span>
             </h2>

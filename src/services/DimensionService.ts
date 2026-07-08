@@ -8,8 +8,7 @@ import type {
   PivotProject,
   Dimension,
   LocalDataSource,
-  Node,
-  ColumnMapping,
+  Node,  
   MappingType,
 } from '../models/pivot-project/types';
 
@@ -191,10 +190,7 @@ function buildNodesFromParentMode(
         }
       }
     }
-  }
-  
-  console.log('[buildNodesFromParentMode] Created nodes:', nodes.length, nodes.map(n => ({ id: n.id, code: n.code, value: n.value, children: n.children })));
-  
+  }      
   return nodes;
 }
 
@@ -339,7 +335,7 @@ export function updateNodesInDimension(
   // Identify root nodes (nodes with no parent or parent not found)
   // For now, we'll identify root nodes as those that appear in the hierarchy
   // without a parent reference
-  const rootNodeIds = identifyRootNodes(dimension, nodes);
+  const rootNodeIds = identifyRootNodes(nodes);
   dimension.rootNodes = rootNodeIds;  
   
   return dimension;
@@ -348,30 +344,14 @@ export function updateNodesInDimension(
 /**
  * Identify root nodes in a dimension's hierarchy
  */
-export function identifyRootNodes(dimension: Dimension, nodes: Node[]): string[] {
-  const mode = dimension.hierarchyMode || 'generation';
-  
-  if (mode === 'parent') {
-    // In parent mode, root nodes are those that:
-    // 1. Have no parentCode mapping, or
-    // 2. Have an empty or null parentCode value
-    return nodes
+export function identifyRootNodes(nodes: Node[]): string[] {  
+  return nodes
       .filter(node => {
         // Check if any node has this node as its child
         const isChild = nodes.some(n => n.children.includes(node.id));
         return !isChild;
       })
-      .map(node => node.id);
-  } else {
-    // In generation mode, root nodes are typically at level 0
-    // For now, return all nodes that don't have a parent
-    return nodes
-      .filter(node => {
-        const isChild = nodes.some(n => n.children.includes(node.id));
-        return !isChild;
-      })
-      .map(node => node.id);
-  }
+      .map(node => node.id);  
 }
 
 export function getDefaultMappingType(mode: 'parent' | 'generation'): MappingType {
