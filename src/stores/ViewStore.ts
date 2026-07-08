@@ -23,10 +23,8 @@ import type {
   LocalDataSource,
 } from '../models/pivot-project/types';
 import type { Store } from '.';
-import { PivotProjectService } from '../services/PivotProjectService';
 import { PivotDataService, type PivotDataServiceSuppliers, TOTAL } from '../services/PivotDataService';
 import type { PivotData, PivotCellMap, PivotAxe, PivotCell, PivotAxeHierarchy, Tuple, RowData } from '../models/pivot-data/pivot-data';
-import { EMPTY_PIVOTDATA } from '../models/pivot-data/pivot-data';
 
 // Re-export types for backward compatibility
 export type { PivotData, PivotCellMap, PivotAxe, PivotCell, PivotAxeHierarchy, Tuple, RowData };

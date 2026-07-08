@@ -59,15 +59,7 @@ export function buildNodesFromDimension(
   );
   
   const mode = dimension.hierarchyMode || 'generation';
-  
-  console.log('[DimensionService] buildNodesFromDimension:', {
-    dimensionId: dimension.id,
-    dimensionName: dimension.name,
-    mode,
-    dataSourceCount: localDataSources.length,
-    columnMappings: dimension.columnMappings
-  });
-  
+    
   if (mode === 'parent') {
     // Parent mode: build hierarchy from parent code relationships
     return buildNodesFromParentMode(dimension, localDataSources);
@@ -87,12 +79,7 @@ export function buildNodesFromDimension(
 function buildNodesFromParentMode(
   dimension: Dimension,
   dataSources: LocalDataSource[]
-): Node[] {
-  console.log('[buildNodesFromParentMode] Starting', {
-    dimensionId: dimension.id,
-    dataSources: dataSources.map(ds => ({ id: ds.id, name: ds.name, dataLength: ds.data?.length }))
-  });
-  
+): Node[] {   
   const nodes: Node[] = [];
   const nodeByCode: Map<string, Node> = new Map();
   
