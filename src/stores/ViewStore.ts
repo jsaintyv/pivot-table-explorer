@@ -204,18 +204,7 @@ export class ViewStore {
     }
   }
   
-  /**
-   * Supprime une vue
-   */
-  removeView(id: string): void {
-    this.rootStore.removeView(id);
-    // Si on supprime la vue active, la désactiver
-    if (this.rootStore.activeViewId === id) {
-      this.rootStore.activeViewId = undefined;
-      this.clearLegacyProperties();
-    }
-  }
-  
+ 
   // ==========================================================================
   // DIMENSION MANAGEMENT IN VIEW
   // ==========================================================================

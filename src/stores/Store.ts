@@ -574,6 +574,7 @@ export class Store {
     sortOrder?: any[],
     formatOptions?: any
   ): string {
+    
     const id = `view-${Date.now()}`;
     const now = new Date().toISOString();
     const view: View = {
@@ -591,8 +592,10 @@ export class Store {
       createdAt: now,
       updatedAt: now,
     };
-    this.pivotProject.views.push(view);
-    this.pivotProject.updatedAt = new Date().toISOString();
+
+    this.updateProject( {
+      views: [...this.pivotProject.views, view] 
+    });    
     return id;
   }
 
@@ -613,8 +616,12 @@ export class Store {
    * Délégué à ViewStore
    */
   removeView(id: string): void {
-    this.viewStore.removeView(id);
-    this.pivotProject.updatedAt = new Date().toISOString();
+    this.updateProject(
+      {
+        views: this.pivotProject.views.filter(v => v.id !== id)
+      }
+    );
+    
   }
 
   /**
